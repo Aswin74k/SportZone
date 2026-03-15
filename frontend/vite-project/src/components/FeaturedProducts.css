@@ -1,0 +1,62 @@
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+.featured-section{
+  padding:70px 0;
+  background:var(--color-bg);
+}
+
+.featured-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:28px;
+}
+
+.featured-kicker{
+  font-size:11px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--color-muted);
+  margin-bottom:6px;
+}
+
+.featured-title{
+  font-size:32px;
+  font-weight:800;
+}
+
+.featured-slider .slick-slide{
+  padding:8px;
+}
+
+.featured-card-wrapper{
+  height:100%;
+}
+
+.featured-slider .product-card{
+  box-shadow:var(--shadow-card);
+  border-radius:20px;
+}
+
+.featured-slider .slick-prev:before,
+.featured-slider .slick-next:before{
+  color:#111827;
+  font-size:26px;
+}
+
+.featured-slider .slick-prev{
+  left:-5px;
+}
+
+.featured-slider .slick-next{
+  right:-5px;
+}
+
+@media (max-width:768px){
+  .featured-title{
+    font-size:26px;
+  }
+}
+

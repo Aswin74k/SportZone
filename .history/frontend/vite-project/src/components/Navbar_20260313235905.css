@@ -1,0 +1,14 @@
+.navbar-brand {
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+.search-box input {
+  width: 350px;
+}
+
+@media (max-width: 768px) {
+  .search-box input {
+    width: 200px;
+  }
+}

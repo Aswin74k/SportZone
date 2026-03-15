@@ -1,0 +1,37 @@
+.products-section{
+  padding:80px 0;
+}
+
+.products-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:40px;
+  gap:16px;
+}
+
+.products-kicker{
+  font-size:11px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:#999;
+  margin-bottom:8px;
+}
+
+.products-title{
+  font-size:34px;
+  font-weight:800;
+  margin-bottom:0;
+}
+
+@media (max-width:768px){
+  .products-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .products-title{
+    font-size:28px;
+  }
+}

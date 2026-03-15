@@ -1,0 +1,51 @@
+.signup-card{
+  background:linear-gradient(135deg,#ffffff, #e5edff);
+}
+
+.auth-name-row{
+  display:flex;
+  gap:10px;
+}
+
+.auth-password-wrapper{
+  position:relative;
+}
+
+.auth-password-wrapper input{
+  padding-right:34px;
+}
+
+.auth-password-toggle{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  color:var(--color-muted);
+}
+
+.signup-primary-btn{
+  margin-top:8px;
+  width:100%;
+  border-radius:999px;
+  border:none;
+  padding:10px 16px;
+  background:linear-gradient(135deg,var(--color-primary),#1d4ed8);
+  color:#ffffff;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.signup-primary-btn:hover{
+  filter:brightness(1.04);
+}
+
+@media (max-width:480px){
+  .auth-name-row{
+    flex-direction:column;
+  }
+}
+
