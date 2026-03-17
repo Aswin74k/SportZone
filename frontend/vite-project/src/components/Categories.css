@@ -1,59 +1,46 @@
-.categories-section{
-  padding:80px 0;
-  background:#f8f9fa;
+.category-card {
+  height: 300px;
+  transition: all var(--transition-speed);
 }
 
-.categories-title{
-  text-align:center;
-  font-size:40px;
-  font-weight:700;
-  margin-bottom:50px;
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
 }
 
-.category-card{
-  position:relative;
-  overflow:hidden;
-  border-radius:12px;
-  cursor:pointer;
+.category-img-wrapper {
+  transition: transform 0.8s ease;
 }
 
-.category-card img{
-  width:100%;
-  height:280px;
-  object-fit:cover;
-  transition:transform 0.4s ease;
+.category-card:hover .category-img-wrapper {
+  transform: scale(1.05);
 }
 
-.category-overlay{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  color:white;
-  opacity:0;
-  transition:opacity 0.4s ease;
+.category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(17, 24, 39, 0.8) 0%, rgba(17, 24, 39, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
+  transition: background 0.3s ease;
 }
 
-.category-overlay h3{
-  font-size:28px;
-  margin-bottom:15px;
+.category-card:hover .category-overlay {
+  background: linear-gradient(0deg, rgba(37, 99, 235, 0.9) 0%, rgba(17, 24, 39, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
 }
 
-.category-card:hover img{
-  transform:scale(1.1);
+.category-title {
+  transform: translateY(10px);
+  transition: transform 0.3s ease;
 }
 
-.category-card:hover .category-overlay{
-  opacity:1;
+.category-card:hover .category-title {
+  transform: translateY(0);
 }
 
-.category-overlay button{
-  padding:10px 22px;
-  font-weight:600;
+@media (max-width: 576px) {
+  .category-card {
+    height: 220px;
+  }
 }
