@@ -1,10 +1,14 @@
 import { Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    alert("Please login first 😢");
+    toast.info("Please login to access your cart");
+    setTimeout(() => {
+        window.dispatchEvent(new Event("openLoginModal"));
+    }, 50);
     return <Navigate to="/" />;
   }
 

@@ -13,7 +13,7 @@
 
 .nav-hover {
   position: relative;
-  color: var(--text-color) !important;
+  color: #64748b !important;
   transition: color 0.3s ease;
 }
 
@@ -101,7 +101,7 @@ text-decoration:none;
 
 /* 🔍 SEARCH BOX FIX */
 .search-box {
-  border: 1px solid var(--light-gray);
+  border: 2px solid var(--light-gray);
   transition: all 0.3s ease;
   width: 200px;
   position: relative; /* ⭐ IMPORTANT */
@@ -140,4 +140,11 @@ text-decoration:none;
 .search-item:hover {
   background: #f1f5f9;
   color: var(--primary-color);
+}
+.user-name-btn:hover {
+  background: #e2e8f0;
+}
+
+.dropdown-item:hover {
+  background: #f1f5f9;
 }

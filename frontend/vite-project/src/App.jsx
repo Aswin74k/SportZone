@@ -6,6 +6,8 @@ import AllProducts from './pages/AllProducts';
 import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute'; // 🔥 ADD THIS
 import { CartProvider } from './context/CartContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -19,6 +21,7 @@ function App() {
           <Navbar />
 
           <main className="flex-grow-1 main-content">
+            <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
             <Routes>
 
               <Route path="/" element={<Home />} />

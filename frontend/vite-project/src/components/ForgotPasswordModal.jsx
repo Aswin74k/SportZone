@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { FaEnvelope, FaKey, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ForgotPasswordModal = ({ show, handleClose }) => {
 
@@ -7,6 +9,7 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -14,6 +17,11 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
 
   // 🔥 SEND OTP
   const sendOtp = async () => {
+    if (!email) {
+      toast.warning("Please enter your email");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -28,14 +36,14 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("OTP sent to your email 📩");
+        toast.success("OTP sent to your email 📩");
         setStep(2);
       } else {
-        alert(data.error);
+        toast.error(data.error || "Failed to send OTP");
       }
 
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
 
     setLoading(false);
@@ -43,6 +51,11 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
 
   // 🔥 VERIFY OTP
   const verifyOtp = async () => {
+    if (!otp) {
+      toast.warning("Please enter the OTP");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -57,13 +70,14 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
       const data = await res.json();
 
       if (res.ok) {
+        toast.success("OTP Verified ✨");
         setStep(3);
       } else {
-        alert(data.error);
+        toast.error(data.error || "Invalid OTP");
       }
 
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
 
     setLoading(false);
@@ -71,6 +85,11 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
 
   // 🔥 RESET PASSWORD
   const resetPassword = async () => {
+    if (password.length < 6) {
+      toast.warning("Password must be at least 6 characters");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -85,18 +104,20 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Password reset successful 🎉");
+        toast.success("Password reset successful 🎉");
         handleClose();
-        setStep(1);
-        setEmail("");
-        setOtp("");
-        setPassword("");
+        setTimeout(() => {
+          setStep(1);
+          setEmail("");
+          setOtp("");
+          setPassword("");
+        }, 300);
       } else {
-        alert(data.error);
+        toast.error(data.error || "Failed to reset password");
       }
 
     } catch {
-      alert("Server error");
+      toast.error("Server error");
     }
 
     setLoading(false);
@@ -105,119 +126,150 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
   return (
     <div
       className="modal d-block"
-      style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1055 }}
+      style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(5px)", zIndex: 1055 }}
     >
       <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content border-0 rounded-4 shadow-lg">
+        <div className="modal-content border-0 rounded-4 shadow-lg p-4">
 
           {/* HEADER */}
-          <div className="modal-header border-0 pb-0 px-4 pt-4">
-            <h5 className="modal-title fw-bold fs-3 mt-2">
-              Reset Password
-            </h5>
-
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h4 className="fw-bold mb-0">Reset Password</h4>
             <button
               className="btn-close shadow-none"
               onClick={handleClose}
             ></button>
           </div>
 
-          <div className="modal-body p-4 pt-2">
+          <p className="text-muted small mb-4">
+            {step === 1 && "Enter your email to receive a password reset OTP"}
+            {step === 2 && "Enter the 6-digit code sent to your email"}
+            {step === 3 && "Create a new strong password for your account"}
+          </p>
 
-            <p className="text-muted small mb-4">
-              Follow the steps to reset your password
-            </p>
-
-            {/* STEP INDICATOR */}
-            <div className="d-flex justify-content-between mb-4 text-center small">
-              <div className={step >= 1 ? "fw-bold text-primary" : "text-muted"}>
-                Email
-              </div>
-
-              <div className={step >= 2 ? "fw-bold text-primary" : "text-muted"}>
-                OTP
-              </div>
-
-              <div className={step >= 3 ? "fw-bold text-primary" : "text-muted"}>
-                Reset
-              </div>
+          {/* STEP INDICATOR */}
+          <div className="d-flex justify-content-between mb-4 text-center small position-relative">
+            <div className="position-absolute top-50 start-0 end-0 translate-middle-y" style={{height: "2px", background: "var(--light-gray)", zIndex: 0}}></div>
+            <div className="position-absolute top-50 start-0 translate-middle-y transition-all" style={{height: "2px", background: "var(--primary-color)", width: `${(step-1)*50}%`, zIndex: 1, transition: "width 0.3s ease"}}></div>
+            
+            <div className={`position-relative z-2 bg-white px-2 rounded-pill ${step >= 1 ? "fw-bold text-primary" : "text-muted"}`}>
+              <span className={`d-inline-flex align-items-center justify-content-center rounded-circle me-1 border ${step >= 1 ? 'border-primary bg-primary text-white' : 'border-secondary'}`} style={{width: '24px', height: '24px', fontSize: '12px'}}>1</span>
+              Email
             </div>
 
-            {/* STEP 1 */}
-            {step === 1 && (
-              <>
-                <label className="form-label fw-bold small">
-                  Enter your email
-                </label>
+            <div className={`position-relative z-2 bg-white px-2 rounded-pill ${step >= 2 ? "fw-bold text-primary" : "text-muted"}`}>
+              <span className={`d-inline-flex align-items-center justify-content-center rounded-circle me-1 border ${step >= 2 ? 'border-primary bg-primary text-white' : 'border-secondary'}`} style={{width: '24px', height: '24px', fontSize: '12px'}}>2</span>
+              OTP
+            </div>
 
-                <input
-                  type="email"
-                  className="form-control p-3 bg-light border-0 mb-3"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-
-                <button
-                  className="btn btn-primary w-100 p-3 rounded-pill fw-bold"
-                  onClick={sendOtp}
-                  disabled={loading}
-                >
-                  {loading ? "Sending..." : "Send OTP"}
-                </button>
-              </>
-            )}
-
-            {/* STEP 2 */}
-            {step === 2 && (
-              <>
-                <label className="form-label fw-bold small">
-                  Enter OTP
-                </label>
-
-                <input
-                  className="form-control p-3 bg-light border-0 mb-3"
-                  placeholder="6 digit code"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-
-                <button
-                  className="btn btn-primary w-100 p-3 rounded-pill fw-bold"
-                  onClick={verifyOtp}
-                  disabled={loading}
-                >
-                  {loading ? "Verifying..." : "Verify OTP"}
-                </button>
-              </>
-            )}
-
-            {/* STEP 3 */}
-            {step === 3 && (
-              <>
-                <label className="form-label fw-bold small">
-                  New Password
-                </label>
-
-                <input
-                  type="password"
-                  className="form-control p-3 bg-light border-0 mb-3"
-                  placeholder="Enter new password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-
-                <button
-                  className="btn btn-success w-100 p-3 rounded-pill fw-bold"
-                  onClick={resetPassword}
-                  disabled={loading}
-                >
-                  {loading ? "Resetting..." : "Reset Password"}
-                </button>
-              </>
-            )}
-
+            <div className={`position-relative z-2 bg-white px-2 rounded-pill ${step >= 3 ? "fw-bold text-primary" : "text-muted"}`}>
+              <span className={`d-inline-flex align-items-center justify-content-center rounded-circle me-1 border ${step >= 3 ? 'border-primary bg-primary text-white' : 'border-secondary'}`} style={{width: '24px', height: '24px', fontSize: '12px'}}>3</span>
+              Reset
+            </div>
           </div>
+
+          {/* STEP 1 */}
+          {step === 1 && (
+            <div className="animate-fade-in">
+              <div className="mb-3 position-relative">
+                <label className="form-label fw-bold small text-muted">Email Address</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0"><FaEnvelope className="text-muted" /></span>
+                  <input
+                    type="email"
+                    className="form-control bg-light border-0 p-3"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button
+                className="btn btn-primary w-100 p-3 rounded-pill fw-bold hover-shadow mt-2"
+                onClick={sendOtp}
+                disabled={loading}
+              >
+                {loading ? (
+                   <>
+                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                     Sending...
+                   </>
+                ) : "Send OTP"}
+              </button>
+            </div>
+          )}
+
+          {/* STEP 2 */}
+          {step === 2 && (
+            <div className="animate-fade-in">
+              <div className="mb-3 position-relative">
+                <label className="form-label fw-bold small text-muted">Verification Code</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0"><FaKey className="text-muted" /></span>
+                  <input
+                    className="form-control bg-light border-0 p-3 letter-spacing-2 fw-medium text-center"
+                    placeholder="• • • • • •"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    maxLength={6}
+                  />
+                </div>
+              </div>
+
+              <button
+                className="btn btn-primary w-100 p-3 rounded-pill fw-bold hover-shadow mt-2"
+                onClick={verifyOtp}
+                disabled={loading}
+              >
+                {loading ? (
+                   <>
+                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                     Verifying...
+                   </>
+                ) : "Verify OTP"}
+              </button>
+            </div>
+          )}
+
+          {/* STEP 3 */}
+          {step === 3 && (
+            <div className="animate-fade-in">
+              <div className="mb-3 position-relative">
+                <label className="form-label fw-bold small text-muted">New Password</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0"><FaLock className="text-muted" /></span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-control bg-light border-0 p-3"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button 
+                    type="button" 
+                    className="input-group-text bg-light border-0" 
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FaEyeSlash className="text-muted" /> : <FaEye className="text-muted" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                className="btn btn-success w-100 p-3 rounded-pill fw-bold hover-shadow mt-2"
+                onClick={resetPassword}
+                disabled={loading}
+              >
+                {loading ? (
+                   <>
+                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                     Resetting...
+                   </>
+                ) : "Reset Password"}
+              </button>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
