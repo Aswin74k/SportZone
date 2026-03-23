@@ -18,7 +18,7 @@ const LoginModal = ({ show, handleClose, openSignup, openForgot }) => {
   useEffect(() => {
     if (show) {
       reset();
-      setShowPassword(false);
+      setTimeout(() => setShowPassword(false), 0);
     }
   }, [show, reset]);
 
@@ -40,16 +40,17 @@ const LoginModal = ({ show, handleClose, openSignup, openForgot }) => {
     const result = await res.json();
 
     if (res.ok) {
-      // 🔥 IMPORTANT FIX
-      localStorage.setItem("access", result.access);
+      // Keep storage keys consistent with API/auth usage.
+      localStorage.setItem("token", result.access);
+      localStorage.setItem("access", result.access); // backward compatible
       localStorage.setItem("refresh", result.refresh);
 
-      toast.success("Login successful 🔥");
+      toast.success("Welcome back 👋");
       window.dispatchEvent(new Event("loginSuccess"));
       reset();
       handleClose();
     } else {
-      toast.error(result.error || "Invalid credentials ❌");
+      toast.error("Invalid email or password");
     }
   } catch {
     toast.error("Server error 😢");

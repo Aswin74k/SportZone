@@ -52,10 +52,12 @@ const SignupModal = ({ show, handleClose, openLogin }) => {
 
       const result = await res.json();
 
-      if (res.ok) {
+        if (res.ok) {
         localStorage.setItem("token", result.access);
+        localStorage.setItem("access", result.access); // backward compatible
+        localStorage.setItem("refresh", result.refresh);
         window.dispatchEvent(new Event("loginSuccess"));
-        toast.success("Account created successfully 🎉");
+        toast.success("Welcome back 👋");
         reset();
         handleClose();
       } else {

@@ -76,6 +76,8 @@ const Navbar = () => {
   // 🔥 LOGOUT
   const handleLogout = () => {
     localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("token");
 
     if (clearCart) clearCart();
 
@@ -94,12 +96,10 @@ const Navbar = () => {
   const handleCartClick = (e) => {
     if (!localStorage.getItem("access")) {
       e.preventDefault();
-      toast.info("Please login to access your cart");
+      toast.info("Please login first");
       setShowLogin(true);
     }
   };
-
-  const token = localStorage.getItem("access");
 
   return (
     <>
@@ -133,9 +133,11 @@ const Navbar = () => {
                   Shop
                 </NavLink>
               </li>
-              <NavLink className="nav-link" to="/orders">
-                My Orders
-              </NavLink>
+              {user && (
+                <NavLink className="nav-link" to="/orders">
+                  My Orders
+                </NavLink>
+              )}
             </ul>
 
             {/* RIGHT SIDE */}
@@ -160,19 +162,21 @@ const Navbar = () => {
               </div>
 
               {/* CART */}
-              <Link
-                to="/cart"
-                className="position-relative text-dark cart-icon-link"
-                onClick={handleCartClick}
-              >
-                <FaShoppingCart size={22} />
+              {user && (
+                <Link
+                  to="/cart"
+                  className="position-relative text-dark cart-icon-link"
+                  onClick={handleCartClick}
+                >
+                  <FaShoppingCart size={22} />
 
-                {token && cartItemCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Link>
+                  {cartItemCount > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Link>
+              )}
 
               {/* USER */}
               {user ? (

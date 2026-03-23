@@ -21,6 +21,10 @@ class CartViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def get_serializer_context(self):
+        # Ensure nested ProductSerializer can build absolute image URLs.
+        return {"request": self.request}
+
 
 # 🔥 ORDER VIEWSET
 class OrderViewSet(viewsets.ModelViewSet):

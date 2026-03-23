@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const API = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
@@ -19,6 +20,8 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const status = error?.response?.status;
+
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -28,6 +31,9 @@ API.interceptors.response.use(
 
       if (!refresh) {
         localStorage.clear();
+        window.dispatchEvent(new Event("logout"));
+        toast.error("Session expired, please login");
+        window.dispatchEvent(new Event("openLoginModal"));
         window.location.href = "/";
         return;
       }
@@ -41,6 +47,7 @@ API.interceptors.response.use(
         const newAccess = res.data.access;
 
         localStorage.setItem("access", newAccess);
+        localStorage.setItem("token", newAccess); // backward compatibility
 
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
 
@@ -48,9 +55,18 @@ API.interceptors.response.use(
 
       } catch (err) {
         localStorage.clear();
+        window.dispatchEvent(new Event("logout"));
+        toast.error("Session expired, please login");
+        window.dispatchEvent(new Event("openLoginModal"));
         window.location.href = "/";
         return Promise.reject(err);
       }
+    }
+
+    if (status === 400) {
+      toast.error("Invalid request");
+    } else if (!error.response) {
+      toast.error("Server not reachable");
     }
 
     return Promise.reject(error);

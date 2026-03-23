@@ -1,48 +1,61 @@
-// src/context/CartContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
+/* eslint react-refresh/only-export-components: off */
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import API from "../api";
 
-const CartContext = createContext();
+const CartContext = createContext(null);
 
 export const useCart = () => useContext(CartContext);
+
+const TOKEN_KEY = "access";
+
+const openLoginModal = () => {
+  window.dispatchEvent(new Event("openLoginModal"));
+};
+
+const getToken = () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem("token");
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  // 🔥 CHECK TOKEN
-  const getToken = () => localStorage.getItem("access");
+  const clearCart = useCallback(() => setCartItems([]), []);
 
-  // 🔥 FETCH CART (SAFE)
-  const fetchCart = async () => {
-  const token = localStorage.getItem("access");
+  const fetchCartFromBackend = useCallback(async () => {
+    const token = getToken();
 
-  if (!token) {
-    setCartItems([]);
-    return;
-  }
-
-  try {
-    const res = await API.get("cart/");
-    setCartItems(res.data);
-  } catch (err) {
-    // 🔥 IGNORE 401
-    if (err.response?.status === 401) {
+    if (!token) {
+      clearCart();
       return;
     }
 
-    console.log("Cart error:", err);
-  }
-};
-  // 🔥 LOAD ON START + LOGIN / LOGOUT EVENTS
-  useEffect(() => {
-    const token = getToken();
+    try {
+      const res = await API.get("cart/");
+      setCartItems(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        clearCart();
+        return;
+      }
 
-    if (token) {
-      fetchCart();
+      toast.error("Failed to load cart");
+      clearCart();
+    }
+  }, [clearCart]);
+
+  // Backward-compatible alias used by some pages
+  const fetchCart = fetchCartFromBackend;
+
+  useEffect(() => {
+    // Avoid calling fetchCartFromBackend() when logged-out to prevent sync state updates.
+    if (getToken()) {
+      // Defer the initial fetch to avoid setState warnings inside effects.
+      setTimeout(() => {
+        fetchCartFromBackend();
+      }, 0);
     }
 
-    const handleLogin = () => fetchCart();
-    const handleLogout = () => setCartItems([]);
+    const handleLogin = () => fetchCartFromBackend();
+    const handleLogout = () => clearCart();
 
     window.addEventListener("loginSuccess", handleLogin);
     window.addEventListener("logout", handleLogout);
@@ -51,83 +64,130 @@ export const CartProvider = ({ children }) => {
       window.removeEventListener("loginSuccess", handleLogin);
       window.removeEventListener("logout", handleLogout);
     };
-  }, []); // ✅ IMPORTANT (NO DEPENDENCIES)
+  }, [fetchCartFromBackend, clearCart]);
 
-  // 🔥 ADD TO CART
-  const addToCart = async (productId) => {
-    const token = getToken();
-
-    if (!token) return;
-
-    try {
-      await API.post("cart/", {
-        product_id: productId,
-        quantity: 1,
-      });
-      fetchCart();
-    } catch (err) {
-      console.log("Add error", err?.response || err);
-    }
-  };
-
-  // 🔥 REMOVE
-  const removeFromCart = async (id) => {
-    const token = getToken();
-
-    if (!token) return;
-
-    try {
-      await API.delete(`cart/${id}/`);
-      fetchCart();
-    } catch (err) {
-      console.log("Remove error", err?.response || err);
-    }
-  };
-
-  // 🔥 UPDATE QUANTITY
-  const updateQuantity = async (id, quantity) => {
-    const token = getToken();
-
-    if (!token) return;
-
-    try {
-      if (quantity <= 0) {
-        await removeFromCart(id);
+  const addToCart = useCallback(
+    async (productOrId) => {
+      const token = getToken();
+      if (!token) {
+        toast.info("Login required to add items");
+        openLoginModal();
         return;
       }
 
-      await API.patch(`cart/${id}/`, { quantity });
-      fetchCart();
-    } catch (err) {
-      console.log("Update error", err?.response || err);
-    }
-  };
+      const productId =
+        typeof productOrId === "object" ? productOrId?.id : productOrId;
 
-  // 🔥 DERIVED VALUES
-  const cartTotal = cartItems.reduce(
-    (total, item) =>
-      total + (item.product?.price || 0) * item.quantity,
-    0
+      if (!productId) {
+        toast.error("Invalid product");
+        return;
+      }
+
+      try {
+        await API.post("cart/", { product_id: productId, quantity: 1 });
+        await fetchCartFromBackend();
+        toast.success("Item added to cart 🛒");
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          clearCart();
+          openLoginModal();
+          return;
+        }
+      }
+    },
+    [fetchCartFromBackend, clearCart]
   );
 
-  const cartItemCount = cartItems.reduce(
-    (count, item) => count + item.quantity,
-    0
+  const removeFromCart = useCallback(
+    async (cartItemId) => {
+      const token = getToken();
+      if (!token) {
+        toast.info("Please login first");
+        openLoginModal();
+        return;
+      }
+
+      try {
+        await API.delete(`cart/${cartItemId}/`);
+        await fetchCartFromBackend();
+        toast.success("Removed from cart");
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          clearCart();
+          openLoginModal();
+          return;
+        }
+
+        toast.error("Failed to remove item");
+      }
+    },
+    [fetchCartFromBackend, clearCart]
   );
 
-  return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        fetchCart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        cartTotal,
-        cartItemCount,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const updateQuantity = useCallback(
+    async (cartItemId, quantity) => {
+      const token = getToken();
+      if (!token) {
+        toast.info("Please login first");
+        openLoginModal();
+        return;
+      }
+
+      const safeQty = Math.max(1, Number(quantity) || 1);
+
+      try {
+        await API.patch(`cart/${cartItemId}/`, { quantity: safeQty });
+        await fetchCartFromBackend();
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          clearCart();
+          openLoginModal();
+          return;
+        }
+
+        toast.error("Failed to update quantity");
+      }
+    },
+    [fetchCartFromBackend, clearCart]
   );
+
+  const cartItemCount = useMemo(() => {
+    return cartItems.reduce((count, item) => count + (item.quantity || 0), 0);
+  }, [cartItems]);
+
+  const cartTotal = useMemo(() => {
+    return cartItems.reduce(
+      (total, item) =>
+        total +
+        (Number(item.product?.price) || 0) * (item.quantity || 0),
+      0
+    );
+  }, [cartItems]);
+
+  const value = useMemo(
+    () => ({
+      cartItems,
+      fetchCartFromBackend,
+      fetchCart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      cartItemCount,
+      cartTotal,
+      clearCart,
+    }),
+    [
+      cartItems,
+      fetchCartFromBackend,
+      fetchCart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      cartItemCount,
+      cartTotal,
+      clearCart,
+    ]
+  );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

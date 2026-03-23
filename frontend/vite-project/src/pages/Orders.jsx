@@ -9,13 +9,15 @@ function Orders() {
     try {
       const res = await API.get("orders/");
       setOrders(res.data);
-    } catch (err) {
-      console.log(err);
+    } catch {
+      toast.error("Failed to load orders");
     }
   };
 
   useEffect(() => {
-    fetchOrders();
+    (async () => {
+      await fetchOrders();
+    })();
   }, []);
 
   const cancelOrder = async (id) => {

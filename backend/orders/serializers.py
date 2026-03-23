@@ -1,13 +1,51 @@
 from rest_framework import serializers
 from .models import Cart, Order, OrderItem
 from products.models import Product
+from products.serializers import ProductSerializer
 
 
 # 🔥 CART
 class CartSerializer(serializers.ModelSerializer):
+    # Return nested product details (name, price, category, image url, etc.)
+    product = ProductSerializer(read_only=True)
+
+    # Accept product id on create/update
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        source="product",
+        write_only=True,
+    )
+
     class Meta:
         model = Cart
-        fields = "__all__"
+        fields = ["id", "product", "product_id", "quantity"]
+
+    def validate_quantity(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Quantity must be at least 1")
+        return value
+
+    def create(self, validated_data):
+        """
+        If the same product already exists in the user's cart, increment quantity
+        instead of creating duplicate cart rows.
+        """
+        request = self.context.get("request")
+        user = request.user if request and hasattr(request, "user") else validated_data.get("user")
+        product = validated_data.get("product")
+        quantity = validated_data.get("quantity", 1)
+
+        if user is None or product is None:
+            return super().create(validated_data)
+
+        existing = Cart.objects.filter(user=user, product=product).first()
+        if existing:
+            existing.quantity += quantity
+            existing.save()
+            return existing
+
+        validated_data["user"] = user
+        return super().create(validated_data)
 
 
 # 🔥 ORDER ITEM (FINAL FIX)

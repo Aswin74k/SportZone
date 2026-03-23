@@ -19,26 +19,23 @@ function Cart() {
   // 🔥 LOAD CART
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   // 🔥 CHECKOUT
   // pages/Cart.jsx (ONLY REPLACE THESE PARTS)
 
-const checkout = async () => {
-  console.log("Checkout clicked 🔥"); // DEBUG
-
-  try {
-    const res = await API.post("orders/checkout/");
-    console.log(res.data);
-
-    toast.success("Order placed successfully 🎉");
-    fetchCart();
-
-  } catch (err) {
-    console.log("ERROR:", err);
-    toast.error("Checkout failed");
-  }
-};
+  const checkout = async () => {
+    setLoading(true);
+    try {
+      await API.post("orders/checkout/");
+      toast.success("Order placed successfully 🎉");
+      fetchCart();
+    } catch {
+      toast.error("Checkout failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 🔥 EMPTY CART
   if (!cartItems || cartItems.length === 0) {
@@ -62,10 +59,13 @@ const checkout = async () => {
 
           {cartItems.map((item) => {
 
-            // 🔥 SAFE IMAGE URL
-            const imageUrl = item.product?.image?.startsWith("http")
-              ? item.product.image
-              : `http://127.0.0.1:8000${item.product?.image}`;
+            // 🔥 SAFE IMAGE URL (handles absolute + relative paths)
+            const rawImage = item.product?.image;
+            const imageUrl = rawImage
+              ? rawImage.startsWith("http")
+                ? rawImage
+                : `http://127.0.0.1:8000${rawImage}`
+              : "/no-image.png";
 
             return (
               <div
