@@ -14,3 +14,17 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data["password"]
         )
         return user
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(min_length=6, max_length=6)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(min_length=6, write_only=True)

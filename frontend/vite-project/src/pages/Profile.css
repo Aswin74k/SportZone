@@ -1,0 +1,85 @@
+.account-page {
+  padding-top: 10px;
+}
+
+.account-header {
+  padding: 16px 0;
+}
+
+.account-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+
+.account-greeting {
+  margin-top: 8px;
+  font-weight: 700;
+  color: var(--dark-color);
+  font-size: 22px;
+}
+
+.account-grid {
+  margin-top: 5px;
+}
+
+.account-card {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--soft-shadow);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.account-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(37,99,235,0.1);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-card-title {
+  font-weight: 700;
+  color: var(--text-color);
+  font-size: 16px;
+}
+
+.account-card-static{
+  cursor:default;
+}
+
+.account-coupon-list{
+  margin:0;
+  padding-left:18px;
+  color:var(--color-muted);
+  font-weight:500;
+}
+
+@media (max-width:768px){
+  .account-greeting{
+    font-size:26px;
+  }
+}
+

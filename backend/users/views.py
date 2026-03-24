@@ -1,15 +1,21 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
 
-from django.core.mail import send_mail
-from django.utils.timezone import now
-from datetime import timedelta
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 import random
 
 from .models import EmailOTP
+from .serializers import (
+    ForgotPasswordSerializer,
+    VerifyOTPSerializer,
+    ResetPasswordSerializer,
+)
 
 
 def generate_otp():
@@ -90,25 +96,37 @@ def login_user(request):
 # 🔥 FORGOT PASSWORD (OTP)
 @api_view(['POST'])
 def forgot_password(request):
-    email = request.data.get('email')
+    serializer = ForgotPasswordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
+    email = serializer.validated_data["email"].lower().strip()
     user = User.objects.filter(email=email).first()
 
     if not user:
-        return Response({"error": "User not found"}, status=400)
+        return Response({"error": "Email not registered"}, status=400)
 
     otp = generate_otp()
 
-    EmailOTP.objects.filter(email=email).delete()
-    EmailOTP.objects.create(email=email, otp=otp)
+    # Keep only one active OTP per user
+    EmailOTP.objects.filter(user=user).delete()
+    EmailOTP.objects.create(user=user, otp=otp, is_verified=False)
 
-    send_mail(
-        "SportZone Password Reset",
-        f"Your OTP is {otp}",
-        "your_email@gmail.com",
-        [email],
-        fail_silently=False,
-    )
+    try:
+        subject = "SportZone Password Reset OTP"
+        from_email = f"SportZone Support <{settings.EMAIL_HOST_USER}>"
+        to = [user.email]
+
+        text_body = f"Hi {user.first_name or user.username},\n\nYour OTP is {otp}. Valid for 5 minutes.\n\n- SportZone Support"
+        html_body = render_to_string(
+            "email/otp_email.html",
+            {"user": user, "otp": otp},
+        )
+
+        msg = EmailMultiAlternatives(subject, text_body, from_email, to)
+        msg.attach_alternative(html_body, "text/html")
+        msg.send(fail_silently=False)
+    except Exception:
+        return Response({"error": "Failed to send OTP email"}, status=500)
 
     return Response({"message": "OTP sent successfully"})
 
@@ -116,37 +134,67 @@ def forgot_password(request):
 # 🔥 VERIFY OTP
 @api_view(['POST'])
 def verify_otp(request):
-    email = request.data.get('email')
-    otp = request.data.get('otp')
+    serializer = VerifyOTPSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-    record = EmailOTP.objects.filter(email=email, otp=otp).last()
+    email = serializer.validated_data["email"].lower().strip()
+    otp = serializer.validated_data["otp"]
 
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({"error": "Email not registered"}, status=400)
+
+    record = EmailOTP.objects.filter(user=user, otp=otp).order_by("-created_at").first()
     if not record:
         return Response({"error": "Invalid OTP"}, status=400)
 
-    if now() - record.created_at > timedelta(minutes=5):
+    if record.is_expired():
         return Response({"error": "OTP expired"}, status=400)
 
-    return Response({"message": "OTP verified"})
+    record.is_verified = True
+    record.save(update_fields=["is_verified"])
+
+    return Response({"message": "OTP verified successfully"})
 
 
 # 🔥 RESET PASSWORD
 @api_view(['POST'])
 def reset_password(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
+    serializer = ResetPasswordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    email = serializer.validated_data["email"].lower().strip()
+    new_password = serializer.validated_data["new_password"]
 
     user = User.objects.filter(email=email).first()
-
     if not user:
-        return Response({"error": "User not found"}, status=400)
+        return Response({"error": "Email not registered"}, status=400)
 
-    if len(password) < 6:
-        return Response({"error": "Password must be at least 6 characters"}, status=400)
+    otp_row = EmailOTP.objects.filter(user=user).order_by("-created_at").first()
+    if not otp_row:
+        return Response({"error": "OTP verification required"}, status=400)
 
-    user.set_password(password)
+    if otp_row.is_expired():
+        otp_row.delete()
+        return Response({"error": "OTP expired"}, status=400)
+
+    if not otp_row.is_verified:
+        return Response({"error": "OTP not verified"}, status=400)
+
+    user.set_password(new_password)
     user.save()
 
-    EmailOTP.objects.filter(email=email).delete()
+    # Clear OTP after successful password reset
+    EmailOTP.objects.filter(user=user).delete()
 
     return Response({"message": "Password reset successful"})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def profile(request):
+    # Minimal profile payload for account dashboard
+    name = (request.user.first_name or "").strip()
+    if not name:
+        name = request.user.username
+    return Response({"username": name})

@@ -6,6 +6,11 @@ import Home from "./pages/Home";
 import AllProducts from "./pages/AllProducts";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
+import Help from "./pages/Help";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { ToastContainer } from "react-toastify";
@@ -54,6 +59,28 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <Wishlist />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/help" element={<Help />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
 
             {/* 🔥 404 PAGE */}
             <Route

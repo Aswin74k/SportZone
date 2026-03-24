@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { FaShoppingCart, FaStar } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaShoppingCart, FaStar, FaHeart, FaRegHeart } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // 🔥 ADD THIS
+import { useWishlist } from "../context/WishlistContext.jsx";
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
 
   const [loading, setLoading] = useState(false);
   const { addToCart } = useCart(); // 🔥 USE CONTEXT
+  const { isWishlisted, toggleWishlist, wishlistBusy } = useWishlist();
 
   if (!product) return null;
 
@@ -28,6 +30,8 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const wishlisted = isWishlisted(product.id);
+
   return (
     <div className="card h-100 product-card border-0 shadow-sm rounded-4 overflow-hidden">
 
@@ -36,6 +40,20 @@ const ProductCard = ({ product }) => {
         <span className="badge bg-white text-primary position-absolute top-0 start-0 m-3 shadow-sm rounded-pill fw-bold">
           {categoryLabel}
         </span>
+
+        <button
+          type="button"
+          className="wishlist-heart-btn position-absolute top-0 end-0 m-3"
+          onClick={() => toggleWishlist(product.id)}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          disabled={wishlistBusy}
+        >
+          {wishlisted ? (
+            <FaHeart className="wishlist-heart-icon" />
+          ) : (
+            <FaRegHeart className="wishlist-heart-icon" />
+          )}
+        </button>
 
         <img 
           src={imageSrc}

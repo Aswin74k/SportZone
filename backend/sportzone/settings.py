@@ -64,7 +64,7 @@ ROOT_URLCONF = 'sportzone.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -145,11 +145,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 # =========================
-# EMAIL SETTINGS (OTP - optional)
+# EMAIL SETTINGS (OTP)
 # =========================
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your@gmail.com'
-# EMAIL_HOST_PASSWORD = 'app_password_here'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sportzone.support@gmail.com'
+EMAIL_HOST_PASSWORD = 'tmqnmfkytbtkloar'

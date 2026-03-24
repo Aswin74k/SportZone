@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext.jsx";
 
 // 🔥 Bootstrap CSS + JS
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,7 +12,9 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <CartProvider>
-    <App />
+    <WishlistProvider>
+      <App />
+    </WishlistProvider>
   </CartProvider>
 );
 

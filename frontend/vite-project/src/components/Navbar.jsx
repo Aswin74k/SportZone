@@ -1,32 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaSearch, FaBars } from "react-icons/fa";
+import { FaShoppingCart, FaBars, FaUserCircle } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import "./Navbar.css";
+import SearchBar from "./SearchBar";
 
 import LoginModal from "./LoginModal";
 import SignupModal from "./SignupModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-import LogoutModal from "./LogoutModal";
 
 const Navbar = () => {
-  const { cartItemCount, clearCart } = useCart();
+  const { cartItemCount } = useCart();
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
-  const [showLogout, setShowLogout] = useState(false);
-
-  const dropdownRef = useRef();
 
   // 🔥 LOAD USER FROM TOKEN
   useEffect(() => {
@@ -58,40 +53,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // 🔥 CLOSE DROPDOWN WHEN CLICK OUTSIDE
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setIsUserMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // 🔥 LOGOUT
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("token");
-
-    if (clearCart) clearCart();
-
-    window.dispatchEvent(new Event("logout"));
-
-    setUser(null);
-    setShowLogout(false);
-
-    toast.success("Logged out successfully");
-
-    // 🔥 ADD THIS (IMPORTANT)
-    navigate("/"); // redirect to home
-  };
-
   // 🔥 CART PROTECTION
   const handleCartClick = (e) => {
     if (!localStorage.getItem("access")) {
@@ -121,8 +82,8 @@ const Navbar = () => {
 
           <div className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}>
 
-            {/* NAV LINKS */}
-            <ul className="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+            {/* NAV LINKS (LEFT) */}
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0 fw-medium">
               <li className="nav-item px-2">
                 <NavLink className="nav-link nav-hover" to="/" onClick={() => setIsMenuOpen(false)}>
                   Home
@@ -133,81 +94,48 @@ const Navbar = () => {
                   Shop
                 </NavLink>
               </li>
-              {user && (
-                <NavLink className="nav-link" to="/orders">
-                  My Orders
-                </NavLink>
-              )}
             </ul>
 
+            {/* CENTER SEARCH */}
+            <div className="mx-auto d-none d-lg-block" style={{ width: '400px' }}>
+              <SearchBar />
+            </div>
+
+            {/* MOBILE SEARCH */}
+            <div className="d-block d-lg-none mt-3 mb-3">
+              <SearchBar />
+            </div>
+
             {/* RIGHT SIDE */}
-            <div className="d-flex align-items-center gap-3 mt-3 mt-lg-0">
-
-              {/* SEARCH */}
-              <div className="search-box d-none d-md-flex align-items-center bg-light rounded-pill px-3 py-1">
-                <FaSearch className="text-muted" />
-                <input
-                  type="text"
-                  className="form-control border-0 bg-transparent shadow-none"
-                  placeholder="Search..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && search.trim()) {
-                      navigate(`/shop?search=${search}`);
-                      setSearch("");
-                    }
-                  }}
-                />
-              </div>
-
+            <div className="d-flex align-items-center justify-content-start gap-4 mt-2 mt-lg-0 ms-lg-auto">
               {/* CART */}
-              {user && (
-                <Link
-                  to="/cart"
-                  className="position-relative text-dark cart-icon-link"
-                  onClick={handleCartClick}
-                >
-                  <FaShoppingCart size={22} />
+              <Link
+                to="/cart"
+                className="position-relative text-dark cart-icon-link hover-lift"
+                onClick={handleCartClick}
+              >
+                <FaShoppingCart size={22} />
 
-                  {cartItemCount > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </Link>
-              )}
+                {cartItemCount > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary shadow-sm" style={{ fontSize: '0.7rem' }}>
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
 
-              {/* USER */}
+              {/* YOU / LOGIN */}
               {user ? (
-                <div className="position-relative" ref={dropdownRef}>
-                  <div
-                    className="px-3 py-2 rounded-pill"
-                    style={{ cursor: "pointer", background: "#f1f5f9" }}
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  >
-                    <span className="fw-semibold text-dark">
-                      Hi, {user}
-                    </span>
-                  </div>
-
-                  {isUserMenuOpen && (
-                    <div className="position-absolute end-0 mt-2 bg-white rounded-4 shadow-lg p-2">
-                      <button
-                        className="dropdown-item text-danger fw-medium"
-                        onClick={() => {
-                          setIsUserMenuOpen(false);
-                          setShowLogout(true);
-                        }}
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  className="you-btn hover-lift"
+                  onClick={() => navigate("/profile")}
+                >
+                  <FaUserCircle size={20} />
+                  <span>You</span>
+                </button>
               ) : (
                 <button
-                  className="btn btn-primary rounded-pill px-4"
+                  className="btn btn-primary rounded-pill px-4 hover-shadow"
                   onClick={() => setShowLogin(true)}
                 >
                   Login
@@ -244,12 +172,6 @@ const Navbar = () => {
       <ForgotPasswordModal
         show={showForgot}
         handleClose={() => setShowForgot(false)}
-      />
-
-      <LogoutModal
-        show={showLogout}
-        handleClose={() => setShowLogout(false)}
-        handleLogout={handleLogout}
       />
     </>
   );

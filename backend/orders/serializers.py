@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, Order, OrderItem
+from .models import Cart, Order, OrderItem, Wishlist
 from products.models import Product
 from products.serializers import ProductSerializer
 
@@ -95,3 +95,41 @@ class OrderSerializer(serializers.ModelSerializer):
             "status",
             "items"
         ]
+
+
+# ---------------------------
+# Wishlist (returns Product-like payload)
+# ---------------------------
+class WishlistProductSerializer(serializers.ModelSerializer):
+    # Flatten wishlist -> product fields so frontend can reuse ProductCard UI
+    id = serializers.IntegerField(source="product.id", read_only=True)
+    name = serializers.CharField(source="product.name", read_only=True)
+    price = serializers.DecimalField(
+        source="product.price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+    )
+    description = serializers.CharField(
+        source="product.description",
+        read_only=True,
+    )
+    category = serializers.CharField(
+        source="product.category",
+        read_only=True,
+    )
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Wishlist
+        fields = ["id", "name", "price", "description", "category", "image"]
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.product.image:
+            try:
+                return request.build_absolute_uri(obj.product.image.url)
+            except Exception:
+                # Fallback to relative path if request context is missing
+                return obj.product.image.url
+        return None

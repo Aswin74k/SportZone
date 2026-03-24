@@ -69,7 +69,7 @@ function Cart() {
 
             return (
               <div
-                className="card mb-3 border-0 shadow-sm rounded-4"
+                className="card mb-3 border-0 rounded-card shadow-sm cart-item-card"
                 key={item.id}
               >
                 <div className="row g-0 align-items-center">
@@ -157,9 +157,9 @@ function Cart() {
         {/* 🔥 SUMMARY */}
         <div className="col-lg-4">
 
-          <div className="card border-0 shadow-sm p-4 rounded-4">
+          <div className="card rounded-card border-0 shadow-sm p-4 cart-summary">
 
-            <h4 className="fw-bold mb-3">Order Summary</h4>
+            <h4 className="fw-bold mb-3 text-dark">Order Summary</h4>
 
             <div className="d-flex justify-content-between">
               <span>Subtotal</span>
@@ -179,7 +179,7 @@ function Cart() {
             </div>
 
             <button
-              className="btn btn-primary w-100 rounded-pill"
+              className="btn btn-primary w-100 rounded-pill hover-shadow py-2 fw-semibold"
               onClick={checkout}              
               disabled={loading}
             >

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { FaEnvelope, FaKey, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import API from "../api";
 
 const ForgotPasswordModal = ({ show, handleClose }) => {
 
@@ -25,25 +26,11 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/forgot-password/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("OTP sent to your email 📩");
-        setStep(2);
-      } else {
-        toast.error(data.error || "Failed to send OTP");
-      }
-
-    } catch {
-      toast.error("Server error");
+      await API.post("forgot-password/", { email });
+      toast.success("OTP sent to your email 📩");
+      setStep(2);
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Failed to send OTP");
     }
 
     setLoading(false);
@@ -59,25 +46,11 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/verify-otp/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, otp })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("OTP Verified ✨");
-        setStep(3);
-      } else {
-        toast.error(data.error || "Invalid OTP");
-      }
-
-    } catch {
-      toast.error("Server error");
+      await API.post("verify-otp/", { email, otp });
+      toast.success("OTP Verified ✨");
+      setStep(3);
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Invalid OTP");
     }
 
     setLoading(false);
@@ -93,31 +66,20 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/reset-password/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+      await API.post("reset-password/", {
+        email,
+        new_password: password,
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("Password reset successful 🎉");
-        handleClose();
-        setTimeout(() => {
-          setStep(1);
-          setEmail("");
-          setOtp("");
-          setPassword("");
-        }, 300);
-      } else {
-        toast.error(data.error || "Failed to reset password");
-      }
-
-    } catch {
-      toast.error("Server error");
+      toast.success("Password reset successful 🎉");
+      handleClose();
+      setTimeout(() => {
+        setStep(1);
+        setEmail("");
+        setOtp("");
+        setPassword("");
+      }, 300);
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Failed to reset password");
     }
 
     setLoading(false);

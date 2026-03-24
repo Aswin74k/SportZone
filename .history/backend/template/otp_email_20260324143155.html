@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="font-family: Arial; padding:20px;">
+  <h2 style="color:#0d6efd;">SportZone </h2>
+  
+  <p>Hello {{ user.username }},</p>
+  
+  <p>You requested to reset your password.</p>
+  
+  <h1 style="letter-spacing:5px; color:#000;">
+    {{ otp }}
+  </h1>
+  
+  <p>This OTP is valid for 5 minutes.</p>
+  
+  <hr/>
+  
+  <p style="font-size:12px; color:gray;">
+    If you didn’t request this, ignore this email.
+  </p>
+</div>
+    
+</body>
+</html>

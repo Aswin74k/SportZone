@@ -3,11 +3,16 @@
 :root {
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
-  --dark-color: #111827;
   --bg-color: #f8fafc;
-  --text-color:  #e5e7eb;   
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --text-color: #111827;
+  --text-secondary: #6b7280;
+  --dark-color: #111827;
   --light-gray: #f0f1f3;
   --transition-speed: 0.3s;
+  --border-radius: 12px;
+  --soft-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -39,24 +44,29 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   transition: all var(--transition-speed);
+  border-radius: var(--border-radius) !important;
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transform: scale(1.03);
+  box-shadow: var(--soft-shadow);
 }
 
 .btn-outline-primary {
   color: var(--primary-color);
   border-color: var(--primary-color);
+  border-radius: var(--border-radius) !important;
+  transition: all var(--transition-speed);
 }
 
 .btn-outline-primary:hover {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: white;
+  transform: scale(1.03);
+  box-shadow: var(--soft-shadow);
 }
 
 .hover-shadow {
@@ -64,8 +74,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hover-shadow:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: scale(1.03);
+  box-shadow: var(--soft-shadow) !important;
 }
 
 .hover-lift {
@@ -73,7 +83,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
+  transform: scale(1.03);
+}
+
+/* Global utility for rounded cards */
+.rounded-card {
+  border-radius: var(--border-radius) !important;
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color);
 }
 
 /* Slick Carousel Customization */
