@@ -77,22 +77,43 @@ export function WishlistProvider({ children }) {
 
       if (!productId) return;
 
-      const productExists = wishlistIds.has(Number(productId));
+      const numericId = Number(productId);
+      const productExists = wishlistIds.has(numericId);
       setWishlistBusy(true);
+
+      // Optimistic UI
+      const prev = wishlistProducts;
+      if (productExists) {
+        setWishlistProducts((items) => items.filter((p) => Number(p.id) !== numericId));
+      } else {
+        setWishlistProducts((items) => [
+          ...items,
+          {
+            id: numericId,
+            name: "Loading...",
+            price: 0,
+            description: "",
+            category: "",
+            image: "/no-image.png",
+          },
+        ]);
+      }
 
       try {
         if (productExists) {
-          await API.delete("wishlist/remove/", {
+          await API.delete("wishlist/", {
             data: { product_id: productId },
           });
           toast.info("Removed from wishlist ❌");
         } else {
-          await API.post("wishlist/add/", { product_id: productId });
+          await API.post("wishlist/", { product_id: productId });
           toast.success("Added to wishlist ❤️");
         }
 
         await fetchWishlistFromBackend();
       } catch (err) {
+        // rollback optimistic state
+        setWishlistProducts(prev);
         if (err?.response?.status === 401) {
           setWishlistProducts([]);
           toast.info("Please login");

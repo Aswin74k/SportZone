@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaShoppingCart, FaStar, FaHeart, FaRegHeart } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // 🔥 ADD THIS
 import { useWishlist } from "../context/WishlistContext.jsx";
 import { useNavigate } from "react-router-dom";
-import Rating from "./Rating";
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -15,6 +14,7 @@ const ProductCard = ({ product }) => {
 
   if (!product) return null;
 
+  const categoryLabel = product.categoryLabel || product.category;
   const rawImage = product.image;
   const imageSrc = rawImage
     ? rawImage.startsWith("http")
@@ -47,24 +47,12 @@ const ProductCard = ({ product }) => {
     >
 
       <div className="product-image-container bg-light position-relative">
-        <button
-          type="button"
-          className="wishlist-heart-btn position-absolute top-0 end-0 m-3"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleWishlist(product.id);
-          }}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          disabled={wishlistBusy}
-        >
-          {wishlisted ? (
-            <FaHeart className="wishlist-heart-icon" />
-          ) : (
-            <FaRegHeart className="wishlist-heart-icon" />
-          )}
-        </button>
 
-        <img
+        <span className="badge bg-white text-primary position-absolute top-0 start-0 m-3 shadow-sm rounded-pill fw-bold">
+          {categoryLabel}
+        </span>
+
+        <img 
           src={imageSrc}
           alt={product.name || "Product"}
           className="card-img-top product-image p-4"
@@ -72,23 +60,51 @@ const ProductCard = ({ product }) => {
             e.target.src = "/no-image.png";
           }}
         />
-      </div>
 
+        <div className="product-overlay d-flex align-items-center justify-content-center gap-2">
+          <button
+            type="button"
+            className="btn btn-light rounded-circle shadow-lg quick-icon-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWishlist(product.id);
+            }}
+            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            disabled={wishlistBusy}
+          >
+            {wishlisted ? (
+              <FaHeart className="text-primary" />
+            ) : (
+              <FaRegHeart className="text-primary" />
+            )}
+          </button>
+          <button 
+            className="btn btn-light rounded-circle shadow-lg quick-icon-btn"
+            onClick={handleAddToCart}
+            disabled={loading}
+            aria-label="Quick add to cart"
+          >
+            <FaShoppingCart className="text-primary" />
+          </button>
+        </div>
+      </div>
+      
       <div className="card-body d-flex flex-column p-4">
 
-        <div className="d-flex justify-content-between align-items-start mb-2">
-          <h5 className="fw-bold text-truncate me-3">{product.name}</h5>
-        </div>
-
-        <div className="d-flex justify-content-between align-items-center">
-          <Rating value={product?.rating ?? 4.8} size={14} showValue />
-          <span className="fw-bold text-primary">
-            ₹{Number(product?.price || 0).toLocaleString("en-IN", {
-              maximumFractionDigits: 0,
-            })}
+        <div className="d-flex justify-content-between mb-2">
+          <h5 className="fw-bold text-truncate">{product.name}</h5>
+          <span className="text-warning">
+            <FaStar /> 4.8
           </span>
+        </div>
+        
+        <div className="d-flex justify-content-between align-items-center">
 
-          <button
+        <span className="fw-bold text-primary">
+  ₹{new Intl.NumberFormat('en-IN').format(product.price || 0)}
+</span>
+
+          <button 
             className="btn btn-primary rounded-pill px-4"
             onClick={handleAddToCart}
             disabled={loading}

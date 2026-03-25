@@ -1,5 +1,6 @@
 .product-card {
   transition: all var(--transition-speed);
+  cursor:pointer;
 }
 
 .product-card:hover {
@@ -17,6 +18,37 @@
   height: 100%;
   object-fit: contain;
   transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.wishlist-heart-btn{
+  width:44px;
+  height:44px;
+  border:none;
+  padding:0;
+  border-radius:999px;
+  background:rgba(255,255,255,0.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+  box-shadow:0 16px 38px rgba(15,23,42,0.12);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  cursor:pointer;
+}
+
+.wishlist-heart-btn:hover{
+  transform: translateY(-2px);
+  background:#fff;
+  box-shadow:0 20px 46px rgba(15,23,42,0.16);
+}
+
+.wishlist-heart-btn:disabled{
+  opacity:0.65;
+  cursor:not-allowed;
+}
+
+.wishlist-heart-icon{
+  font-size:18px;
 }
 
 .product-card:hover .product-image {
@@ -59,26 +91,7 @@
   color: white !important;
 }
 
-.wishlist-heart-btn{
-  border:none;
-  cursor:pointer;
-  width:40px;
-  height:40px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: rgba(255,255,255,0.95);
-  border-radius:999px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.wishlist-heart-btn:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 14px 35px rgba(0,0,0,0.18);
-}
-
-.wishlist-heart-icon{
-  color: #2563eb;
-  font-size:18px;
+.quick-icon-btn{
+  width:44px;
+  height:44px;
 }

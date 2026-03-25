@@ -24,6 +24,19 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/')
 
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="gallery_images",
+    )
+    image = models.ImageField(upload_to="products/gallery/")
+
+    def __str__(self):
+        return f"{self.product.name} image {self.id}"
