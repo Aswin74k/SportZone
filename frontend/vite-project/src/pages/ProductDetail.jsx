@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useCart } from "../context/CartContext";
 import API from "../api";
 import Rating from "../components/Rating";
+import { FaTruck, FaUndo } from "react-icons/fa";
 import "./ProductDetail.css";
 
 function ProductDetail() {
@@ -15,6 +16,7 @@ function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
+  const [selectedSize, setSelectedSize] = useState(null);
   const [cartLoading, setCartLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
 
@@ -31,6 +33,7 @@ function ProductDetail() {
         setProduct(data);
         const first = data?.images?.[0]?.image || data?.image || "/no-image.png";
         setSelectedImage(first);
+        setSelectedSize(null);
 
         if (data?.category) {
           const relatedRes = await API.get(
@@ -65,12 +68,19 @@ function ProductDetail() {
 
   const addToCartNow = async () => {
     if (!product?.id) return;
+
+    if (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size before adding to cart.");
+      return;
+    }
+
     try {
       setCartLoading(true);
-      for (let i = 0; i < qty; i += 1) {
-        // backend cart API increments quantity for duplicate product
-        await addToCart(product.id);
-      }
+      await addToCart({
+        product_id: product.id,
+        size: selectedSize || "N/A",
+        quantity: qty
+      });
     } finally {
       setCartLoading(false);
     }
@@ -85,6 +95,9 @@ function ProductDetail() {
   }
 
   const inStock = Number(product.stock || 0) > 0;
+  const sizes = Array.isArray(product?.sizes) ? product.sizes : [];
+  const anySizeInStock = sizes.some((s) => Number(s?.stock || 0) > 0);
+  const showSizes = sizes.length > 0;
 
   return (
     <div className="container py-5">
@@ -127,8 +140,8 @@ function ProductDetail() {
               <span className="text-muted small">(120 reviews)</span>
             </div>
 
-            <h3 className="text-primary fw-bold mb-3">
-              ₹{Number(product.price || 0).toFixed(2)}
+            <h3 className="text-primary fw-bold mb-3 display-6">
+              ₹{Number(product.price || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
             </h3>
 
             <div className="mb-3">
@@ -140,6 +153,38 @@ function ProductDetail() {
             <p className="text-muted lh-lg mb-4">
               {product.description || "No description available for this product."}
             </p>
+
+            {showSizes && (
+              <div className="mb-4">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <span className="fw-semibold">Size</span>
+                  {!anySizeInStock && (
+                    <span className="text-muted small">Out of stock</span>
+                  )}
+                </div>
+                <div className="d-flex flex-wrap gap-2 product-size-wrap">
+                  {sizes.map((s) => {
+                    const sizeLabel = String(s?.size ?? "");
+                    const sizeStock = Number(s?.stock || 0);
+                    const disabled = sizeStock <= 0;
+                    const active = selectedSize === sizeLabel;
+
+                    return (
+                      <button
+                        key={sizeLabel}
+                        type="button"
+                        className={`product-size-btn ${active ? "active" : ""}`}
+                        onClick={() => setSelectedSize(sizeLabel)}
+                        disabled={disabled}
+                        aria-pressed={active}
+                      >
+                        {sizeLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="d-flex align-items-center gap-3 mb-4">
               <span className="fw-semibold">Quantity</span>
@@ -164,7 +209,13 @@ function ProductDetail() {
               </button>
               <button
                 className="btn btn-outline-primary rounded-pill px-4"
-                onClick={() => navigate("/checkout")}
+                onClick={() => {
+                  if (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) {
+                    toast.error("Please select a size before proceeding.");
+                    return;
+                  }
+                  navigate("/checkout");
+                }}
                 disabled={!inStock}
               >
                 Buy Now
@@ -176,26 +227,43 @@ function ProductDetail() {
 
       <div className="row g-4 mt-1">
         <div className="col-lg-8">
-          <div className="card border-0 shadow-sm rounded-4 p-4">
-            <h5 className="fw-bold mb-3">Ratings & Reviews</h5>
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <Rating value={product?.rating ?? 4.8} size={14} showValue={false} />
-              <span className="text-muted small">Based on 120 customer reviews</span>
+          <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 className="fw-bold mb-4">Ratings & Reviews</h5>
+            <div className="d-flex align-items-center gap-3 mb-4">
+              <h1 className="fw-bold mb-0 text-dark">{product?.rating ?? 4.8}</h1>
+              <div>
+                <Rating value={product?.rating ?? 4.8} size={18} showValue={false} />
+                <div className="text-muted small mt-1">Based on 120 reviews</div>
+              </div>
             </div>
-            <p className="text-muted mb-0">
-              Reviews integration is ready and can be connected to backend anytime.
-            </p>
+            
+            <div className="border-top pt-4">
+              <h6 className="fw-semibold mb-1">Feature coming soon</h6>
+              <p className="text-muted small mb-0">
+                Detailed customer reviews and photo uploads will be available in the next update.
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="col-lg-4">
-          <div className="card border-0 shadow-sm rounded-4 p-4 mb-3">
-            <h6 className="fw-bold mb-2">Delivery Info</h6>
-            <p className="text-muted mb-0">3-5 days delivery</p>
+          <div className="card border-0 shadow-sm rounded-4 p-4 mb-3 d-flex flex-row align-items-center gap-3">
+            <div className="bg-light p-3 rounded-circle text-primary d-flex align-items-center justify-content-center">
+              <FaTruck size={22} />
+            </div>
+            <div>
+              <h6 className="fw-bold mb-1">Delivery Info</h6>
+              <p className="text-muted mb-0 small">3-5 days delivery</p>
+            </div>
           </div>
-          <div className="card border-0 shadow-sm rounded-4 p-4">
-            <h6 className="fw-bold mb-2">Return Policy</h6>
-            <p className="text-muted mb-0">7 days return available</p>
+          <div className="card border-0 shadow-sm rounded-4 p-4 d-flex flex-row align-items-center gap-3">
+            <div className="bg-light p-3 rounded-circle text-primary d-flex align-items-center justify-content-center">
+              <FaUndo size={22} />
+            </div>
+            <div>
+              <h6 className="fw-bold mb-1">Return Policy</h6>
+              <p className="text-muted mb-0 small">7 days return available</p>
+            </div>
           </div>
         </div>
       </div>
@@ -220,7 +288,7 @@ function ProductDetail() {
                     }}
                   />
                   <h6 className="fw-semibold mt-3 mb-1 text-truncate">{item.name}</h6>
-                  <span className="text-primary fw-bold">₹{Number(item.price || 0).toFixed(2)}</span>
+                  <span className="text-primary fw-bold">₹{Number(item.price || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
                 </div>
               </div>
             ))}

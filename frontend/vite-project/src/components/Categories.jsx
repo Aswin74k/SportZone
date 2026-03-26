@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import './Categories.css';
 
 const categoriesData = [
-  { id: 1, name: 'Football', image: 'https://img.freepik.com/free-photo/football-equipment-grass_23-2147833422.jpg' },
-  { id: 2, name: 'Cricket', image: 'https://nwscdn.com/media/catalog/product/cache/h900xw900/s/e/setcomp-main_1_47.jpg' },
-  { id: 3, name: 'Basketball', image: 'https://images.unsplash.com/photo-1542652694-40abf526446e?q=80&w=2070&auto=format&fit=crop' },
-  { id: 4, name: 'Badminton', image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop' },
-  { id: 5, name: 'Sports Shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop' },
+  { id: 1, name: 'Football', value: 'football', image: 'https://img.freepik.com/free-photo/football-equipment-grass_23-2147833422.jpg' },
+  { id: 2, name: 'Cricket', value: 'cricket', image: 'https://nwscdn.com/media/catalog/product/cache/h900xw900/s/e/setcomp-main_1_47.jpg' },
+  { id: 3, name: 'Basketball', value: 'basketball', image: 'https://images.unsplash.com/photo-1542652694-40abf526446e?q=80&w=2070&auto=format&fit=crop' },
+  { id: 4, name: 'Badminton', value: 'badminton', image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop' },
+  // IMPORTANT: backend CATEGORY_CHOICES uses "sports shoe" (singular)
+  { id: 5, name: 'Sports Shoes', value: 'sports shoe', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop' },
 ];
 
 const Categories = () => {
@@ -27,7 +28,10 @@ const Categories = () => {
         <div className="row g-4">
           {categoriesData.map((category) => (
             <div key={category.id} className="col-12 col-sm-6 col-lg-4 col-xl custom-col">
-              <Link to={`/shop?category=${category.name.toLowerCase()}`} className="text-decoration-none">
+              <Link
+                to={`/shop?category=${encodeURIComponent(category.value)}`}
+                className="text-decoration-none"
+              >
                 <div className="category-card rounded-4 overflow-hidden position-relative shadow-sm h-100">
                   <div className="category-img-wrapper h-100">
                     <img src={category.image} alt={category.name} className="category-img w-100 h-100 object-fit-cover" />

@@ -67,7 +67,7 @@ export const CartProvider = ({ children }) => {
   }, [fetchCartFromBackend, clearCart]);
 
   const addToCart = useCallback(
-    async (productOrId) => {
+    async ({ product_id, size, quantity }) => {
       const token = getToken();
       if (!token) {
         toast.info("Login required to add items");
@@ -75,16 +75,13 @@ export const CartProvider = ({ children }) => {
         return;
       }
 
-      const productId =
-        typeof productOrId === "object" ? productOrId?.id : productOrId;
-
-      if (!productId) {
+      if (!product_id) {
         toast.error("Invalid product");
         return;
       }
 
       try {
-        await API.post("cart/", { product_id: productId, quantity: 1 });
+        await API.post("cart/", { product_id, size, quantity });
         await fetchCartFromBackend();
         toast.success("Item added to cart 🛒");
       } catch (err) {
@@ -93,6 +90,7 @@ export const CartProvider = ({ children }) => {
           openLoginModal();
           return;
         }
+        toast.error(err?.response?.data?.size?.[0] || err?.response?.data?.error || "Failed to add to cart");
       }
     },
     [fetchCartFromBackend, clearCart]

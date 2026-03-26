@@ -18,7 +18,15 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ["id", "product", "product_id", "quantity"]
+        fields = ["id", "product", "product_id", "quantity", "size"]
+        extra_kwargs = {
+            "size": {"required": True, "error_messages": {"required": "Size is missing."}}
+        }
+
+    def validate_size(self, value):
+        if not value or str(value).strip() == "":
+            raise serializers.ValidationError("Size is missing.")
+        return value
 
     def validate_quantity(self, value):
         if value < 1:
@@ -27,18 +35,18 @@ class CartSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        If the same product already exists in the user's cart, increment quantity
-        instead of creating duplicate cart rows.
+        If the same product + size already exists in user's cart, increment quantity
         """
         request = self.context.get("request")
         user = request.user if request and hasattr(request, "user") else validated_data.get("user")
         product = validated_data.get("product")
         quantity = validated_data.get("quantity", 1)
+        size = validated_data.get("size")
 
-        if user is None or product is None:
+        if user is None or product is None or size is None:
             return super().create(validated_data)
 
-        existing = Cart.objects.filter(user=user, product=product).first()
+        existing = Cart.objects.filter(user=user, product=product, size=size).first()
         if existing:
             existing.quantity += quantity
             existing.save()

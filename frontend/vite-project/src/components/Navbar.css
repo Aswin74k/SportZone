@@ -1,9 +1,11 @@
 .custom-navbar {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  padding: 1rem 0;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-speed);
+  padding: 0.8rem 0;
 }
 
 .logo-text {
@@ -12,57 +14,44 @@
 }
 
 .nav-hover {
-  position: relative;
-  color: #64748b !important;
-  transition: color 0.3s ease;
+  color: var(--text-secondary) !important;
+  border-radius: 999px;
+  padding: 8px 18px !important;
+  transition: all var(--transition-speed);
+  font-weight: 500;
 }
 
 .nav-hover:hover, .nav-hover.active {
   color: var(--primary-color) !important;
+  background-color: rgba(37, 99, 235, 0.08);
 }
-
-.nav-hover::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 50%;
-  background-color: var(--primary-color);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-hover:hover::after, .nav-hover.active::after {
-  width: 100%;
-}
-
-
 
 .cart-icon-link {
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-speed);
   display: inline-block;
 }
 
 .cart-icon-link:hover {
-  transform: scale(1.1);
+  transform: translateY(-2px) scale(1.05);
   color: var(--primary-color) !important;
 }
 
-.you-btn{
-  border:none;
-  background:#eff6ff;
-  color:#1e293b;
-  border-radius:999px;
-  padding:8px 14px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:600;
-  transition:all 0.2s ease;
+.you-btn {
+  border: none;
+  background-color: rgba(37, 99, 235, 0.08);
+  color: var(--primary-color);
+  border-radius: 999px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: all var(--transition-speed);
 }
 
-.you-btn:hover{
+.you-btn:hover {
   transform: translateY(-2px);
-  box-shadow:0 10px 25px rgba(37,99,235,0.18);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  background-color: var(--primary-color);
+  color: white;
 }

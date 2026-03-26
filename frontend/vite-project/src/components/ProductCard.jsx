@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { useCart } from "../context/CartContext"; // 🔥 ADD THIS
 import { useWishlist } from "../context/WishlistContext.jsx";
+import { useCart } from "../context/CartContext.jsx";
 import { useNavigate } from "react-router-dom";
 import Rating from "./Rating";
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
-
   const [loading, setLoading] = useState(false);
-  const { addToCart } = useCart(); // 🔥 USE CONTEXT
+  const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist, wishlistBusy } = useWishlist();
   const navigate = useNavigate();
 
@@ -21,17 +20,6 @@ const ProductCard = ({ product }) => {
       ? rawImage
       : `http://127.0.0.1:8000${rawImage}`
     : "/no-image.png";
-
-  const handleAddToCart = async (e) => {
-    e.stopPropagation();
-    try {
-      setLoading(true);
-
-      await addToCart(product.id);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const wishlisted = isWishlisted(product.id);
 
@@ -46,11 +34,12 @@ const ProductCard = ({ product }) => {
       }}
     >
 
-      <div className="product-image-container bg-light position-relative">
+      <div className="product-image-container position-relative">
         <button
           type="button"
           className="wishlist-heart-btn position-absolute top-0 end-0 m-3"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
@@ -67,7 +56,7 @@ const ProductCard = ({ product }) => {
         <img
           src={imageSrc}
           alt={product.name || "Product"}
-          className="card-img-top product-image p-4"
+          className="card-img-top product-image"
           onError={(e) => {
             e.target.src = "/no-image.png";
           }}
@@ -80,22 +69,35 @@ const ProductCard = ({ product }) => {
           <h5 className="fw-bold text-truncate me-3">{product.name}</h5>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center mb-3">
           <Rating value={product?.rating ?? 4.8} size={14} showValue />
-          <span className="fw-bold text-primary">
+          <span className="fw-bold text-primary fs-5">
             ₹{Number(product?.price || 0).toLocaleString("en-IN", {
               maximumFractionDigits: 0,
             })}
           </span>
-
-          <button
-            className="btn btn-primary rounded-pill px-4"
-            onClick={handleAddToCart}
-            disabled={loading}
-          >
-            {loading ? "Adding..." : "Add to Cart"}
-          </button>
         </div>
+
+        <button
+          className="btn btn-primary rounded-pill w-100 fw-semibold"
+          onClick={async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            try {
+              setLoading(true);
+              await addToCart({
+                product_id: product.id,
+                size: "N/A",
+                quantity: 1
+              });
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+        >
+          {loading ? "Adding..." : "Add to Cart"}
+        </button>
       </div>
     </div>
   );

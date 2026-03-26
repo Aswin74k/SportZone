@@ -1,5 +1,6 @@
 .footer {
-  border-top: 5px solid var(--primary-color);
+  background-color: #0f172a !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footer-heading::after {
@@ -7,14 +8,14 @@
   position: absolute;
   left: 0;
   bottom: -10px;
-  width: 30px;
+  width: 40px;
   height: 3px;
   background-color: var(--primary-color);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .footer-links a {
-  color: #94a3b8; /* text-muted equivalent */
+  color: #94a3b8;
   text-decoration: none;
   transition: all 0.3s ease;
   font-size: 0.95rem;
@@ -23,7 +24,7 @@
 
 .footer-links a:hover {
   color: var(--primary-color) !important;
-  transform: translateX(5px);
+  transform: translateX(4px);
 }
 
 .social-icon {
@@ -37,12 +38,12 @@
   background-color: var(--primary-color) !important;
   color: white !important;
   transform: translateY(-4px);
-  box-shadow: 0 8px 15px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
 }
 
 .newsletter-form .input-group:focus-within {
   border-color: rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
 .newsletter-form .form-control::placeholder {

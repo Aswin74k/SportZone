@@ -2,6 +2,19 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 
+const normalizeCategory = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  const v = raw.toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+
+  // tolerate common label/plural variants coming from older URLs
+  if (v === "sports shoes") return "sports shoe";
+  if (v === "sports cycles") return "sports cycle";
+
+  return v;
+};
+
 function AllProducts() {
 
   const location = useLocation();
@@ -9,6 +22,7 @@ function AllProducts() {
 
   const category = params.get("category");
   const search = params.get("search");
+  const normalizedCategory = normalizeCategory(category);
 
   const [products, setProducts] = useState([]);
 
@@ -16,26 +30,30 @@ function AllProducts() {
 
     let url = "http://127.0.0.1:8000/api/products/?";
 
-    if (category) {
-      url += `category=${category}&`;
+    if (normalizedCategory) {
+      url += `category=${encodeURIComponent(normalizedCategory)}&`;
     }
 
     if (search) {
-      url += `search=${search}`;
+      url += `search=${encodeURIComponent(search)}`;
     }
 
     fetch(url)
       .then(res => res.json())
       .then(data => setProducts(data));
 
-  }, [category, search]);
+  }, [normalizedCategory, search]);
 
   return (
 
     <div className="container py-5">
 
       <h2 className="fw-bold mb-4">
-        {category ? category.toUpperCase() : search ? `Search: ${search}` : "All Products"}
+        {normalizedCategory
+          ? normalizedCategory.toUpperCase()
+          : search
+            ? `Search: ${search}`
+            : "All Products"}
       </h2>
 
       <div className="row">

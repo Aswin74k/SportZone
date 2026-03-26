@@ -25,7 +25,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         search = self.request.query_params.get('search')
 
         if category:
-            queryset = queryset.filter(category__iexact=category)
+            raw = str(category).strip()
+            normalized = raw.lower().replace("-", " ").replace("_", " ")
+            normalized = " ".join(normalized.split())
+
+            # tolerate common label/plural variants from old frontend URLs
+            alias = {
+                "sports shoes": "sports shoe",
+                "sports cycles": "sports cycle",
+            }
+            normalized = alias.get(normalized, normalized)
+
+            queryset = queryset.filter(category__iexact=normalized)
 
         if search:
             queryset = queryset.filter(

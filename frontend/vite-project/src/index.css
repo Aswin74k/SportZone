@@ -10,9 +10,10 @@
   --text-secondary: #6b7280;
   --dark-color: #111827;
   --light-gray: #f0f1f3;
-  --transition-speed: 0.3s;
-  --border-radius: 12px;
-  --soft-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition-speed: 0.2s;
+  --border-radius: 16px;
+  --soft-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  --hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -50,8 +51,8 @@ h1, h2, h3, h4, h5, h6 {
 .btn-primary:hover {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: scale(1.03);
-  box-shadow: var(--soft-shadow);
+  transform: translateY(-3px);
+  box-shadow: var(--hover-shadow);
 }
 
 .btn-outline-primary {
@@ -65,8 +66,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: white;
-  transform: scale(1.03);
-  box-shadow: var(--soft-shadow);
+  transform: translateY(-3px);
+  box-shadow: var(--hover-shadow);
 }
 
 .hover-shadow {
@@ -74,8 +75,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hover-shadow:hover {
-  transform: scale(1.03);
-  box-shadow: var(--soft-shadow) !important;
+  transform: translateY(-3px);
+  box-shadow: var(--hover-shadow) !important;
 }
 
 .hover-lift {
@@ -83,7 +84,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hover-lift:hover {
-  transform: scale(1.03);
+  transform: translateY(-3px);
 }
 
 /* Global utility for rounded cards */

@@ -24,7 +24,7 @@ function Rating({
         />
       ))}
       {showValue && (
-        <span className="fw-semibold text-warning" style={{ fontSize: size }}>
+        <span className="fw-bold" style={{ color: "#f59e0b", fontSize: size, marginLeft: '4px' }}>
           {safeValue.toFixed(1)}
         </span>
       )}
