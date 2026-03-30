@@ -105,6 +105,30 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  background-color: #f8f9fa;
+  color: #adb5bd;
+}
+
+.size-stock-status {
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+.stock-in {
+  color: #16a34a; /* Green */
+}
+
+.stock-low {
+  color: #dc2626; /* Red */
+}
+
+.stock-out {
+  color: #6b7280; /* Gray */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {

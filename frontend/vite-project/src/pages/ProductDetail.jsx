@@ -162,7 +162,7 @@ function ProductDetail() {
                     <span className="text-muted small">Out of stock</span>
                   )}
                 </div>
-                <div className="d-flex flex-wrap gap-2 product-size-wrap">
+                <div className="d-flex flex-wrap gap-2 product-size-wrap mb-2">
                   {sizes.map((s) => {
                     const sizeLabel = String(s?.size ?? "");
                     const sizeStock = Number(s?.stock || 0);
@@ -183,6 +183,22 @@ function ProductDetail() {
                     );
                   })}
                 </div>
+                {/* Dynamically show stock for selected size */}
+                {selectedSize && (
+                  <div className="small fw-medium mt-2 size-stock-status">
+                    {(() => {
+                      const sizeObj = sizes.find((s) => String(s?.size ?? "") === selectedSize);
+                      const stockVal = sizeObj ? Number(sizeObj?.stock || 0) : 0;
+                      if (stockVal === 0) {
+                        return <span className="stock-out">Out of Stock</span>;
+                      } else if (stockVal <= 10) {
+                        return <span className="stock-low">Only {stockVal} left</span>;
+                      } else {
+                        return <span className="stock-in">In Stock</span>;
+                      }
+                    })()}
+                  </div>
+                )}
               </div>
             )}
 
