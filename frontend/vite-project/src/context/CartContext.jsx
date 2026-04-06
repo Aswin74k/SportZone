@@ -10,7 +10,7 @@ export const useCart = () => useContext(CartContext);
 const TOKEN_KEY = "access";
 
 const openLoginModal = () => {
-  window.dispatchEvent(new Event("openLoginModal"));
+  window.location.href = "/login";
 };
 
 const getToken = () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem("token");

@@ -1,15 +1,19 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaEnvelope, FaKey, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import API from "../api";
+import Logo from "../components/Logo";
+import "./Auth.css";
 
-function ForgotPassword() {
+const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const sendOtp = async () => {
     if (!email) {
@@ -58,6 +62,7 @@ function ForgotPassword() {
       setEmail("");
       setOtp("");
       setPassword("");
+      navigate("/login");
     } catch (error) {
       toast.error(error?.response?.data?.error || "Failed to reset password");
     } finally {
@@ -66,77 +71,118 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="container py-5">
-      <div className="card border-0 rounded-4 shadow-lg p-4 mx-auto" style={{ maxWidth: 520 }}>
-        <h4 className="fw-bold mb-3">Forgot Password</h4>
+    <div className="auth-page-container">
+      <div className="auth-brand-header fade-in">
+        <Link to="/" className="auth-brand-link">
+          <Logo fontSize="2rem" />
+        </Link>
+        <div className="auth-brand-tagline">Premium Sports Gear</div>
+      </div>
+
+      <div className="auth-card fade-in">
+        <h2 className="auth-title">Reset Password</h2>
+        <p className="auth-subtitle">Securely recover your SportZone account</p>
 
         {step === 1 && (
-          <>
-            <label className="form-label small fw-bold text-muted">Email</label>
-            <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-0"><FaEnvelope /></span>
-              <input
-                type="email"
-                className="form-control bg-light border-0"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-              />
+          <div className="fade-in">
+            <div className="mb-4">
+              <label className="auth-label">Email Address</label>
+              <div className="auth-input-group">
+                <FaEnvelope className="auth-input-icon" />
+                <input
+                  type="email"
+                  className="auth-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  autoFocus
+                />
+              </div>
             </div>
-            <button className="btn btn-primary w-100 rounded-pill" onClick={sendOtp} disabled={loading}>
-              {loading ? "Sending..." : "Send OTP"}
+            <button className="auth-primary-btn" onClick={sendOtp} disabled={loading}>
+              {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Sending...
+                  </>
+                ) : "Send OTP"}
             </button>
-          </>
+          </div>
         )}
 
         {step === 2 && (
-          <>
-            <label className="form-label small fw-bold text-muted">OTP</label>
-            <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-0"><FaKey /></span>
-              <input
-                className="form-control bg-light border-0"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                maxLength={6}
-                placeholder="Enter 6-digit OTP"
-              />
+          <div className="fade-in">
+             <div className="auth-email-display">
+                <span className="auth-email-text">{email}</span>
+                <button type="button" className="auth-link" onClick={() => setStep(1)}>Change</button>
+              </div>
+              
+            <div className="mb-4">
+              <label className="auth-label">OTP Verification</label>
+              <div className="auth-input-group">
+                <FaKey className="auth-input-icon" />
+                <input
+                  type="text"
+                  className="auth-input"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                  placeholder="Enter 6-digit OTP"
+                  autoFocus
+                />
+              </div>
             </div>
-            <button className="btn btn-primary w-100 rounded-pill" onClick={verifyOtp} disabled={loading}>
-              {loading ? "Verifying..." : "Verify OTP"}
+            <button className="auth-primary-btn" onClick={verifyOtp} disabled={loading}>
+              {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Verifying...
+                  </>
+                ) : "Verify OTP"}
             </button>
-          </>
+          </div>
         )}
 
         {step === 3 && (
-          <>
-            <label className="form-label small fw-bold text-muted">New Password</label>
-            <div className="input-group mb-3">
-              <span className="input-group-text bg-light border-0"><FaLock /></span>
-              <input
-                type={showPassword ? "text" : "password"}
-                className="form-control bg-light border-0"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-              <button
-                type="button"
-                className="input-group-text bg-light border-0"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
+          <div className="fade-in">
+            <div className="mb-4">
+              <label className="auth-label">New Password</label>
+              <div className="auth-input-group">
+                <FaLock className="auth-input-icon" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="auth-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="btn-eye-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
-            <button className="btn btn-success w-100 rounded-pill" onClick={resetPassword} disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
+            <button className="auth-primary-btn" onClick={resetPassword} disabled={loading}>
+              {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Resetting...
+                  </>
+                ) : "Reset Password"}
             </button>
-          </>
+          </div>
         )}
+
+        <div className="auth-footer">
+          Remember your password? <Link to="/login" className="auth-link fw-bold">Sign In</Link>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default ForgotPassword;
-

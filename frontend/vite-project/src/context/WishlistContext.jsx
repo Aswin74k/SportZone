@@ -9,7 +9,7 @@ const TOKEN_KEY = "access";
 const getToken = () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem("token");
 
 const openLoginModal = () => {
-  window.dispatchEvent(new Event("openLoginModal"));
+  window.location.href = "/login";
 };
 
 export const useWishlist = () => useContext(WishlistContext);

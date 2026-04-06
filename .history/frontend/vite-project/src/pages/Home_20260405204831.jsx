@@ -130,61 +130,40 @@ const Home = () => {
   }
   return (
     <div className="amz-home-container bg-light min-vh-100 pb-5">
-      {/* 1. Top Banner Section - Professional UI Inspired by Flipkart/Amazon */}
-      <div className="sz-hero-banner container-fluid container-xl mt-3 px-sm-3 position-relative mb-4">
-        <div className="sz-hero-inner rounded-4 overflow-hidden position-relative shadow-sm" style={{ height: '360px', backgroundColor: '#3bb3ff', background: 'linear-gradient(180deg, #53b9ff 0%, #209bf1 100%)' }}>
-          
-          {/* Faint Wall Perspective Grid Effect */}
-          <div className="position-absolute w-100 h-100" style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
-              zIndex: 0
-          }}></div>
+      {/* 1. Top Banner Section - Blue Promotional Layout */}
+      <div className="sz-hero-banner container-fluid container-xl mt-3 px-sm-3 position-relative">
+        <div className="sz-hero-inner rounded overflow-hidden position-relative shadow-sm" style={{ height: '380px', backgroundColor: '#57b8ff' }}>
+          {/* Subtle grid background */}
+          <div className="sz-hero-bg-grid position-absolute top-0 start-0 w-100 h-100" style={{ opacity: 0.1, backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
           
           <div className="row h-100 m-0 position-relative z-1">
             {/* Left Content */}
-            <div className="col-12 col-md-6 d-flex flex-column justify-content-center px-4 px-md-5 py-4 position-relative">
-              {/* Floating Festive Logo / Tag */}
-              <div className="bg-warning text-dark px-4 py-2 fw-bolder rounded-pill d-inline-block shadow-sm mb-3 position-relative" style={{ width: 'max-content', transform: 'rotate(-2deg)', border: '3px solid #fff', fontSize: '0.9rem', letterSpacing: '1px', zIndex: 3 }}>
-                ⭐ SPORTZONE SALE
-              </div>
-              
-              <h1 className="fw-bolder mb-1 text-dark" style={{ fontSize: '3rem', letterSpacing: '-1px', lineHeight: '1.1' }}>
+            <div className="col-12 col-md-6 d-flex flex-column justify-content-center px-4 px-md-5 py-4">
+              <h1 className="fw-bold display-4 mb-2 text-dark text-truncate-2" style={{ lineHeight: '1.2' }}>
                 {heroProduct?.name && heroProduct.name.toLowerCase().includes('kit') ? (
-                  <>Premium cricket <br/>kits & more</>
+                  <>Premium<br/>Cricket Kits</>
                 ) : (
-                  <>{heroProduct?.name || "Cricket kits & more"}</>
+                  <>{heroProduct?.name || "Cricket Kits & More"}</>
                 )}
               </h1>
-              <h2 className="fw-bolder mb-2 text-dark" style={{ fontSize: '2.5rem', letterSpacing: '-1px' }}>Min. 50% Off</h2>
-              <p className="fs-3 mb-0 text-dark opacity-75 fw-medium">Sale is live!</p>
+              <p className="fs-4 fw-bold text-dark mb-4 drop-shadow-sm opacity-75">
+                Up to <span className="text-white bg-danger px-2 py-1 rounded ms-1">50% Off</span>
+              </p>
+              <Link to={heroProduct ? `/product/${heroProduct.id}` : "/shop?category=cricket"} className="btn btn-dark text-white fw-bold rounded shadow-sm py-3 px-5 w-auto me-auto hover-scale text-uppercase tracking-wider">
+                Shop Now
+              </Link>
             </div>
             
-            {/* Right Decorative Showcase */}
-            <div className="col-12 col-md-6 position-relative d-none d-md-block h-100 p-0 overflow-hidden">
-              
-              {/* Floating Golden Coin Concept */}
-              <div className="position-absolute shadow d-flex align-items-center justify-content-center fw-bold fs-5" style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, #ffe066, #f59e0b)', top: '25%', left: '10%', border: '3px solid #fff', transform: 'rotate(15deg)', zIndex: 3, color: '#92400e', textShadow: '0px 1px 1px rgba(255,255,255,0.5)' }}>₹</div>
-              
-              {/* Dynamic White Arch/Dome Shape */}
-              <div className="bg-white position-absolute bottom-0 shadow-lg d-flex align-items-center justify-content-center overflow-hidden" 
-                   style={{ 
-                     width: '80%', 
-                     height: '92%', 
-                     right: '8%',
-                     borderTopLeftRadius: '200px', 
-                     borderTopRightRadius: '200px',
-                     zIndex: 2
-                   }}>
-                   <img 
-                     src={heroProduct ? getImageUrl(heroProduct.image) : getImageUrl("/media/cricket_banner.png")} 
-                     alt={heroProduct?.name || "Cricket Kit"} 
-                     className="img-fluid p-4" 
-                     style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} 
-                     onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&q=80&w=800"; }} 
-                   />
-              </div>
-
+            {/* Right Decorative Shape & Image */}
+            <div className="col-12 col-md-6 position-relative d-none d-md-block h-100 d-flex align-items-end justify-content-center">
+              <div className="sz-hero-shape bg-white position-absolute bottom-0 end-0" style={{ width: '90%', height: '90%', borderTopLeftRadius: '50%', borderTopRightRadius: '50%', opacity: 0.85 }}></div>
+              <img 
+                src={heroProduct ? getImageUrl(heroProduct.image) : getImageUrl("/media/cricket_banner.png")} 
+                alt={heroProduct?.name || "Cricket Kit"} 
+                className="position-relative z-2" 
+                style={{ height: '95%', objectFit: 'contain', filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.3))' }} 
+                onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&q=80&w=800"; }} 
+              />
             </div>
           </div>
         </div>

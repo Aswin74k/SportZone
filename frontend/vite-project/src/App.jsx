@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -15,6 +15,11 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+
+import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -23,19 +28,21 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./index.css";
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isAuthPage = ["/login", "/register", "/forgot-password"].includes(location.pathname);
+
   return (
-    <Router>
-      <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100">
 
-        {/* 🔥 NAVBAR */}
-        <Navbar />
+      {/* 🔥 NAVBAR (Hidden on Auth Pages) */}
+      {!isAuthPage && <Navbar />}
 
-        {/* 🔥 MAIN CONTENT */}
-        <main className="flex-grow-1 main-content">
+      {/* 🔥 MAIN CONTENT */}
+      <main className="flex-grow-1 main-content">
 
-          {/* 🔥 TOAST */}
-          <ToastContainer position="top-center" autoClose={3000} />
+        {/* 🔥 TOAST */}
+        <ToastContainer position="top-center" autoClose={3000} />
 
           <Routes>
 
@@ -85,6 +92,9 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* 🔥 404 PAGE */}
             <Route
@@ -104,7 +114,16 @@ function App() {
         </main>
 
       </div>
-    </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

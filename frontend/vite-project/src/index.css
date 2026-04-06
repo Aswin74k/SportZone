@@ -24,7 +24,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--dark-color);
   font-weight: 700;
 }
@@ -98,6 +103,7 @@ h1, h2, h3, h4, h5, h6 {
 .slick-dots li button:before {
   color: var(--primary-color);
 }
+
 .slick-active button:before {
   color: var(--primary-color) !important;
 }

@@ -33,8 +33,7 @@ API.interceptors.response.use(
         localStorage.clear();
         window.dispatchEvent(new Event("logout"));
         toast.error("Session expired, please login");
-        window.dispatchEvent(new Event("openLoginModal"));
-        window.location.href = "/";
+        window.location.href = "/login";
         return;
       }
 
@@ -57,8 +56,7 @@ API.interceptors.response.use(
         localStorage.clear();
         window.dispatchEvent(new Event("logout"));
         toast.error("Session expired, please login");
-        window.dispatchEvent(new Event("openLoginModal"));
-        window.location.href = "/";
+        window.location.href = "/login";
         return Promise.reject(err);
       }
     }

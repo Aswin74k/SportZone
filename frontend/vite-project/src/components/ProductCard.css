@@ -1,73 +1,25 @@
-.product-card {
-  transition: all var(--transition-speed);
-  cursor: pointer;
-  background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.04) !important;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--hover-shadow) !important;
-}
-
+/* Explicitly nullifying ProductCard.css since styles are correctly handled globally in Home.css for unified strict UX styling, or merged. */
 .product-image-container {
-  height: 250px;
-  overflow: hidden;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.02);
-}
-
-.product-image {
+  height: 220px;
   width: 100%;
-  height: 100%;
+}
+
+.amz-product-image {
+  max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
-  transition: transform 0.4s ease;
+  mix-blend-mode: multiply;
+  transition: transform 0.3s ease;
 }
 
-.wishlist-heart-btn {
-  width: 40px;
-  height: 40px;
-  border: none;
-  padding: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
+.amz-product-card:hover .amz-product-image {
+  transform: scale(1.04);
 }
 
-.wishlist-heart-btn:hover {
-  transform: translateY(-2px);
-  background: #ffffff;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-}
-
-.wishlist-heart-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.wishlist-heart-icon {
-  font-size: 16px;
-  color: var(--primary-color);
-}
-
-.product-card:hover .product-image {
-  transform: scale(1.06);
-}
-
-.product-card .card-body{
-  min-width: 0; /* prevent flex overflow causing overlap */
-}
-
-.product-image-container{
-  position: relative;
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

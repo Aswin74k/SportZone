@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock, FaExclamationCircle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import "./AuthModal.css";
 
 const SignupModal = ({ show, handleClose, openLogin }) => {
@@ -74,39 +74,35 @@ const SignupModal = ({ show, handleClose, openLogin }) => {
         <div className="modal-content auth-modal-content">
 
           <div className="d-flex justify-content-between align-items-center mb-1">
-            <h4 className="fw-bold auth-title mb-0">Create Account</h4>
-            <button type="button" className="btn-close btn-close-white" onClick={handleClose}></button>
+            <h4 className="fw-bold text-dark mb-0">Create Account</h4>
+            <button className="btn-close" onClick={handleClose}></button>
           </div>
-          <p className="auth-subtitle small mb-4">Join SportZone for faster checkout</p>
+          <p className="text-muted small mb-4">Join SportZone for faster checkout</p>
 
           <form onSubmit={handleSubmit(onSubmit)}>
 
             <div className="mb-3">
-              <label className="form-label small fw-bold auth-subtitle">Full Name</label>
-              <div className={`input-group auth-input-group ${errors.fullName ? "is-invalid" : ""}`}>
+              <label className="form-label small fw-bold text-muted">Full Name</label>
+              <div className="input-group auth-input-group">
                 <span className="input-group-text"><FaUser /></span>
                 <input 
                   type="text" 
-                  className="form-control" 
-                  placeholder="e.g., John Doe" 
+                  className={`form-control ${errors.fullName ? "is-invalid" : ""}`} 
+                  placeholder="John Doe" 
                   {...register("fullName", { required: "Full name is required" })}
                 />
               </div>
-              {errors.fullName && (
-                <div className="auth-error-msg">
-                  <FaExclamationCircle /> {errors.fullName.message}
-                </div>
-              )}
+              {errors.fullName && <div className="text-danger small mt-1">{errors.fullName.message}</div>}
             </div>
 
             <div className="mb-3">
-              <label className="form-label small fw-bold auth-subtitle">Email Address</label>
-              <div className={`input-group auth-input-group ${errors.email ? "is-invalid" : ""}`}>
+              <label className="form-label small fw-bold text-muted">Email</label>
+              <div className="input-group auth-input-group">
                 <span className="input-group-text"><FaEnvelope /></span>
                 <input 
                   type="email" 
-                  className="form-control" 
-                  placeholder="e.g., alex@company.com" 
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`} 
+                  placeholder="john@example.com" 
                   {...register("email", { 
                     required: "Email is required",
                     pattern: {
@@ -116,68 +112,51 @@ const SignupModal = ({ show, handleClose, openLogin }) => {
                   })}
                 />
               </div>
-              {errors.email && (
-                <div className="auth-error-msg">
-                  <FaExclamationCircle /> {errors.email.message}
-                </div>
-              )}
+              {errors.email && <div className="text-danger small mt-1">{errors.email.message}</div>}
             </div>
 
             <div className="mb-3">
-              <label className="form-label small fw-bold auth-subtitle">Password</label>
-              <div className={`input-group auth-input-group ${errors.password ? "is-invalid" : ""}`}>
+              <label className="form-label small fw-bold text-muted">Password</label>
+              <div className="input-group auth-input-group">
                 <span className="input-group-text"><FaLock /></span>
                 <input 
                   type={showPassword ? "text" : "password"} 
-                  className="form-control" 
+                  className={`form-control ${errors.password ? "is-invalid" : ""}`} 
                   placeholder="••••••••" 
                   {...register("password", { 
                     required: "Password is required", 
                     minLength: { value: 6, message: "Minimum 6 characters" } 
                   })}
                 />
-                <button type="button" className="btn-eye-toggle" onClick={() => setShowPassword(!showPassword)}>
+                <button type="button" className="input-group-text" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-              {errors.password && (
-                <div className="auth-error-msg">
-                  <FaExclamationCircle /> {errors.password.message}
-                </div>
-              )}
+              {errors.password && <div className="text-danger small mt-1">{errors.password.message}</div>}
             </div>
 
             <div className="mb-4">
-              <label className="form-label small fw-bold auth-subtitle">Confirm Password</label>
-              <div className={`input-group auth-input-group ${errors.confirmPassword ? "is-invalid" : ""}`}>
+              <label className="form-label small fw-bold text-muted">Confirm Password</label>
+              <div className="input-group auth-input-group">
                 <span className="input-group-text"><FaLock /></span>
                 <input 
                   type={showConfirmPassword ? "text" : "password"} 
-                  className="form-control" 
+                  className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`} 
                   placeholder="••••••••" 
                   {...register("confirmPassword", { 
                     required: "Please confirm your password", 
                     validate: value => value === passwordVal || "Passwords do not match" 
                   })}
                 />
-                <button type="button" className="btn-eye-toggle" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <button type="button" className="input-group-text" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <div className="auth-error-msg">
-                  <FaExclamationCircle /> {errors.confirmPassword.message}
-                </div>
-              )}
+              {errors.confirmPassword && <div className="text-danger small mt-1">{errors.confirmPassword.message}</div>}
             </div>
 
-            <button className="auth-btn-primary w-100 d-flex justify-content-center align-items-center" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Creating...
-                </>
-              ) : "Create Account"}
+            <button className="auth-btn-primary w-100" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Account"}
             </button>
 
           </form>
