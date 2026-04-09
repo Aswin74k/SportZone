@@ -12,9 +12,6 @@
   transition: transform 0.3s ease;
 }
 
-.amz-product-card:hover .amz-product-image {
-  transform: scale(1.04);
-}
 
 .text-truncate-2 {
   display: -webkit-box;

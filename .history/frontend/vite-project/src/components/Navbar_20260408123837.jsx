@@ -217,7 +217,7 @@ function Navbar() {
                 <span className="text-primary">{cat.icon}</span>
                 {cat.name}
               </Link>
-            ))}
+            ))}N
           </div>
         </div>
       )}
