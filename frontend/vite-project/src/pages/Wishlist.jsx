@@ -1,62 +1,54 @@
-import React from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ui/ProductCardSkeleton";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import StoreShell from "../components/StoreShell";
 import "./Wishlist.css";
 
 function Wishlist() {
   const navigate = useNavigate();
   const { wishlistProducts, wishlistLoading } = useWishlist();
 
-  if (wishlistLoading) {
-    return (
-      <div className="container py-5 text-center">
-        Loading wishlist...
-      </div>
-    );
-  }
-
   return (
-    <section className="products-section">
-      <div className="container">
-        <div className="products-header">
-          <div>
-            <p className="products-kicker">WISHLIST</p>
-            <h2 className="products-title">Your saved items</h2>
-          </div>
-        </div>
+    <StoreShell>
+      <div className="container-fluid container-xl sz-wishlist-page">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+          <p className="sz-kicker mb-1">Saved for later</p>
+          <h1 className="h3 fw-bold mb-0">Your wishlist</h1>
+        </motion.div>
 
-        {wishlistProducts.length === 0 ? (
-          <div className="empty-wishlist text-center py-5">
-            <div className="mb-3 text-muted" style={{ fontSize: 18 }}>
-              💗 Your wishlist is empty
-            </div>
-            <button
-              type="button"
-              className="btn btn-primary rounded-pill px-4"
-              onClick={() => navigate("/products")}
-            >
-              Continue Shopping
-            </button>
+        {wishlistLoading ? (
+          <div className="row g-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div className="col-xl-3 col-lg-4 col-md-6" key={i}>
+                <ProductCardSkeleton />
+              </div>
+            ))}
           </div>
+        ) : wishlistProducts.length === 0 ? (
+          <motion.div className="sz-wishlist-empty text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="sz-wishlist-empty-icon mb-3">♥</div>
+            <h3 className="fw-bold">Nothing saved yet</h3>
+            <p className="text-muted mb-4">Tap the heart on any product to build your collection.</p>
+            <button type="button" className="btn sz-btn-sport px-4" onClick={() => navigate("/shop")}>
+              Explore shop
+            </button>
+          </motion.div>
         ) : (
-          <div className="row">
-            {wishlistProducts.map((product) => (
-              <div
-                className="col-xl-3 col-lg-4 col-md-6 mb-4 d-flex"
-                key={product.id}
-              >
+          <div className="row g-4">
+            {wishlistProducts.map((product, index) => (
+              <div className="col-xl-3 col-lg-4 col-md-6 d-flex" key={product.id}>
                 <div className="w-100">
-                  <ProductCard product={product} />
+                  <ProductCard product={product} index={index} />
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-    </section>
+    </StoreShell>
   );
 }
 
 export default Wishlist;
-

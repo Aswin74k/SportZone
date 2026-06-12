@@ -4,6 +4,7 @@ import { FaBox, FaHeart, FaHeadset, FaShieldAlt, FaFileContract, FaUserCircle } 
 import { toast } from "react-toastify";
 import { useCart } from "../context/CartContext";
 import API from "../api";
+import StoreShell from "../components/StoreShell";
 import "./Profile.css";
 
 function Profile() {
@@ -45,6 +46,7 @@ function Profile() {
   };
 
   return (
+    <StoreShell>
     <div className="account-page container py-4" style={{ maxWidth: '900px' }}>
       <div className="account-header text-center">
         <div className="account-avatar mx-auto mb-2">
@@ -137,6 +139,7 @@ function Profile() {
         </div>
       </div>
     </div>
+    </StoreShell>
   );
 }
 

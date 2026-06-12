@@ -1,8 +1,23 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+import dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env
+env_path = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_path):
+    print(f"[RAZORPAY DEBUG] Loading .env from: {env_path}")
+    dotenv.load_dotenv(env_path)
+else:
+    fallback_env_path = os.path.join(BASE_DIR.parent, '.env')
+    if os.path.exists(fallback_env_path):
+        print(f"[RAZORPAY DEBUG] Loading fallback .env from: {fallback_env_path}")
+        dotenv.load_dotenv(fallback_env_path)
+    else:
+        print("[RAZORPAY DEBUG] No .env file found in backend or root directory!")
+
 
 
 # =========================
@@ -153,3 +168,30 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'sportzone.support@gmail.com'
 EMAIL_HOST_PASSWORD = 'tmqnmfkytbtkloar'
+
+# =========================
+# RAZORPAY SETTINGS
+# =========================
+from django.core.exceptions import ImproperlyConfigured
+
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+
+print("=== SERVER STARTUP RAZORPAY DEBUG ===")
+print(f"Loaded KEY ID: {RAZORPAY_KEY_ID}")
+if RAZORPAY_KEY_SECRET:
+    print(f"Loaded SECRET (first 5 chars): {RAZORPAY_KEY_SECRET[:5]}...")
+else:
+    print("Loaded SECRET: None")
+
+# Verify python-dotenv key ID format (starts with "rzp_test_" or "rzp_live_")
+if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+    print("[RAZORPAY CRITICAL ERROR] Razorpay credentials are missing!")
+    raise ImproperlyConfigured("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set in environment or .env file.")
+
+if not (RAZORPAY_KEY_ID.startswith("rzp_test_") or RAZORPAY_KEY_ID.startswith("rzp_live_")):
+    print(f"[RAZORPAY CRITICAL ERROR] Typo or invalid format in RAZORPAY_KEY_ID: '{RAZORPAY_KEY_ID}'")
+    raise ImproperlyConfigured("RAZORPAY_KEY_ID must start with 'rzp_test_' or 'rzp_live_'.")
+
+print("[RAZORPAY DEBUG] Razorpay credentials verified successfully at startup.")
+print("=====================================")

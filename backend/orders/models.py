@@ -31,6 +31,23 @@ class Order(models.Model):
         default="Pending"
     )
 
+    # Shipping details
+    shipping_name = models.CharField(max_length=150, blank=True, null=True)
+    shipping_phone = models.CharField(max_length=20, blank=True, null=True)
+    shipping_address = models.TextField(blank=True, null=True)
+    shipping_city = models.CharField(max_length=100, blank=True, null=True)
+    shipping_state = models.CharField(max_length=100, blank=True, null=True)
+    shipping_pincode = models.CharField(max_length=10, blank=True, null=True)
+
+    # Payment details
+    payment_method = models.CharField(max_length=20, default="COD")  # "COD" or "Razorpay"
+    payment_status = models.CharField(max_length=20, default="Pending")  # "Pending", "Paid", "Failed"
+
+    # Razorpay details
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=250, blank=True, null=True)
+
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
 
@@ -38,7 +55,13 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+
+    product_name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    selected_size = models.CharField(max_length=10, default="N/A")
+
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"

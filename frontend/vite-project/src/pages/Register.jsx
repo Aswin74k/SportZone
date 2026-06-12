@@ -47,7 +47,10 @@ const Register = () => {
         localStorage.setItem("access", result.access);
         localStorage.setItem("refresh", result.refresh);
         
-        login({ name: payload.name });
+        login({
+          name: payload.name,
+          is_staff: !!result.user?.is_staff,
+        });
         toast.success("Account created successfully 🎉");
         navigate("/");
       } else {

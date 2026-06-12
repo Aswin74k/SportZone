@@ -55,8 +55,11 @@ const Login = () => {
         localStorage.setItem("token", result.access);
         localStorage.setItem("access", result.access);
         localStorage.setItem("refresh", result.refresh);
-        login(result.user || { name: result.name || result.username || data.email.split('@')[0] });
-        
+        login({
+          name: result.user?.name ?? result.name ?? data.email.split("@")[0],
+          is_staff: !!result.user?.is_staff,
+        });
+
         toast.success("Welcome back 👋");
         navigate(from, { replace: true });
       } else {

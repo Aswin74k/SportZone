@@ -1,12 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CartViewSet, OrderViewSet, wishlist_list
+from .views import CartViewSet, OrderViewSet, wishlist_list, AdminOrderViewSet, debug_razorpay
 
 router = DefaultRouter()
 router.register(r'cart', CartViewSet)
 router.register(r'orders', OrderViewSet)
+router.register(r'admin/orders', AdminOrderViewSet, basename='admin-orders')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('wishlist/', wishlist_list),
+    path('debug/razorpay/', debug_razorpay),
 ]

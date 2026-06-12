@@ -1,1 +1,0 @@
-router.register(r'cart', CartViewSet, basename='cart')

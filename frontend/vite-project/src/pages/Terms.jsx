@@ -1,21 +1,21 @@
-import React from "react";
+import StoreShell from "../components/StoreShell";
 
 function Terms() {
   return (
-    <div className="container py-5">
-      <div className="card border-0 shadow-sm rounded-4 p-4">
-        <h2 className="fw-bold mb-3">Terms & Conditions</h2>
-        <p className="text-muted mb-2">
-          By using SportZone, you agree to our terms regarding account usage,
-          product purchases, shipping policies, and returns.
-        </p>
-        <p className="text-muted mb-0">
-          Please contact support for any clarification regarding these terms.
-        </p>
+    <StoreShell>
+      <div className="container-fluid container-xl" style={{ maxWidth: 720 }}>
+        <div className="sz-section">
+          <p className="sz-kicker mb-1">Legal</p>
+          <h1 className="h3 fw-bold mb-3">Terms & conditions</h1>
+          <p className="text-muted mb-2">
+            By using SportZone, you agree to our terms regarding account usage, product purchases,
+            shipping policies, and returns.
+          </p>
+          <p className="text-muted mb-0">Contact support@sportzone.com for any clarification.</p>
+        </div>
       </div>
-    </div>
+    </StoreShell>
   );
 }
 
 export default Terms;
-

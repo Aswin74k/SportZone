@@ -1,93 +1,79 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone } from 'react-icons/fa';
-import './Footer.css';
+import { Link } from "react-router-dom";
+import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone } from "react-icons/fa";
+import Logo from "./Logo";
+import "./Footer.css";
 
 const Footer = () => {
   return (
-    <footer className="footer bg-dark text-light pt-5 pb-3">
-      <div className="container">
-        <div className="row gy-4 mb-5">
-          <div className="col-lg-4 col-md-6 pe-lg-5">
-            <Link to="/" className="text-decoration-none d-inline-block mb-3 hover-lift transition-all">
-              <h3 className="text-primary fw-bold mb-0 logo-text">SportZone</h3>
+    <footer className="sz-footer">
+      <div className="container-fluid container-xl py-5">
+        <div className="row gy-4 mb-4">
+          <div className="col-lg-4 col-md-6">
+            <Link to="/" className="text-decoration-none d-inline-block mb-3">
+              <Logo fontSize="1.6rem" />
             </Link>
-            <p className="text-light opacity-75 small mb-4 pe-lg-4 lh-lg fw-medium">
-              Premium sports equipment for every athlete. We provide the highest quality gear to help you perform your best.
+            <p className="sz-footer-text mb-4 pe-lg-4">
+              Premium sports gear for every athlete. Train harder, play smarter — only at SportZone.
             </p>
-            <div className="d-flex gap-3 social-icons">
-              <a href="#" className="social-icon rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-10 text-white hover-lift">
-                <FaFacebook />
-              </a>
-              <a href="#" className="social-icon rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-10 text-white hover-lift">
-                <FaTwitter />
-              </a>
-              <a href="#" className="social-icon rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-10 text-white hover-lift">
-                <FaInstagram />
-              </a>
-              <a href="#" className="social-icon rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-10 text-white hover-lift">
-                <FaYoutube />
-              </a>
+            <div className="d-flex gap-2 sz-footer-social">
+              {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
+                <a key={i} href="#" className="sz-footer-social-link" aria-label="Social">
+                  <Icon size={16} />
+                </a>
+              ))}
             </div>
           </div>
 
           <div className="col-lg-2 col-md-6 col-6">
-            <h5 className="text-white fw-bold mb-4 position-relative footer-heading">Categories</h5>
-            <ul className="list-unstyled footer-links">
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop?category=football">Football</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop?category=cricket">Cricket</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop?category=basketball">Basketball</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop?category=badminton">Badminton</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop?category=shoes">Sports Shoes</Link></li>
+            <h5 className="sz-footer-heading">Shop</h5>
+            <ul className="list-unstyled sz-footer-links">
+              <li><Link to="/shop?category=cricket">Cricket</Link></li>
+              <li><Link to="/shop?category=football">Football</Link></li>
+              <li><Link to="/shop?category=running">Running</Link></li>
+              <li><Link to="/shop?category=basketball">Basketball</Link></li>
+              <li><Link to="/shop">All products</Link></li>
             </ul>
           </div>
 
           <div className="col-lg-2 col-md-6 col-6">
-            <h5 className="text-white fw-bold mb-4 position-relative footer-heading">Useful Links</h5>
-            <ul className="list-unstyled footer-links">
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/">Home</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/shop">Shop</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="/cart">Cart</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="#">About Us</Link></li>
-              <li className="mb-3"><Link className="text-decoration-none hover-lift d-inline-block fw-medium" to="#">Privacy Policy</Link></li>
+            <h5 className="sz-footer-heading">Account</h5>
+            <ul className="list-unstyled sz-footer-links">
+              <li><Link to="/orders">Orders</Link></li>
+              <li><Link to="/wishlist">Wishlist</Link></li>
+              <li><Link to="/cart">Cart</Link></li>
+              <li><Link to="/profile">Profile</Link></li>
+              <li><Link to="/help">Help</Link></li>
             </ul>
           </div>
 
           <div className="col-lg-4 col-md-6">
-            <h5 className="text-white fw-bold mb-4 position-relative footer-heading">Contact Us</h5>
-            <ul className="list-unstyled contact-info mb-4">
-              <li className="d-flex mb-3 align-items-start">
-                <FaMapMarkerAlt className="text-primary mt-1 me-3 fs-5" />
-                <span className="text-light opacity-75 small lh-base fw-medium"> Sports Avenue, Calicut, India</span>
-              </li>
-              <li className="d-flex mb-3 align-items-center">
-                <FaPhone className="text-primary me-3 fs-5" />
-                <span className="text-light opacity-75 small fw-medium">+91 7736476734</span>
-              </li>
-              <li className="d-flex mb-3 align-items-center">
-                <FaEnvelope className="text-primary me-3 fs-5" />
-                <span className="text-light opacity-75 small fw-medium">support@sportzone.com</span>
-              </li>
+            <h5 className="sz-footer-heading">Contact</h5>
+            <ul className="list-unstyled sz-footer-contact">
+              <li><FaMapMarkerAlt className="text-primary" /> Sports Avenue, Calicut, India</li>
+              <li><FaPhone className="text-primary" /> +91 7736476734</li>
+              <li><FaEnvelope className="text-primary" /> support@sportzone.com</li>
             </ul>
-            <form className="newsletter-form mt-4">
-              <div className="input-group p-1 bg-white bg-opacity-10 rounded-pill border border-secondary border-opacity-50 transition-all shadow-sm">
-                <input type="email" className="form-control bg-transparent text-light border-0 shadow-none px-3 fw-medium" placeholder="Email address" />
-                <button className="btn btn-primary rounded-pill px-4 fw-medium hover-lift" type="button">Subscribe</button>
+            <form className="sz-footer-newsletter mt-3" onSubmit={(e) => e.preventDefault()}>
+              <div className="input-group">
+                <input type="email" className="form-control" placeholder="Your email" aria-label="Email" />
+                <button className="btn sz-btn-sport" type="button">Subscribe</button>
               </div>
             </form>
           </div>
         </div>
-        
-        <hr className="bg-light opacity-25 my-4" />
-        
-        <div className="row align-items-center">
-          <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <p className="text-light opacity-75 small mb-0 fw-medium">&copy; {new Date().getFullYear()} SportZone. All rights reserved.</p>
+
+        <hr className="sz-footer-divider" />
+
+        <div className="row align-items-center gy-3">
+          <div className="col-md-6 text-center text-md-start">
+            <p className="sz-footer-copy mb-0">&copy; {new Date().getFullYear()} SportZone. All rights reserved.</p>
           </div>
-          <div className="col-md-6 text-center text-md-end payment-icons">
-            <span className="badge bg-white bg-opacity-10 text-light opacity-75 me-2 py-2 px-3 fw-bold rounded-1 border border-light border-opacity-25 hover-lift">VISA</span>
-            <span className="badge bg-white bg-opacity-10 text-light opacity-75 me-2 py-2 px-3 fw-bold rounded-1 border border-light border-opacity-25 hover-lift">MasterCard</span>
-            <span className="badge bg-white bg-opacity-10 text-light opacity-75 py-2 px-3 fw-bold rounded-1 border border-light border-opacity-25 hover-lift">PayPal</span>
+          <div className="col-md-6 text-center text-md-end">
+            <Link to="/privacy" className="sz-footer-legal me-3">Privacy</Link>
+            <Link to="/terms" className="sz-footer-legal">Terms</Link>
+            <span className="ms-3 sz-pay-pill">UPI</span>
+            <span className="sz-pay-pill">Cards</span>
+            <span className="sz-pay-pill">Razorpay</span>
           </div>
         </div>
       </div>

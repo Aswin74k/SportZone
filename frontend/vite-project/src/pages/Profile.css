@@ -7,15 +7,16 @@
 }
 
 .account-avatar {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 999px;
-  background: rgba(37,99,235,0.08);
-  border: 1px solid rgba(37,99,235,0.18);
+  background: linear-gradient(135deg, var(--sz-blue-soft, #eff6ff), #fff);
+  border: 2px solid rgba(0, 51, 102, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-color);
+  color: var(--sz-navy, #003366);
+  box-shadow: var(--sz-shadow, 0 4px 20px rgba(0, 51, 102, 0.08));
 }
 
 .account-greeting {
@@ -32,21 +33,22 @@
 .account-card {
   width: 100%;
   text-align: left;
-  border: none;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--soft-shadow);
+  border: 1px solid var(--sz-border, #e2e8f0);
+  background: var(--sz-surface, #fff);
+  border-radius: var(--sz-radius-lg, 16px);
+  box-shadow: var(--sz-shadow, 0 4px 20px rgba(0, 51, 102, 0.06));
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
 }
 
 .account-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+  box-shadow: var(--sz-shadow-hover, 0 12px 32px rgba(0, 51, 102, 0.12));
+  border-color: rgba(37, 99, 235, 0.25);
 }
 
 .account-card-icon {

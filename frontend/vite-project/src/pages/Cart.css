@@ -1,45 +1,101 @@
-/* Cart Specific CSS */
-
-.fk-cart-container {
-  font-family: Roboto, Arial, sans-serif;
+.sz-cart-page {
+  background: var(--sz-bg);
+  min-height: 70vh;
+  padding-bottom: 3rem;
 }
 
-.fk-cart-item:hover {
-  background-color: #fafafa;
+.sz-cart-card {
+  background: var(--sz-surface);
+  border: 1px solid var(--sz-border);
+  border-radius: var(--sz-radius-lg);
+  box-shadow: var(--sz-shadow);
+  overflow: hidden;
 }
 
-.fk-cart-title {
-  max-width: 90%;
-  font-size: 1rem;
+.sz-cart-item {
+  padding: 1.25rem 1.5rem;
+  transition: background 0.15s;
 }
 
-.hover-blue:hover {
-  color: #2874f0 !important;
+.sz-cart-item:hover {
+  background: #f8fafc;
 }
 
-.fk-place-order-btn {
-  background-color: #fb641b;
-  border-radius: 2px;
-  font-size: 1rem;
-  min-width: 200px;
+.sz-cart-item-title {
+  font-weight: 600;
+  color: var(--sz-text);
+  text-decoration: none;
+  display: block;
+  max-width: 100%;
 }
 
-.fk-place-order-btn:hover {
-  background-color: #f15206;
-  color: white;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2) !important;
+.sz-cart-item-title:hover {
+  color: var(--sz-blue);
 }
 
-.border-dashed {
-  border-top-style: dashed !important;
+.sz-qty-control {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--sz-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
 }
 
-@media (max-width: 991px) {
-  .fk-summary-card {
-    position: static !important;
-  }
+.sz-qty-control button {
+  border: none;
+  background: var(--sz-blue-soft);
+  color: var(--sz-navy);
+  width: 36px;
+  height: 36px;
+  font-weight: 700;
+  transition: background 0.15s;
 }
 
-input:focus {
-  outline: none;
+.sz-qty-control button:hover {
+  background: #dbeafe;
+}
+
+.sz-qty-control input {
+  width: 40px;
+  text-align: center;
+  border: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sz-cart-summary {
+  position: sticky;
+  top: 88px;
+}
+
+.sz-cart-empty {
+  max-width: 520px;
+  margin: 3rem auto;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--sz-surface);
+  border-radius: var(--sz-radius-lg);
+  box-shadow: var(--sz-shadow);
+}
+
+.sz-cart-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.35;
+}
+
+.sz-cart-checkout-btn {
+  background: linear-gradient(135deg, var(--sz-navy), var(--sz-blue));
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.85rem 2rem;
+  border-radius: 999px;
+}
+
+.sz-cart-checkout-btn:hover {
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--sz-shadow-hover);
 }

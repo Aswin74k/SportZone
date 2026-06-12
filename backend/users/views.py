@@ -10,7 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 import random
 
-from .models import EmailOTP
+from .models import EmailOTP, UserProfile
 from .serializers import (
     ForgotPasswordSerializer,
     VerifyOTPSerializer,
@@ -20,6 +20,15 @@ from .serializers import (
 
 def generate_otp():
     return str(random.randint(100000, 999999))
+
+
+def jwt_user_display_name(user):
+    name = (user.first_name or "").strip()
+    return name.split()[0] if name else "User"
+
+
+def user_auth_payload(user):
+    return {"name": jwt_user_display_name(user), "is_staff": bool(user.is_staff)}
 
 
 @api_view(['POST'])
@@ -56,12 +65,13 @@ def register_user(request):
     access = refresh.access_token
 
     # ✅ ADD NAME TO TOKEN
-    access['name'] = user.first_name.split()[0]  # only first name
+    access["name"] = jwt_user_display_name(user)
 
     return Response({
         "access": str(access),
         "refresh": str(refresh),
-        "name": user.first_name
+        "name": user.first_name,
+        "user": user_auth_payload(user),
     })
 
 @api_view(['POST'])
@@ -78,16 +88,20 @@ def login_user(request):
     user = authenticate(username=user_obj.username, password=password)
 
     if user:
+        profile = UserProfile.objects.filter(user=user).first()
+        if profile and profile.is_blocked:
+            return Response({"error": "Your account has been suspended."}, status=403)
+
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
 
-        # ✅ SAFE NAME FIX
-        name = user.first_name.strip()
-        access['name'] = name.split()[0] if name else "User"
+        access["name"] = jwt_user_display_name(user)
 
         return Response({
             "access": str(access),
-            "refresh": str(refresh)
+            "refresh": str(refresh),
+            "name": access["name"],
+            "user": user_auth_payload(user),
         })
 
     return Response({"error": "Invalid credentials"}, status=400)
@@ -193,8 +207,41 @@ def reset_password(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    # Minimal profile payload for account dashboard
-    name = (request.user.first_name or "").strip()
+    user = request.user
+    name = (user.first_name or "").strip()
     if not name:
-        name = request.user.username
-    return Response({"username": name})
+        name = user.username
+    profile = UserProfile.objects.filter(user=user).first()
+    return Response(
+        {
+            "username": name,
+            "email": user.email,
+            "is_staff": bool(user.is_staff),
+            "is_blocked": profile.is_blocked if profile else False,
+        }
+    )
+
+
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import Address
+from .serializers import AddressSerializer
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=["post"], url_path="set-default")
+    def set_default(self, request, pk=None):
+        address = self.get_object()
+        address.is_default = True
+        address.save()
+        return Response({"message": "Address set as default successfully."})

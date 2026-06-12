@@ -1,4 +1,20 @@
-.empty-wishlist{
-  background:transparent;
+.sz-wishlist-page {
+  padding-top: 0.5rem;
+  padding-bottom: 2rem;
 }
 
+.sz-wishlist-empty {
+  padding: 4rem 2rem;
+  background: var(--sz-surface);
+  border-radius: var(--sz-radius-lg);
+  border: 1px solid var(--sz-border);
+  box-shadow: var(--sz-shadow);
+  max-width: 480px;
+  margin: 2rem auto;
+}
+
+.sz-wishlist-empty-icon {
+  font-size: 3.5rem;
+  color: #f87171;
+  line-height: 1;
+}
