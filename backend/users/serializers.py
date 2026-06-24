@@ -83,6 +83,7 @@ class AddressSerializer(serializers.ModelSerializer):
             "state",
             "pincode",
             "landmark",
+            "address_type",
             "is_default",
             "created_at",
         ]

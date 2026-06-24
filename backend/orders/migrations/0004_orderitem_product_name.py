@@ -11,7 +11,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.SeparateDatabaseAndState(
-            database_operations=[],
+            database_operations=[
+                migrations.AddField(
+                     model_name='orderitem',
+                     name='product_name',
+                     field=models.CharField(default='', max_length=255),
+                ),
+            ],
             state_operations=[
                 migrations.AddField(
                     model_name='orderitem',

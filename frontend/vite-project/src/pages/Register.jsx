@@ -83,6 +83,7 @@ const Register = () => {
                 type="text"
                 className={`auth-input ${errors.fullName ? "is-invalid" : ""}`}
                 placeholder="Enter your full name"
+                spellCheck="false"
                 {...register("fullName", { required: "Full name is required" })}
               />
             </div>

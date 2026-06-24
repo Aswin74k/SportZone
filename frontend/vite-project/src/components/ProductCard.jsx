@@ -1,16 +1,13 @@
-import { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useWishlist } from "../context/WishlistContext.jsx";
-import { useCart } from "../context/CartContext.jsx";
 import { useNavigate } from "react-router-dom";
 import Rating from "./Rating";
 import { mediaUrl } from "../utils/mediaUrl";
 import "./ProductCard.css";
 
 const ProductCard = ({ product, index = 0 }) => {
-  const [loading, setLoading] = useState(false);
-  const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist, wishlistBusy } = useWishlist();
   const navigate = useNavigate();
 
@@ -18,92 +15,109 @@ const ProductCard = ({ product, index = 0 }) => {
 
   const imageSrc = mediaUrl(product.image) || "/no-image.png";
   const wishlisted = isWishlisted(product.id);
-  const inStock = Number(product.stock || 0) > 0;
-  const displayBrand = product.brand?.name || (typeof product.brand === "string" ? product.brand : "") || product.name?.split(" ")[0]?.toUpperCase() || "SPORTZONE";
+  
+  // Brand name resolution
+  const displayBrand = product.brand?.name || 
+    (typeof product.brand === "string" ? product.brand : "") || 
+    product.name?.split(" ")[0]?.toUpperCase() || 
+    "SPORTZONE";
+
   const price = Number(product?.price || 0);
   const mrp = product?.original_price ? Number(product.original_price) : Math.round(price * 1.2);
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   return (
-    <motion.article
-      className="sz-product-card h-100 d-flex flex-column"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.3) }}
-      onClick={() => navigate(`/product/${product.id}`)}
+    <motion.div
+      className="sz-product-card d-flex flex-column h-100"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
+      onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${product.id}`)}
+      onKeyDown={(e) => e.key === "Enter" && handleCardClick()}
     >
-      <div className="sz-product-card__img-wrap">
-        {discount > 0 && <span className="sz-badge-deal position-absolute top-0 start-0 m-2">{discount}% OFF</span>}
+      {/* CARD IMAGE WRAPPER */}
+      <div className="sz-product-card__img-wrap position-relative overflow-hidden">
+        {/* Discount Badge */}
+        {discount > 0 && (
+          <div className="sz-product-card__discount-badge position-absolute top-0 start-0 m-3 z-3">
+            {discount}% OFF
+          </div>
+        )}
 
-        <motion.button
+        {/* Wishlist Button */}
+        <button
           type="button"
-          className={`sz-product-card__wishlist ${wishlisted ? "is-active" : ""}`}
-          whileTap={{ scale: 0.88 }}
+          className={`sz-product-card__wishlist position-absolute top-0 end-0 m-3 z-3 d-flex align-items-center justify-content-center ${
+            wishlisted ? "is-active" : ""
+          }`}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           disabled={wishlistBusy}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          {wishlisted ? <FaHeart className="text-danger" size={16} /> : <FaRegHeart className="text-secondary" size={16} />}
-        </motion.button>
-
-        <img
-          src={imageSrc}
-          alt={product.name || "Product"}
-          className="sz-product-card__img"
-          onError={(e) => {
-            e.target.src = "/no-image.png";
-          }}
-        />
-      </div>
-
-      <div className="sz-product-card__body">
-        <span className="sz-product-card__brand">{displayBrand}</span>
-        <h3 className="sz-product-card__title">{product.name}</h3>
-
-        <div className="sz-product-card__rating d-flex align-items-center gap-1">
-          <Rating value={product?.rating ?? 4.5} size={14} showValue={false} />
-          <span className="text-muted">· SportZone pick</span>
-        </div>
-
-        <div className="sz-product-card__price-row">
-          <div className="d-flex align-items-baseline gap-2 flex-wrap">
-            <span className="sz-product-card__price">₹{price.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
-            {discount > 0 && <span className="sz-product-card__mrp">₹{mrp.toLocaleString("en-IN")}</span>}
-          </div>
-          <div className="mt-1">
-            {!inStock && (
-              <span className="sz-badge-stock sz-badge-stock--out">Out of stock</span>
-            )}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="sz-product-card__add"
-          onClick={async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!inStock) return;
-            try {
-              setLoading(true);
-              await addToCart({ product_id: product.id, size: "N/A", quantity: 1 });
-            } finally {
-              setLoading(false);
-            }
-          }}
-          disabled={loading || !inStock}
-        >
-          {loading ? "Adding…" : inStock ? "Add to Cart" : "Unavailable"}
+          {wishlisted ? (
+            <FaHeart className="text-danger" size={15} />
+          ) : (
+            <FaRegHeart className="text-secondary" size={15} />
+          )}
         </button>
+
+        {/* Product Image */}
+        <div className="sz-product-card__img-container d-flex align-items-center justify-content-center h-100 w-100">
+          <img
+            src={imageSrc}
+            alt={product.name || "Product"}
+            className="sz-product-card__img img-fluid"
+            onError={(e) => {
+              e.target.src = "/no-image.png";
+            }}
+          />
+        </div>
       </div>
-    </motion.article>
+
+      {/* CARD BODY */}
+      <div className="sz-product-card__body d-flex flex-column flex-grow-1 p-3 text-start">
+        {/* Brand Row */}
+        <div className="mb-1">
+          <span className="sz-product-card__brand text-uppercase">{displayBrand}</span>
+        </div>
+
+        {/* Product Name */}
+        <h3 className="sz-product-card__title mb-2" title={product.name}>
+          {product.name}
+        </h3>
+
+        {/* Rating */}
+        {product?.reviews_count > 0 && (
+          <div className="sz-product-card__rating d-flex align-items-center gap-2 mb-2">
+            <Rating value={product.rating} size={12} showValue={true} />
+            <span className="text-muted small">({product.reviews_count})</span>
+          </div>
+        )}
+
+        {/* Price Row */}
+        <div className="sz-product-card__price-row d-flex align-items-baseline gap-2 mt-auto">
+          <span className="sz-product-card__price">
+            ₹{price.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+          </span>
+          {discount > 0 && (
+            <span className="sz-product-card__mrp text-muted text-decoration-line-through">
+              ₹{mrp.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+            </span>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

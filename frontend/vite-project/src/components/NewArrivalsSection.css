@@ -1,0 +1,44 @@
+/* Styling for the New Arrivals section */
+
+.sz-new-arrivals {
+  padding: 3.5rem 0;
+  background-color: var(--sz-surface);
+  border-bottom: 1px solid var(--sz-border);
+}
+
+.sz-new-arrivals__badge {
+  background-color: var(--sz-blue-soft);
+  color: var(--sz-blue);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.sz-new-arrivals__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--sz-navy);
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.sz-new-arrivals__subtitle {
+  font-size: 0.95rem;
+  margin-top: 0.35rem;
+}
+
+.sz-new-arrivals__card-wrapper {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sz-new-arrivals__card-wrapper:hover {
+  transform: translateY(-4px);
+}
+
+.sz-new-arrivals__link {
+  font-weight: 600;
+  font-size: 0.85rem;
+}

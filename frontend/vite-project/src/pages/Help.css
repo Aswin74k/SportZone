@@ -1,0 +1,229 @@
+/* Help Center UI - Perfectly matching SportZone style */
+
+.sz-help-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+/* Page Header */
+.sz-help-header {
+  margin-bottom: 2rem;
+}
+
+/* Search bar styling - matching the main navbar search styling */
+.sz-help-search-container {
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  position: relative;
+}
+
+.sz-help-search-box {
+  display: flex;
+  align-items: center;
+  background: var(--sz-surface);
+  border: 1.5px solid var(--sz-border);
+  border-radius: 99px;
+  padding: 0.25rem 0.5rem 0.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.03);
+  transition: all 0.2s ease;
+}
+
+.sz-help-search-box:focus-within {
+  border-color: var(--sz-blue);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+}
+
+.sz-help-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  color: var(--sz-text);
+  width: 100%;
+  padding-right: 1rem;
+}
+
+.sz-help-search-input::placeholder {
+  color: var(--sz-muted);
+}
+
+.sz-help-search-btn {
+  background: var(--sz-navy);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-help-search-btn:hover {
+  background: var(--sz-blue);
+}
+
+/* Sidebar Contact Card Group */
+.sz-help-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sz-help-sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sz-navy);
+  margin-bottom: 0.5rem;
+}
+
+/* FAQ Section Accordion styling */
+.sz-faq-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sz-faq-item {
+  background: var(--sz-surface);
+  border: 1px solid var(--sz-border);
+  border-radius: var(--sz-radius-lg);
+  box-shadow: var(--sz-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.sz-faq-item:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 51, 102, 0.04);
+}
+
+.sz-faq-item.active {
+  border-color: var(--sz-blue);
+}
+
+.sz-faq-header {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--sz-text);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sz-faq-item.active .sz-faq-header {
+  color: var(--sz-blue);
+}
+
+.sz-faq-chevron {
+  color: var(--sz-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.sz-faq-item.active .sz-faq-chevron {
+  transform: rotate(180deg);
+  color: var(--sz-blue);
+}
+
+.sz-faq-content-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
+
+.sz-faq-item.active .sz-faq-content-wrapper {
+  max-height: 300px; /* safety ceiling for height transition */
+}
+
+.sz-faq-content {
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  color: var(--sz-muted);
+  font-size: 0.925rem;
+  line-height: 1.6;
+}
+
+/* Contact Cards inside sidebar */
+.sz-contact-card {
+  background: var(--sz-surface);
+  border: 1px solid var(--sz-border);
+  border-radius: var(--sz-radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: var(--sz-shadow);
+  transition: border-color 0.2s ease;
+}
+
+.sz-contact-card:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.sz-contact-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sz-blue-soft);
+  color: var(--sz-blue);
+  flex-shrink: 0;
+}
+
+.sz-contact-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sz-contact-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--sz-navy);
+  margin-bottom: 0.15rem;
+}
+
+.sz-contact-meta {
+  font-size: 0.8rem;
+  color: var(--sz-muted);
+  margin-bottom: 0.5rem;
+}
+
+.sz-contact-value {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--sz-text);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color 0.15s ease;
+}
+
+.sz-contact-card:hover .sz-contact-value {
+  color: var(--sz-blue);
+}
+
+.sz-contact-status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--sz-muted);
+  background: var(--sz-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  width: fit-content;
+}

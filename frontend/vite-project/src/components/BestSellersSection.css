@@ -1,0 +1,153 @@
+/* Flat Borderless Image-Row Best Sellers Section Styling */
+
+.sz-best-sellers {
+  background: #ffffff;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.4);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.sz-best-sellers__container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Header Styling: Single line, bold heading text with See More link */
+.sz-best-sellers__header-row {
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.sz-best-sellers__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.sz-best-sellers__subtitle {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #0f172a;
+}
+
+.sz-best-sellers__view-all {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #007185; /* Amazon Teal color */
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.sz-best-sellers__view-all:hover {
+  color: #c7511f; /* Amazon Orange hover */
+  text-decoration: underline;
+}
+
+/* Flat Row Layout */
+.sz-best-sellers__grid {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.sz-best-sellers__grid::-webkit-scrollbar {
+  height: 5px;
+}
+
+.sz-best-sellers__grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sz-best-sellers__grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+.sz-best-sellers__item {
+  flex: 0 0 180px; /* Uniform width for items */
+  scroll-snap-align: start;
+}
+
+/* Flat Image Card Styles */
+.sz-flat-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f7f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.sz-flat-card:hover {
+  transform: scale(1.02);
+}
+
+.sz-flat-card__img {
+  max-height: 85%;
+  max-width: 85%;
+  object-fit: contain;
+  mix-blend-mode: multiply; /* Blends image backgrounds seamlessly */
+}
+
+.sz-flat-card__discount-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #ffd700; /* Premium Yellow */
+  color: #000000;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Fallback Notice */
+.sz-best-sellers__fallback-notice {
+  font-size: 0.78rem;
+  color: #856404;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 0.4rem 0.85rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+/* Responsive Overrides */
+@media (max-width: 767.98px) {
+  .sz-best-sellers {
+    padding: 1.5rem 0;
+  }
+  
+  .sz-best-sellers__header-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .sz-best-sellers__title,
+  .sz-best-sellers__subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .sz-best-sellers__item {
+    flex: 0 0 140px; /* Slightly smaller on mobile devices */
+  }
+}

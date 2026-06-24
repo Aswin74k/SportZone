@@ -164,6 +164,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             # Clear the user's cart upon successful COD order creation
             cart_items.delete()
 
+        # ✅ SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
+        from sportzone.email_utils import send_order_confirmation_email_async
+        send_order_confirmation_email_async(order)
+
         return Response({"message": "Order placed successfully", "order_id": order.id})
 
     # 🔥 CREATE RAZORPAY ORDER API
@@ -427,6 +431,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             # Empty the user's cart only if it's not a Buy Now order
             if not is_buy_now:
                 Cart.objects.filter(user=order.user).delete()
+
+            # ✅ SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
+            from sportzone.email_utils import send_order_confirmation_email_async
+            send_order_confirmation_email_async(order)
 
             return Response({
                 "message": "Payment verified and order placed successfully.",

@@ -50,15 +50,15 @@ h6 {
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: #000000;
+  border-color: #000000;
   transition: all var(--transition-speed);
-  border-radius: var(--border-radius) !important;
+  border-radius: 999px !important;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
+  background-color: #2563eb;
+  border-color: #2563eb;
   transform: translateY(-3px);
   box-shadow: var(--hover-shadow);
 }

@@ -56,6 +56,7 @@ class Product(models.Model):
     is_trending = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_deal_of_the_week = models.BooleanField(default=False)
+    is_best_seller = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -139,6 +140,10 @@ class Banner(models.Model):
     button_text = models.CharField(max_length=50, blank=True, default="Shop Now")
     badge_text = models.CharField(max_length=100, blank=True)
     secondary_text = models.CharField(max_length=250, blank=True)
+    
+    description = models.TextField(blank=True)
+    linked_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name="linked_banners")
+    featured_products = models.ManyToManyField(Product, blank=True, related_name="featured_in_banners")
     
     sort_order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)

@@ -1,0 +1,72 @@
+/* Redesigned Clean Premium Products Section Styling */
+.sz-premium-products {
+  background: #ffffff; /* Matches home page grid */
+  padding: 4rem 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  position: relative;
+}
+
+.sz-premium-products__header {
+  position: relative;
+  z-index: 1;
+}
+
+/* Minimal Editorial Badge */
+.sz-premium-products__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.sz-premium-products__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.sz-premium-products__subtitle {
+  max-width: 650px;
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Premium Card Wrapper (inherits global cards styling for visual parity) */
+.sz-premium-products__card-wrapper {
+  width: 100%;
+}
+
+/* Responsiveness overrides */
+@media (max-width: 991.98px) {
+  .sz-premium-products {
+    padding: 3.5rem 0;
+  }
+  .sz-premium-products__title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sz-premium-products {
+    padding: 2.5rem 0;
+  }
+  .sz-premium-products__title {
+    font-size: 1.3rem;
+  }
+  .sz-premium-products__subtitle {
+    font-size: 0.88rem;
+  }
+}

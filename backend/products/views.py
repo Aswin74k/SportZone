@@ -21,6 +21,12 @@ from .serializers import (
 )
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 8
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class AdminPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = "page_size"
@@ -38,7 +44,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description", "category__name", "category__slug"]
     ordering_fields = ["id", "name", "price", "stock"]
     ordering = ["-id"]
-    pagination_class = None
+    pagination_class = StandardResultsSetPagination
+
+    def paginate_queryset(self, queryset):
+        if "page" not in self.request.query_params:
+            return None
+        return super().paginate_queryset(queryset)
 
     def get_permissions(self):
         if self.request.method in ("GET", "HEAD", "OPTIONS"):
@@ -66,25 +77,49 @@ class ProductViewSet(viewsets.ModelViewSet):
         is_trending = self.request.query_params.get("is_trending")
         is_new_arrival = self.request.query_params.get("is_new_arrival")
         is_deal_of_the_week = self.request.query_params.get("is_deal_of_the_week")
+        is_best_seller = self.request.query_params.get("is_best_seller")
+        min_price = self.request.query_params.get("min_price")
+        max_price = self.request.query_params.get("max_price")
+        exclude_banner_featured = self.request.query_params.get("exclude_banner_featured")
 
         if brand:
             qs = qs.filter(brand_id=brand)
+        if min_price:
+            qs = qs.filter(price__gte=min_price)
+        if max_price:
+            qs = qs.filter(price__lte=max_price)
+        if exclude_banner_featured:
+            try:
+                banner = Banner.objects.get(id=exclude_banner_featured)
+                qs = qs.exclude(id__in=banner.featured_products.values_list("id", flat=True))
+            except Banner.DoesNotExist:
+                pass
         if is_trending:
             qs = qs.filter(is_trending=is_trending.lower() in ("true", "1", "yes"))
         if is_new_arrival:
             qs = qs.filter(is_new_arrival=is_new_arrival.lower() in ("true", "1", "yes"))
         if is_deal_of_the_week:
             qs = qs.filter(is_deal_of_the_week=is_deal_of_the_week.lower() in ("true", "1", "yes"))
+        if is_best_seller:
+            qs = qs.filter(is_best_seller=is_best_seller.lower() in ("true", "1", "yes"))
         if category:
             raw = str(category).strip()
             normalized = raw.lower().replace("-", " ").replace("_", " ")
             normalized = " ".join(normalized.split())
             alias = {
-                "sports shoes": "sports shoe",
-                "sports cycles": "sports cycle",
+                "cycling": "sports-cycle",
+                "sports cycle": "sports-cycle",
+                "sports cycles": "sports-cycle",
+                "running": "sports-shoe",
+                "sports shoe": "sports-shoe",
+                "sports shoes": "sports-shoe",
+                "tennis": "tennis",
+                "basketball": "basketball",
+                "volleyball": "volleyball",
+                "volley ball": "volleyball",
             }
-            normalized = alias.get(normalized, normalized)
-            qs = qs.filter(category__slug__iexact=normalized)
+            slug_to_query = alias.get(normalized, normalized.replace(" ", "-"))
+            qs = qs.filter(Q(category__slug__iexact=slug_to_query) | Q(category__name__iexact=normalized))
         if search:
             q = search.strip()
             qs = qs.filter(
@@ -177,7 +212,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.is_authenticated and self.request.user.is_staff:
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return qs
         return qs.filter(is_active=True)
 
@@ -200,7 +235,7 @@ class BrandViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.is_authenticated and self.request.user.is_staff:
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return qs
         return qs.filter(is_active=True)
 
@@ -223,7 +258,7 @@ class BannerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.is_authenticated and self.request.user.is_staff:
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return qs
         return qs.filter(is_active=True)
 
@@ -246,7 +281,7 @@ class OfferViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.is_authenticated and self.request.user.is_staff:
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return qs
         return qs.filter(is_active=True)
 
@@ -274,7 +309,7 @@ class ProductReviewViewSet(
         product_id = self.request.query_params.get("product")
         if product_id:
             qs = qs.filter(product_id=product_id)
-        if self.request.user.is_authenticated and self.request.user.is_staff:
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return qs
         return qs.filter(is_approved=True)
 

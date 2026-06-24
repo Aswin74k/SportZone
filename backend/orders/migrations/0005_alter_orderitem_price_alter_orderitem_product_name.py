@@ -11,7 +11,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.SeparateDatabaseAndState(
-            database_operations=[],
+            database_operations=[
+                migrations.AlterField(
+                    model_name='orderitem',
+                    name='price',
+                    field=models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                migrations.AlterField(
+                    model_name='orderitem',
+                    name='product_name',
+                    field=models.CharField(max_length=255),
+                ),
+            ],
             state_operations=[
                 migrations.AlterField(
                     model_name='orderitem',

@@ -13,8 +13,11 @@ import { unwrapList } from "../../utils/unwrapList";
 const empty = {
   title: "",
   subtitle: "",
+  description: "",
   link_url: "",
   product_id: "",
+  linked_category_id: "",
+  featured_product_ids: [],
   offer_percent: "",
   cashback_text: "",
   button_text: "Shop Now",
@@ -26,6 +29,8 @@ const empty = {
 export default function AdminBanners() {
   const [rows, setRows] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [productSearchQuery, setProductSearchQuery] = useState("");
   const [form, setForm] = useState(empty);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -34,12 +39,13 @@ export default function AdminBanners() {
 
   const load = () => {
     setLoading(true);
-    Promise.all([API.get("banners/"), API.get("products/")])
-      .then(([bRes, pRes]) => {
+    Promise.all([API.get("banners/"), API.get("products/"), API.get("categories/")])
+      .then(([bRes, pRes, cRes]) => {
         setRows(unwrapList(bRes.data));
         setProducts(unwrapList(pRes.data));
+        setCategories(unwrapList(cRes.data));
       })
-      .catch(() => toast.error("Failed to load banners and products"))
+      .catch(() => toast.error("Failed to load banners, products, and categories"))
       .finally(() => setLoading(false));
   };
 
@@ -60,8 +66,11 @@ export default function AdminBanners() {
     setForm({
       title: b.title || "",
       subtitle: b.subtitle || "",
+      description: b.description || "",
       link_url: b.link_url || "",
       product_id: b.product?.id || b.product_id || "",
+      linked_category_id: b.linked_category?.id || b.linked_category_id || "",
+      featured_product_ids: b.featured_products ? b.featured_products.map((p) => p.id) : [],
       offer_percent: b.offer_percent !== null && b.offer_percent !== undefined ? b.offer_percent : "",
       cashback_text: b.cashback_text || "",
       button_text: b.button_text || "Shop Now",
@@ -71,6 +80,7 @@ export default function AdminBanners() {
     });
     setFile(null);
     setPreview(null);
+    setProductSearchQuery("");
   };
 
   const cancel = () => {
@@ -79,6 +89,7 @@ export default function AdminBanners() {
     setForm(empty);
     setFile(null);
     setPreview(null);
+    setProductSearchQuery("");
   };
 
   const save = async (e) => {
@@ -86,17 +97,32 @@ export default function AdminBanners() {
     const fd = new FormData();
     fd.append("title", form.title);
     fd.append("subtitle", form.subtitle);
+    fd.append("description", form.description || "");
     fd.append("link_url", form.link_url);
     if (form.product_id) {
       fd.append("product_id", String(form.product_id));
     } else {
       fd.append("product_id", "");
     }
+    if (form.linked_category_id) {
+      fd.append("linked_category_id", String(form.linked_category_id));
+    } else {
+      fd.append("linked_category_id", "");
+    }
     if (form.offer_percent !== "") {
       fd.append("offer_percent", String(form.offer_percent));
     } else {
       fd.append("offer_percent", "");
     }
+    
+    if (form.featured_product_ids && form.featured_product_ids.length > 0) {
+      form.featured_product_ids.forEach((id) => {
+        fd.append("featured_product_ids", String(id));
+      });
+    } else {
+      fd.append("featured_product_ids", "");
+    }
+
     fd.append("cashback_text", form.cashback_text);
     fd.append("button_text", form.button_text);
     fd.append("sort_order", String(form.sort_order));
@@ -112,8 +138,11 @@ export default function AdminBanners() {
           await API.patch(`banners/${editingId}/`, {
             title: form.title,
             subtitle: form.subtitle,
+            description: form.description || "",
             link_url: form.link_url,
             product_id: form.product_id !== "" ? Number(form.product_id) : null,
+            linked_category_id: form.linked_category_id !== "" ? Number(form.linked_category_id) : null,
+            featured_product_ids: form.featured_product_ids || [],
             offer_percent: form.offer_percent !== "" ? Number(form.offer_percent) : null,
             cashback_text: form.cashback_text,
             button_text: form.button_text,
@@ -194,12 +223,22 @@ export default function AdminBanners() {
             <div className="col-lg-7">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">Title</label>
+                  <label className="form-label">Banner Name / Title</label>
                   <input className="form-control" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Banner Title" />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Subtitle</label>
                   <input className="form-control" value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Banner Subtitle" />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Collection Description (Optional)</label>
+                  <textarea 
+                    className="form-control" 
+                    value={form.description} 
+                    onChange={(e) => setForm({ ...form, description: e.target.value })} 
+                    placeholder="Official match gear and fan-favorite products."
+                    rows="2"
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Banner Type / Template</label>
@@ -232,6 +271,21 @@ export default function AdminBanners() {
                     ))}
                   </select>
                 </div>
+                <div className="col-md-6">
+                  <label className="form-label">Linked Category (Optional)</label>
+                  <select
+                    className="form-select"
+                    value={form.linked_category_id}
+                    onChange={(e) => setForm({ ...form, linked_category_id: e.target.value ? Number(e.target.value) : "" })}
+                  >
+                    <option value="">Select a category…</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="col-md-3">
                   <label className="form-label">Offer % (Optional)</label>
                   <input
@@ -252,7 +306,7 @@ export default function AdminBanners() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Link URL (Manual Override)</label>
+                  <label className="form-label">Custom URL / Link URL (Optional)</label>
                   <input
                     className="form-control"
                     value={form.link_url}
@@ -278,6 +332,55 @@ export default function AdminBanners() {
                     onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) || 0 })}
                   />
                 </div>
+                
+                {/* Featured Products Checklist */}
+                <div className="col-12">
+                  <label className="form-label d-flex justify-content-between align-items-center">
+                    <span className="fw-semibold">Featured Products (Multiple Selection)</span>
+                    <span className="badge bg-primary">{form.featured_product_ids ? form.featured_product_ids.length : 0} selected</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm mb-2"
+                    placeholder="Search products to feature..."
+                    value={productSearchQuery}
+                    onChange={(e) => setProductSearchQuery(e.target.value)}
+                  />
+                  <div className="border rounded p-3" style={{ maxHeight: "180px", overflowY: "auto", background: "#f8fafc" }}>
+                    <div className="row g-2">
+                      {products
+                        .filter((p) => p.name.toLowerCase().includes(productSearchQuery.toLowerCase()))
+                        .map((p) => {
+                          const isChecked = form.featured_product_ids ? form.featured_product_ids.includes(p.id) : false;
+                          return (
+                            <div className="col-md-6" key={p.id}>
+                              <div className="form-check">
+                                <input
+                                  type="checkbox"
+                                  className="form-check-input"
+                                  id={`feat-p-${p.id}`}
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    let updated = [...(form.featured_product_ids || [])];
+                                    if (e.target.checked) {
+                                      updated.push(p.id);
+                                    } else {
+                                      updated = updated.filter((id) => id !== p.id);
+                                    }
+                                    setForm({ ...form, featured_product_ids: updated });
+                                  }}
+                                />
+                                <label className="form-check-label small text-truncate d-block" htmlFor={`feat-p-${p.id}`} title={p.name}>
+                                  {p.name} (₹{p.price})
+                                </label>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="col-12">
                   <div className="form-check mb-2">
                     <input
@@ -348,9 +451,20 @@ export default function AdminBanners() {
                       <strong>Type:</strong> {b.banner_type ? b.banner_type.replace('_', ' ') : "premium"}
                     </p>
                     {b.subtitle && <p className="small text-muted mb-1 text-truncate"><em>{b.subtitle}</em></p>}
+                    {b.description && <p className="small text-muted mb-1 text-truncate" title={b.description}><strong>Desc:</strong> {b.description}</p>}
                     {b.product && (
                       <p className="small mb-1 text-primary text-truncate">
                         <strong>Product:</strong> {b.product.name} (₹{b.product.price})
+                      </p>
+                    )}
+                    {b.linked_category && (
+                      <p className="small mb-1 text-success text-truncate">
+                        <strong>Category:</strong> {b.linked_category.name}
+                      </p>
+                    )}
+                    {b.featured_products && b.featured_products.length > 0 && (
+                      <p className="small mb-1 text-warning text-truncate" title={b.featured_products.map(p => p.name).join(", ")}>
+                        <strong>Featured Products ({b.featured_products.length}):</strong> {b.featured_products.map(p => p.name).join(", ")}
                       </p>
                     )}
                     {b.offer_percent && <p className="small mb-1 text-danger"><strong>Offer:</strong> {b.offer_percent}% Off</p>}

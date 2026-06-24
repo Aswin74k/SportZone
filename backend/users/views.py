@@ -60,6 +60,11 @@ def register_user(request):
         first_name=name
     )
 
+    # ✅ SEND WELCOME EMAIL ASYNCHRONOUSLY
+    from sportzone.email_utils import send_welcome_email_async
+    send_welcome_email_async(user)
+
+
     # ✅ AUTO LOGIN AFTER SIGNUP
     refresh = RefreshToken.for_user(user)
     access = refresh.access_token

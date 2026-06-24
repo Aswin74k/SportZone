@@ -56,16 +56,18 @@
 }
 
 .sz-btn-sport {
-  background: linear-gradient(135deg, var(--sz-navy) 0%, var(--sz-blue) 100%);
-  border: none;
+  background: #000000;
+  border: 1px solid #000000;
   color: #fff;
   font-weight: 600;
   border-radius: 999px;
   padding: 0.65rem 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sz-btn-sport:hover {
+  background: #2563eb;
+  border-color: #2563eb;
   color: #fff;
   transform: translateY(-2px);
   box-shadow: var(--sz-shadow-hover);

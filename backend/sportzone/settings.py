@@ -9,12 +9,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(env_path):
     print(f"[RAZORPAY DEBUG] Loading .env from: {env_path}")
-    dotenv.load_dotenv(env_path)
+    dotenv.load_dotenv(env_path, override=True)
 else:
     fallback_env_path = os.path.join(BASE_DIR.parent, '.env')
     if os.path.exists(fallback_env_path):
         print(f"[RAZORPAY DEBUG] Loading fallback .env from: {fallback_env_path}")
-        dotenv.load_dotenv(fallback_env_path)
+        dotenv.load_dotenv(fallback_env_path, override=True)
     else:
         print("[RAZORPAY DEBUG] No .env file found in backend or root directory!")
 
@@ -195,3 +195,8 @@ if not (RAZORPAY_KEY_ID.startswith("rzp_test_") or RAZORPAY_KEY_ID.startswith("r
 
 print("[RAZORPAY DEBUG] Razorpay credentials verified successfully at startup.")
 print("=====================================")
+
+# =========================
+# FRONTEND CONFIG
+# =========================
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")

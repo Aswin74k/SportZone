@@ -357,62 +357,15 @@ function ProductDetail() {
 
   // Ratings calculation & Filter lists
   const combinedReviews = useMemo(() => {
-    const baseReviews = reviews.map((r, index) => ({
+    return reviews.map((r, index) => ({
       id: r.id || `api-${index}`,
       user_name: r.user_name || "Customer",
       rating: r.rating || 5,
       comment: r.comment || "",
       created_at: r.created_at || new Date().toISOString(),
-      helpful: 0,
-      images: []
+      helpful: r.helpful || 0,
+      images: r.images || []
     }));
-
-    // Real-world premium mock reviews to show rich filters, photos, and votes
-    const mockReviewsList = [
-      {
-        id: "mock-1",
-        user_name: "Aarav Nair",
-        rating: 5,
-        comment: "Exceptional build quality! As a professional athlete, I highly appreciate the comfort and shock absorption. Definitely worth every rupee.",
-        created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-        helpful: 32,
-        images: [
-          "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&q=80&w=600",
-          "https://images.unsplash.com/photo-1486282442299-57ef9a44f2b1?auto=format&fit=crop&q=80&w=600"
-        ]
-      },
-      {
-        id: "mock-2",
-        user_name: "Kriti Sen",
-        rating: 4,
-        comment: "Excellent design and very light. Sizing is accurate as per the size chart. Shipping took about 3 days. Giving 4 stars because packaging was slightly crumpled.",
-        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        helpful: 15,
-        images: [
-          "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600"
-        ]
-      },
-      {
-        id: "mock-3",
-        user_name: "Rahul Verma",
-        rating: 5,
-        comment: "Extremely comfortable and provides supreme support. Grip is outstanding on turf and clay surfaces.",
-        created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        helpful: 9,
-        images: []
-      },
-      {
-        id: "mock-4",
-        user_name: "Amit Patel",
-        rating: 3,
-        comment: "Decent performance, but the material feels a bit stiff at first. Took about a week to break in.",
-        created_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-        helpful: 4,
-        images: []
-      }
-    ];
-
-    return [...baseReviews, ...mockReviewsList];
   }, [reviews]);
 
   // Distribution ratios
@@ -618,7 +571,6 @@ function ProductDetail() {
                     onMouseEnter={() => setIsZoomed(true)}
                     onMouseLeave={() => {
                       setIsZoomed(false);
-                      setImageZoomed(false);
                     }}
                     onClick={() => openLightboxAtIndex(gallery.indexOf(selectedImage))}
                     role="button"
@@ -820,16 +772,7 @@ function ProductDetail() {
                           toast.error("Please select a size first.");
                           return;
                         }
-                        navigate("/checkout", {
-                          state: {
-                            buyNow: {
-                              product_id: product.id,
-                              product: product,
-                              size: selectedSize || "N/A",
-                              quantity: qty
-                            }
-                          }
-                        });
+                        navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });
                       }}
                       disabled={!inStock}
                     >
@@ -1086,16 +1029,7 @@ function ProductDetail() {
                         toast.error("Please select a size first.");
                         return;
                       }
-                      navigate("/checkout", {
-                        state: {
-                          buyNow: {
-                            product_id: product.id,
-                            product: product,
-                            size: selectedSize || "N/A",
-                            quantity: qty
-                          }
-                        }
-                      });
+                      navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });
                     }}
                     disabled={!inStock}
                   >
@@ -1129,7 +1063,7 @@ function ProductDetail() {
 
           {/* CONVERSION: Frequently Bought Together Bundle */}
           {fbtItems.length >= 2 && (
-            <div className="mt-5">
+            <div className="mt-3">
               <div className="sz-fbt-container">
                 <h3 className="sz-fbt-title">Frequently Bought Together</h3>
                 
@@ -1222,191 +1156,207 @@ function ProductDetail() {
             <div className="col-12">
               <h3 className="h4 fw-bold mb-4">Customer Rating Feedbacks</h3>
 
-              <div className="row g-4 mb-4">
-                
-                {/* Rating summary left card */}
-                <div className="col-lg-4 col-md-5 col-12">
-                  <div className="sz-reviews-summary-flex">
-                    <div className="sz-reviews-stat-left">
-                      <div className="sz-reviews-big-num">{product?.rating ?? 4.5}</div>
-                      <div className="text-warning my-1" style={{ fontSize: "1.25rem" }}>
-                        {"★".repeat(Math.round(product?.rating ?? 4.5))}
-                        {"☆".repeat(5 - Math.round(product?.rating ?? 4.5))}
+              {combinedReviews.length > 0 && (
+                <>
+                  <div className="row g-4 mb-4">
+                    
+                    {/* Rating summary left card */}
+                    <div className="col-lg-4 col-md-5 col-12">
+                      <div className="sz-reviews-summary-flex">
+                        <div className="sz-reviews-stat-left">
+                          <div className="sz-reviews-big-num">{product?.rating ?? 4.5}</div>
+                          <div className="text-warning my-1" style={{ fontSize: "1.25rem" }}>
+                            {"★".repeat(Math.round(product?.rating ?? 4.5))}
+                            {"☆".repeat(5 - Math.round(product?.rating ?? 4.5))}
+                          </div>
+                          <span className="small text-muted">Out of 5 Stars</span>
+                        </div>
+
+                        {/* Progress bars that acts as click-to-filter reviews */}
+                        <div className="sz-reviews-total-bar-list">
+                          {[5, 4, 3, 2, 1].map((stars) => {
+                            const pct = getStarPercentage(stars);
+                            const isFilterActive = selectedRatingFilter === stars;
+                            return (
+                              <div
+                                key={stars}
+                                className={`sz-reviews-bar-row ${isFilterActive ? "active-filter" : ""}`}
+                                onClick={() => setSelectedRatingFilter(selectedRatingFilter === stars ? null : stars)}
+                              >
+                                <span className="extra-small text-muted" style={{ minWidth: "40px", fontSize: "0.78rem" }}>{stars} Star</span>
+                                <div className="sz-reviews-bar-track">
+                                  <div className="sz-reviews-bar-fill" style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="extra-small text-muted" style={{ minWidth: "30px", fontSize: "0.78rem" }}>{pct}%</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <span className="small text-muted">Out of 5 Stars</span>
                     </div>
 
-                    {/* Progress bars that acts as click-to-filter reviews */}
-                    <div className="sz-reviews-total-bar-list">
-                      {[5, 4, 3, 2, 1].map((stars) => {
-                        const pct = getStarPercentage(stars);
-                        const isFilterActive = selectedRatingFilter === stars;
-                        return (
-                          <div
-                            key={stars}
-                            className={`sz-reviews-bar-row ${isFilterActive ? "active-filter" : ""}`}
-                            onClick={() => handleRatingFilter(stars)}
-                          >
-                            <span className="extra-small text-muted" style={{ minWidth: "40px", fontSize: "0.78rem" }}>{stars} Star</span>
-                            <div className="sz-reviews-bar-track">
-                              <div className="sz-reviews-bar-fill" style={{ width: `${pct}%` }} />
-                            </div>
-                            <span className="extra-small text-muted" style={{ minWidth: "30px", fontSize: "0.78rem" }}>{pct}%</span>
+                    {/* Review Photos Grid (Mock attached user review photos) */}
+                    <div className="col-lg-8 col-md-7 col-12">
+                      <div className="sz-photo-reviews-wrapper">
+                        <div className="small fw-bold text-dark uppercase mb-2">Customer Photos ({allReviewImages.length})</div>
+                        {allReviewImages.length === 0 ? (
+                          <div className="text-muted small py-3">No photos uploaded by customers yet.</div>
+                        ) : (
+                          <div className="sz-photo-reviews-grid">
+                            {allReviewImages.map((img, idx) => (
+                              <div
+                                className="sz-photo-review-thumbnail"
+                                key={idx}
+                                onClick={() => setActiveLightboxReviewImage(img.src)}
+                              >
+                                <img src={img.src} alt="Attached review thumbnail" />
+                              </div>
+                            ))}
                           </div>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Filters review tags */}
+                  <div className="sz-reviews-filter-bar">
+                    <div className="d-flex gap-2 align-items-center flex-wrap">
+                      <button
+                        type="button"
+                        className={`sz-reviews-filter-pill ${selectedRatingFilter === null ? "active" : ""}`}
+                        onClick={() => setSelectedRatingFilter(null)}
+                      >
+                        All Reviews ({combinedReviews.length})
+                      </button>
+                      {[5, 4, 3, 2, 1].map((star) => {
+                        const count = combinedReviews.filter((r) => r.rating === star).length;
+                        return (
+                          <button
+                            key={star}
+                            type="button"
+                            className={`sz-reviews-filter-pill ${selectedRatingFilter === star ? "active" : ""}`}
+                            onClick={() => setSelectedRatingFilter(star)}
+                          >
+                            {star} Stars ({count})
+                          </button>
                         );
                       })}
                     </div>
-                  </div>
-                </div>
 
-                {/* Review Photos Grid (Mock attached user review photos) */}
-                <div className="col-lg-8 col-md-7 col-12">
-                  <div className="sz-photo-reviews-wrapper">
-                    <div className="small fw-bold text-dark uppercase mb-2">Customer Photos ({allReviewImages.length})</div>
-                    {allReviewImages.length === 0 ? (
-                      <div className="text-muted small py-3">No photos uploaded by customers yet.</div>
-                    ) : (
-                      <div className="sz-photo-reviews-grid">
-                        {allReviewImages.map((img, idx) => (
-                          <div
-                            className="sz-photo-review-thumbnail"
-                            key={idx}
-                            onClick={() => setActiveLightboxReviewImage(img.src)}
-                          >
-                            <img src={img.src} alt="Attached review thumbnail" />
-                          </div>
-                        ))}
+                    {allReviewImages.length > 0 && (
+                      <div className="d-flex align-items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="imageFilterCheck"
+                          className="sz-fbt-checkbox"
+                          checked={onlyWithImagesFilter}
+                          onChange={(e) => setOnlyWithImagesFilter(e.target.checked)}
+                        />
+                        <label htmlFor="imageFilterCheck" className="small fw-bold text-muted cursor-pointer">
+                          Show Reviews with Images Only
+                        </label>
                       </div>
                     )}
                   </div>
-                </div>
-
-              </div>
-
-              {/* Filters review tags */}
-              <div className="sz-reviews-filter-bar">
-                <div className="d-flex gap-2 align-items-center flex-wrap">
-                  <button
-                    type="button"
-                    className={`sz-reviews-filter-pill ${selectedRatingFilter === null ? "active" : ""}`}
-                    onClick={() => setSelectedRatingFilter(null)}
-                  >
-                    All Reviews ({combinedReviews.length})
-                  </button>
-                  {[5, 4, 3, 2, 1].map((star) => {
-                    const count = combinedReviews.filter((r) => r.rating === star).length;
-                    return (
-                      <button
-                        key={star}
-                        type="button"
-                        className={`sz-reviews-filter-pill ${selectedRatingFilter === star ? "active" : ""}`}
-                        onClick={() => setSelectedRatingFilter(star)}
-                      >
-                        {star} Stars ({count})
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="d-flex align-items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="imageFilterCheck"
-                    className="sz-fbt-checkbox"
-                    checked={onlyWithImagesFilter}
-                    onChange={(e) => setOnlyWithImagesFilter(e.target.checked)}
-                  />
-                  <label htmlFor="imageFilterCheck" className="small fw-bold text-muted cursor-pointer">
-                    Show Reviews with Images Only
-                  </label>
-                </div>
-              </div>
+                </>
+              )}
 
               {/* Review Card List & Submission Form */}
               <div className="row g-4">
                 
                 {/* Reviews List */}
-                <div className="col-lg-7 col-12">
-                  {filteredReviews.length === 0 ? (
-                    <div className="p-4 border rounded text-center text-muted small bg-light">
-                      No customer reviews found matching the filters.
-                    </div>
-                  ) : (
-                    <div className="d-flex flex-column">
-                      {filteredReviews.map((r) => {
-                        const nameChar = (r.user_name || "Customer").charAt(0).toUpperCase();
-                        const colors = ["#2563eb", "#db2777", "#059669", "#7c3aed", "#ea580c"];
-                        const charCode = nameChar.charCodeAt(0) || 0;
-                        const avatarBg = colors[charCode % colors.length];
+                {combinedReviews.length > 0 ? (
+                  <div className="col-lg-7 col-12">
+                    {filteredReviews.length === 0 ? (
+                      <div className="p-4 border rounded text-center text-muted small bg-light">
+                        No customer reviews found matching the filters.
+                      </div>
+                    ) : (
+                      <div className="d-flex flex-column">
+                        {filteredReviews.map((r) => {
+                          const nameChar = (r.user_name || "Customer").charAt(0).toUpperCase();
+                          const colors = ["#2563eb", "#db2777", "#059669", "#7c3aed", "#ea580c"];
+                          const charCode = nameChar.charCodeAt(0) || 0;
+                          const avatarBg = colors[charCode % colors.length];
 
-                        return (
-                          <div key={r.id} className="sz-customer-review-card">
-                            
-                            {/* Header details */}
-                            <div className="d-flex justify-content-between align-items-start gap-2">
-                              <div className="d-flex align-items-center gap-3">
-                                <div
-                                  className="sz-review-avatar-circle"
-                                  style={{ backgroundColor: avatarBg }}
-                                >
-                                  {nameChar}
-                                </div>
-                                <div>
-                                  <div className="fw-bold text-dark" style={{ fontSize: "0.95rem" }}>
-                                    {r.user_name || "Customer"}
-                                  </div>
-                                  <div className="text-warning extra-small" style={{ fontSize: "0.75rem" }}>
-                                    {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
-                                  </div>
-                                </div>
-                              </div>
-                              <span className="text-muted small font-medium">
-                                {r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : ""}
-                              </span>
-                            </div>
-
-                            {/* Comment */}
-                            {r.comment && (
-                              <p className="text-muted mt-2 mb-2" style={{ fontSize: "0.9rem", lineHeight: "1.5" }}>
-                                {r.comment}
-                              </p>
-                            )}
-
-                            {/* Attachments */}
-                            {r.images && r.images.length > 0 && (
-                              <div className="d-flex gap-2 my-2">
-                                {r.images.map((imgSrc, imgIdx) => (
+                          return (
+                            <div key={r.id} className="sz-customer-review-card">
+                              
+                              {/* Header details */}
+                              <div className="d-flex justify-content-between align-items-start gap-2">
+                                <div className="d-flex align-items-center gap-3">
                                   <div
-                                    key={imgIdx}
-                                    className="sz-review-image-attach"
-                                    onClick={() => setActiveLightboxReviewImage(imgSrc)}
+                                    className="sz-review-avatar-circle"
+                                    style={{ backgroundColor: avatarBg }}
                                   >
-                                    <img src={imgSrc} alt={`Review attach ${imgIdx}`} />
+                                    {nameChar}
                                   </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Helpful vote */}
-                            <div className="mt-1">
-                              <button
-                                type="button"
-                                className={`sz-review-vote-btn ${votedReviews[r.id] ? "voted" : ""}`}
-                                onClick={() => handleHelpfulVote(r.id)}
-                              >
-                                <FiThumbsUp /> 
-                                <span>
-                                  {votedReviews[r.id] ? "Voted Helpful" : "Helpful"} ({r.helpful + (votedReviews[r.id] ? 1 : 0)})
+                                  <div>
+                                    <div className="fw-bold text-dark" style={{ fontSize: "0.95rem" }}>
+                                      {r.user_name || "Customer"}
+                                    </div>
+                                    <div className="text-warning extra-small" style={{ fontSize: "0.75rem" }}>
+                                      {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-muted small font-medium">
+                                  {r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : ""}
                                 </span>
-                              </button>
-                            </div>
+                              </div>
 
-                          </div>
-                        );
-                      })}
+                              {/* Comment */}
+                              {r.comment && (
+                                <p className="text-muted mt-2 mb-2" style={{ fontSize: "0.9rem", lineHeight: "1.5" }}>
+                                  {r.comment}
+                                </p>
+                              )}
+
+                              {/* Attachments */}
+                              {r.images && r.images.length > 0 && (
+                                <div className="d-flex gap-2 my-2">
+                                  {r.images.map((imgSrc, imgIdx) => (
+                                    <div
+                                      key={imgIdx}
+                                      className="sz-review-image-attach"
+                                      onClick={() => setActiveLightboxReviewImage(imgSrc)}
+                                    >
+                                      <img src={imgSrc} alt={`Review attach ${imgIdx}`} />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Helpful vote */}
+                              <div className="mt-1">
+                                <button
+                                  type="button"
+                                  className={`sz-review-vote-btn ${votedReviews[r.id] ? "voted" : ""}`}
+                                  onClick={() => handleHelpfulVote(r.id)}
+                                >
+                                  <FiThumbsUp /> 
+                                  <span>
+                                    {votedReviews[r.id] ? "Voted Helpful" : "Helpful"} ({r.helpful + (votedReviews[r.id] ? 1 : 0)})
+                                  </span>
+                                </button>
+                              </div>
+
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="col-lg-7 col-12">
+                    <div className="p-4 border rounded text-center text-muted small bg-light h-100 d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "240px" }}>
+                      <span style={{ fontSize: "2rem" }}>💬</span>
+                      <p className="mb-0 mt-2 fw-semibold text-dark">No reviews yet for this product</p>
+                      <p className="extra-small text-muted mb-0 mt-1">Be the first to share your thoughts by publishing a review below.</p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Submit Feedback Form */}
                 <div className="col-lg-5 col-12">
@@ -1513,16 +1463,7 @@ function ProductDetail() {
                 toast.error("Please select a size first.");
                 return;
               }
-              navigate("/checkout", {
-                state: {
-                  buyNow: {
-                    product_id: product.id,
-                    product: product,
-                    size: selectedSize || "N/A",
-                    quantity: qty
-                  }
-                }
-              });
+              navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });
             }}
             disabled={!inStock}
           >

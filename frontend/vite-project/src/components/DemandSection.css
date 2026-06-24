@@ -1,0 +1,231 @@
+/* Premium Custom SportZone Demand Section CSS - Light Theme */
+.sz-demand-section {
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.sz-demand-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); /* Soft Sports-Blue Gradient Wash */
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.04);
+}
+
+/* Subtle background radial light */
+.sz-demand-banner::after {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.06) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Header Text styling */
+.sz-demand-banner__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.sz-demand-banner__title {
+  color: #0f172a;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sz-demand-banner__badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #2563eb; /* Primary Blue */
+  background: rgba(37, 99, 235, 0.08);
+  padding: 4px 12px;
+  border-radius: 99px;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+/* Inner Grid Box */
+.sz-demand-banner__card-grid {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Individual Premium Cards */
+.sz-demand-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 16px;
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.01);
+}
+
+.sz-demand-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #06b6d4);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.sz-demand-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.08);
+}
+
+.sz-demand-card:hover::before {
+  opacity: 1;
+}
+
+/* Light Card Image Box */
+.sz-demand-card__image-box {
+  background-color: #f8fafc;
+  border-radius: 10px;
+  aspect-ratio: 16 / 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.sz-demand-card:hover .sz-demand-card__image-box {
+  background-color: #f1f5f9;
+  transform: scale(1.02);
+}
+
+.sz-demand-card__img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  mix-blend-mode: multiply; /* Blends backgrounds */
+  transition: transform 0.3s ease;
+}
+
+.sz-demand-card:hover .sz-demand-card__img {
+  transform: scale(1.05);
+}
+
+/* Card Content Labels */
+.sz-demand-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 12px;
+}
+
+.sz-demand-card__label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #2563eb; /* Active Brand Blue */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sz-demand-card__offer {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sz-demand-card__name {
+  font-size: 0.74rem;
+  color: #64748b; /* Muted gray */
+  letter-spacing: -0.01em;
+  margin-top: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Skeleton Loading State (Light Theme) */
+.sz-demand-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 16px;
+  height: 100%;
+}
+
+.sz-demand-card-skeleton__img {
+  aspect-ratio: 16 / 11;
+  border-radius: 10px;
+  background-color: #f1f5f9 !important;
+}
+
+.sz-demand-card-skeleton__line1 {
+  height: 12px;
+  width: 40%;
+  border-radius: 4px;
+  background-color: #f1f5f9 !important;
+}
+
+.sz-demand-card-skeleton__line2 {
+  height: 14px;
+  width: 70%;
+  border-radius: 4px;
+  background-color: #f1f5f9 !important;
+}
+
+/* Responsiveness overrides */
+@media (max-width: 767.98px) {
+  .sz-demand-banner {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .sz-demand-banner__title {
+    font-size: 1.25rem;
+  }
+  .sz-demand-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .sz-demand-card__image-box {
+    padding: 8px;
+    border-radius: 8px;
+  }
+  .sz-demand-card__label {
+    font-size: 0.68rem;
+  }
+  .sz-demand-card__offer {
+    font-size: 0.82rem;
+  }
+  .sz-demand-card__name {
+    font-size: 0.7rem;
+  }
+}

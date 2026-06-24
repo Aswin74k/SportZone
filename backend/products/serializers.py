@@ -133,6 +133,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     images = ProductImageSerializer(source="gallery_images", many=True, read_only=True)
     sizes = ProductSizeSerializer(many=True, read_only=True)
+    rating = serializers.SerializerMethodField()
+    reviews_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -150,9 +152,12 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_trending",
             "is_new_arrival",
             "is_deal_of_the_week",
+            "is_best_seller",
             "image",
             "images",
             "sizes",
+            "rating",
+            "reviews_count",
         ]
 
     def get_image(self, obj):
@@ -162,6 +167,16 @@ class ProductSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url
         return None
+
+    def get_rating(self, obj):
+        reviews = obj.reviews.all()
+        if not reviews.exists():
+            return None
+        total = sum(r.rating for r in reviews)
+        return round(total / reviews.count(), 1)
+
+    def get_reviews_count(self, obj):
+        return obj.reviews.count()
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -180,6 +195,20 @@ class BannerSerializer(serializers.ModelSerializer):
         allow_null=True,
         required=False,
     )
+    linked_category = CategorySerializer(read_only=True)
+    linked_category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="linked_category",
+        allow_null=True,
+        required=False,
+    )
+    featured_products = ProductSerializer(many=True, read_only=True)
+    featured_product_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Product.objects.all(),
+        source="featured_products",
+        required=False,
+    )
 
     class Meta:
         model = Banner
@@ -187,6 +216,7 @@ class BannerSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "subtitle",
+            "description",
             "image",
             "link_url",
             "product",
@@ -194,6 +224,10 @@ class BannerSerializer(serializers.ModelSerializer):
             "banner_type",
             "linked_product",
             "linked_product_id",
+            "linked_category",
+            "linked_category_id",
+            "featured_products",
+            "featured_product_ids",
             "offer_percent",
             "cashback_text",
             "countdown_end",
@@ -207,6 +241,31 @@ class BannerSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def to_internal_value(self, data):
+        if isinstance(data, dict) or hasattr(data, 'getlist'):
+            if hasattr(data, 'copy'):
+                data = data.copy()
+            
+            if 'featured_product_ids' in data:
+                if hasattr(data, 'getlist'):
+                    ids = data.getlist('featured_product_ids')
+                    cleaned_ids = [x for x in ids if x]
+                    data.setlist('featured_product_ids', cleaned_ids)
+                else:
+                    ids = data.get('featured_product_ids')
+                    if isinstance(ids, list):
+                        data['featured_product_ids'] = [x for x in ids if x]
+                    elif ids == "":
+                        data['featured_product_ids'] = []
+            
+            if 'linked_category_id' in data and data['linked_category_id'] == "":
+                data['linked_category_id'] = None
+                
+            if 'product_id' in data and data['product_id'] == "":
+                data['product_id'] = None
+                
+        return super().to_internal_value(data)
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -256,6 +315,7 @@ class AdminProductWriteSerializer(serializers.ModelSerializer):
             "is_trending",
             "is_new_arrival",
             "is_deal_of_the_week",
+            "is_best_seller",
             "image",
             "sizes_json",
         ]
@@ -269,13 +329,48 @@ class AdminProductWriteSerializer(serializers.ModelSerializer):
         # 2. sizes_json validation and extraction
         raw = attrs.pop("sizes_json", "") or ""
         if isinstance(raw, str) and raw.strip():
+            import re
+            data = None
+            stripped_raw = raw.strip()
+            is_json_like = stripped_raw.startswith('[') or stripped_raw.startswith('{')
             try:
-                data = json.loads(raw)
+                if is_json_like:
+                    data = json.loads(raw)
+                else:
+                    raise json.JSONDecodeError("Not JSON-like", raw, 0)
             except json.JSONDecodeError as exc:
-                raise serializers.ValidationError({"sizes_json": f"Invalid JSON: {exc}"}) from exc
+                if is_json_like:
+                    raise serializers.ValidationError({
+                        "sizes_json": f"Invalid JSON syntax: {exc}. Please fix the JSON format or write a plain list of sizes like 'L S M'."
+                    }) from exc
+                # Fallback to parsing comma/space-separated string
+                tokens = [t.strip() for t in re.split(r'[,;\s]+', stripped_raw) if t.strip()]
+                data = [{"size": t, "stock": None} for t in tokens]
+
             if not isinstance(data, list):
-                raise serializers.ValidationError({"sizes_json": "Must be a JSON array."})
-            attrs["_sizes_payload"] = data
+                if isinstance(data, dict):
+                    data = [data]
+                else:
+                    data = []
+
+            standardized = []
+            for item in data:
+                if isinstance(item, dict):
+                    size_val = str(item.get("size", "")).strip()
+                    if size_val:
+                        stock_val = item.get("stock", None)
+                        if stock_val is not None:
+                            try:
+                                stock_val = int(stock_val)
+                            except (ValueError, TypeError):
+                                stock_val = None
+                        standardized.append({"size": size_val, "stock": stock_val})
+                elif isinstance(item, (str, int, float)):
+                    val = str(item).strip()
+                    if val:
+                        standardized.append({"size": val, "stock": None})
+
+            attrs["_sizes_payload"] = standardized
         else:
             attrs["_sizes_payload"] = None
         return attrs
@@ -290,13 +385,18 @@ class AdminProductWriteSerializer(serializers.ModelSerializer):
             return
         product.sizes.all().delete()
         for row in sizes_payload:
-            if not isinstance(row, dict):
-                continue
-            size = str(row.get("size", "")).strip()
-            if not size:
-                continue
-            stock = int(row.get("stock", 0) or 0)
-            ProductSize.objects.create(product=product, size=size, stock=max(stock, 0))
+            size = row.get("size", "")
+            stock = row.get("stock")
+            
+            # Fallback for stock if not specified
+            if stock is None:
+                stock = product.stock if product.stock > 0 else 10
+
+            ProductSize.objects.create(
+                product=product,
+                size=size,
+                stock=max(stock, 0)
+            )
 
     def create(self, validated_data):
         sizes_payload = validated_data.pop("_sizes_payload", None)

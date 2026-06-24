@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Order Confirmation</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f5f7fb;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="560" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 32px rgba(15,23,42,0.10);">
+            <!-- Header Banner -->
+            <tr>
+              <td style="padding:26px 24px;background:linear-gradient(135deg,#059669,#10b981);color:#ffffff;text-align:center;">
+                <div style="font-size:24px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">SportZone ✅</div>
+                <div style="opacity:0.95;font-size:14px;letter-spacing:0.5px;">Order Confirmed</div>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding:32px 24px;">
+                <div style="font-size:16px;font-weight:700;margin-bottom:12px;color:#065f46;">
+                  Hi {{ customer_name }},
+                </div>
+                <div style="font-size:14px;line-height:1.6;color:#374151;margin-bottom:24px;">
+                  Your order has been successfully placed and is now being processed. Thank you for shopping with us! Here is your order summary:
+                </div>
+
+                <!-- Order Info Card -->
+                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:12px;padding:16px;margin-bottom:24px;">
+                  <tr>
+                    <td style="font-size:13px;color:#065f46;padding:4px 0;"><b>Order ID:</b> #{{ order.id }}</td>
+                    <td align="right" style="font-size:13px;color:#065f46;padding:4px 0;"><b>Date:</b> {{ order.created_at|date:"F j, Y" }}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#065f46;padding:4px 0;"><b>Payment Method:</b> {{ order.payment_method }}</td>
+                    <td align="right" style="font-size:13px;color:#065f46;padding:4px 0;"><b>Status:</b> {{ order.status }}</td>
+                  </tr>
+                </table>
+
+                <!-- Product Details Header -->
+                <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #f1f5f9;padding-bottom:6px;">
+                  Items Ordered
+                </div>
+
+                <!-- Product List -->
+                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:24px;">
+                  {% for item in items %}
+                  <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="padding:12px 0;vertical-align:top;">
+                      <div style="font-size:14px;font-weight:700;color:#1f2937;">{{ item.product_name }}</div>
+                      <div style="font-size:12px;color:#6b7280;margin-top:2px;">Size: {{ item.selected_size }}</div>
+                    </td>
+                    <td style="padding:12px 0;text-align:center;font-size:14px;color:#4b5563;vertical-align:top;width:60px;">
+                      Qty: {{ item.quantity }}
+                    </td>
+                    <td style="padding:12px 0;text-align:right;font-size:14px;font-weight:700;color:#1f2937;vertical-align:top;width:90px;">
+                      ₹{{ item.price|floatformat:2 }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  <!-- Total Row -->
+                  <tr>
+                    <td colspan="2" style="padding:16px 0 0 0;font-size:15px;font-weight:700;color:#1f2937;border-top:2px solid #e2e8f0;">
+                      Total Amount
+                    </td>
+                    <td style="padding:16px 0 0 0;text-align:right;font-size:18px;font-weight:800;color:#059669;border-top:2px solid #e2e8f0;">
+                      ₹{{ order.total_price|floatformat:2 }}
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Shipping Address Card -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:24px;">
+                  <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Shipping Address</div>
+                  <div style="font-size:14px;font-weight:700;color:#1f2937;margin-bottom:4px;">{{ order.shipping_name }}</div>
+                  <div style="font-size:13px;color:#475569;line-height:1.5;margin-bottom:4px;">
+                    {{ order.shipping_address }}, {{ order.shipping_city }},<br/>
+                    {{ order.shipping_state }} - {{ order.shipping_pincode }}
+                  </div>
+                  <div style="font-size:13px;color:#475569;"><b>Phone:</b> {{ order.shipping_phone }}</div>
+                </div>
+
+                <!-- Call to Action Button -->
+                <div style="text-align:center;margin:24px 0;">
+                  <a href="{{ frontend_url }}/orders" target="_blank" style="display:inline-block;background:#059669;color:#ffffff;padding:12px 24px;font-size:14px;font-weight:700;text-decoration:none;border-radius:8px;box-shadow:0 4px 12px rgba(5,150,105,0.25);">
+                    View Order History
+                  </a>
+                </div>
+
+                <div style="font-size:13px;line-height:1.6;color:#6b7280;margin-bottom:12px;">
+                  If you have any questions, feel free to contact our support. We hope you shop with us again soon!
+                </div>
+
+                <div style="margin-top:28px;border-top:1px solid #eef2f7;padding-top:20px;font-size:12px;color:#94a3b8;line-height:1.6;text-align:center;">
+                  SportZone Support Team • Happy Sporting!<br/>
+                  Please do not reply directly to this automated email.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

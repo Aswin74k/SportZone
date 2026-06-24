@@ -66,6 +66,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         read_only=True
     )
     product_image = serializers.SerializerMethodField()
+    product_id = serializers.IntegerField(source="product.id", read_only=True)
 
     class Meta:
         model = OrderItem
@@ -76,7 +77,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "product_image",
             "quantity",
             "unit_price",
-            "selected_size"
+            "selected_size",
+            "product_id"
         ]
 
     def get_product_image(self, obj):
@@ -103,7 +105,15 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "total_price",
             "status",
-            "items"
+            "items",
+            "shipping_name",
+            "shipping_phone",
+            "shipping_address",
+            "shipping_city",
+            "shipping_state",
+            "shipping_pincode",
+            "payment_method",
+            "payment_status",
         ]
 
 
@@ -146,10 +156,33 @@ class WishlistProductSerializer(serializers.ModelSerializer):
     )
     category = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
+    original_price = serializers.DecimalField(
+        source="product.original_price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+        allow_null=True,
+    )
+    stock = serializers.IntegerField(source="product.stock", read_only=True)
+    brand = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    reviews_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Wishlist
-        fields = ["id", "name", "price", "description", "category", "image"]
+        fields = [
+            "id",
+            "name",
+            "price",
+            "original_price",
+            "description",
+            "category",
+            "image",
+            "stock",
+            "brand",
+            "rating",
+            "reviews_count",
+        ]
 
     def get_category(self, obj):
         cat = getattr(obj.product, "category", None)
@@ -168,3 +201,22 @@ class WishlistProductSerializer(serializers.ModelSerializer):
                 # Fallback to relative path if request context is missing
                 return obj.product.image.url
         return None
+
+    def get_brand(self, obj):
+        brand = getattr(obj.product, "brand", None)
+        if brand:
+            return {
+                "id": brand.id,
+                "name": brand.name,
+            }
+        return None
+
+    def get_rating(self, obj):
+        reviews = obj.product.reviews.all()
+        if not reviews.exists():
+            return None
+        total = sum(r.rating for r in reviews)
+        return round(total / reviews.count(), 1)
+
+    def get_reviews_count(self, obj):
+        return obj.product.reviews.count()

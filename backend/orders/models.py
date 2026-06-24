@@ -51,6 +51,23 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
 
+    def save(self, *args, **kwargs):
+        is_delivered_now = False
+        if self.pk:
+            try:
+                old_order = Order.objects.get(pk=self.pk)
+                if old_order.status != "Delivered" and self.status == "Delivered":
+                    is_delivered_now = True
+            except Order.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        if is_delivered_now:
+            from sportzone.email_utils import send_order_delivered_email_async
+            send_order_delivered_email_async(self)
+
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

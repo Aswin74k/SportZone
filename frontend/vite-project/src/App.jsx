@@ -7,13 +7,13 @@ import Home from "./pages/Home";
 import AllProducts from "./pages/AllProducts";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
-import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import Help from "./pages/Help";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ProductDetail from "./pages/ProductDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Checkout from "./pages/Checkout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -91,20 +91,22 @@ function AppContent() {
               }
             />
 
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
+
 
             <Route
               path="/wishlist"
               element={
                 <ProtectedRoute>
                   <Wishlist />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
                 </ProtectedRoute>
               }
             />
