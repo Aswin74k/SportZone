@@ -1,0 +1,1319 @@
+.sz-co-page {
+  background-color: #F5F7FA;
+  min-height: auto;
+  font-family: 'Inter', sans-serif;
+  color: #1E293B;
+  padding-bottom: 1.5rem;
+}
+
+@media (max-width: 991px) {
+  .sz-co-page {
+    padding-bottom: 5.5rem;
+  }
+}
+
+.sz-co-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+@media (min-width: 992px) {
+  .sz-co-wrap {
+    padding: 2rem 1.5rem;
+  }
+}
+
+.sz-page:has(.sz-co-page) .sz-page-inner {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.sz-co-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto 1.5rem;
+  max-width: 480px;
+  padding: 0.5rem 0;
+}
+
+.sz-co-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.sz-co-progress-step:disabled {
+  cursor: default;
+}
+
+.sz-co-progress-dot {
+  width: px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  color: #94A3B8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.sz-co-progress-step.done .sz-co-progress-dot {
+  background-color: #003366;
+  border-color: #003366;
+  color: #FFFFFF;
+}
+
+.sz-co-progress-step.current .sz-co-progress-dot {
+  background-color: #FFFFFF;
+  border-color: #003366;
+  color: #003366;
+}
+
+.sz-co-progress-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #94A3B8;
+  transition: color 0.2s ease;
+}
+
+.sz-co-progress-step.done .sz-co-progress-label,
+.sz-co-progress-step.current .sz-co-progress-label {
+  color: #0F172A;
+}
+
+.sz-co-progress-line {
+  flex: 1;
+  height: 2px;
+  background-color: #E2E8F0;
+  max-width: 50px;
+}
+
+.sz-co-progress-line.done {
+  background-color: #003366;
+}
+
+/* ── TWO-COLUMN GRID LAYOUT ─────────────────────────────────────── */
+.sz-co-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .sz-co-grid-container {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 1.25rem;
+    align-items: start;
+  }
+}
+
+/* ── STEP CARDS & ACCORDION FLOW ───────────────────────────────── */
+.sz-co-step-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 4px 12px 0 rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.sz-co-step-card.active {
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
+
+.sz-co-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.15rem 1.5rem;
+  cursor: pointer;
+  background-color: #FFFFFF;
+}
+
+.sz-co-step-header.active {
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.sz-co-step-header.disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.sz-co-step-title-block {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.sz-co-step-badge-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #F1F5F9;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.sz-co-step-badge-num.active {
+  background-color: #003366;
+  color: #FFFFFF;
+}
+
+.sz-co-step-title-block h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.sz-co-step-title-block p {
+  margin: 0.15rem 0 0;
+  font-size: 0.775rem;
+  color: #64748B;
+}
+
+.sz-co-step-arrow {
+  color: #94A3B8;
+  font-size: 0.875rem;
+  transition: transform 0.25s ease;
+}
+
+.sz-co-step-header.active .sz-co-step-arrow {
+  transform: rotate(180deg);
+}
+
+.sz-co-step-content {
+  padding: 1.5rem;
+  background-color: #FFFFFF;
+}
+
+/* ── COMPLETED & COLLAPSED STATE (AMAZON STYLE) ───────────────── */
+.sz-co-step-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-step-collapsed:hover {
+  background-color: #FAFCFF;
+}
+
+.sz-co-collapsed-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.sz-co-success-icon {
+  color: #10B981;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.sz-co-collapsed-info {
+  min-width: 0;
+}
+
+.sz-co-collapsed-info h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.sz-co-collapsed-info p {
+  font-size: 0.825rem;
+  color: #64748B;
+  margin: 0.15rem 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sz-co-change-btn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: #003366;
+  background-color: #F0F4F8;
+  border: 1px solid #D0DCE8;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.sz-co-change-btn:hover {
+  background-color: #E2EAF2;
+  border-color: #003366;
+}
+
+/* ── ADDRESS LIST SELECTION ─────────────────────────────────────── */
+.sz-co-address-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .sz-co-address-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sz-co-addr-card {
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 1.15rem;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.sz-co-addr-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.sz-co-addr-card.selected {
+  border-color: #003366;
+  border-width: 2px;
+  padding: 1.0875rem; /* Layout shift correction */
+  background-color: #F8FBFE;
+  box-shadow: 0 4px 16px rgba(0, 51, 102, 0.04);
+}
+
+.sz-co-addr-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.sz-co-addr-type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sz-co-addr-card.selected .sz-co-addr-type {
+  color: #003366;
+  background: #E6EEF4;
+}
+
+.sz-co-addr-select-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid #CBD5E1;
+  background-color: #FFFFFF;
+}
+
+.sz-co-addr-selected-badge {
+  color: #003366;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.sz-co-addr-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 0.3rem;
+}
+
+.sz-co-addr-text {
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.4;
+  margin: 0 0 0.6rem;
+  flex: 1;
+}
+
+.sz-co-addr-phone-line {
+  font-size: 0.775rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* Dashed Add New Address Card */
+.sz-co-addr-card.add-new-card {
+  border: 1px dashed #CBD5E1;
+  background: #FAFCFF;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+  color: #64748B;
+}
+
+.sz-co-addr-card.add-new-card:hover {
+  border-color: #003366;
+  background: #FFFFFF;
+  color: #003366;
+}
+
+.add-new-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.add-new-plus {
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.add-new-text {
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── PREMIUM INPUT FIELDS & FORM ────────────────────────────────── */
+.sz-co-new-addr-box {
+  border-top: 1px solid #F1F5F9;
+  padding-top: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.sz-co-new-addr-title {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 1rem;
+}
+
+.sz-co-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sz-co-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-co-input-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+.sz-co-input-group input {
+  width: 100%;
+  height: 44px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sz-co-input-group input:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.12);
+}
+
+.sz-co-input-group input.invalid {
+  border-color: #EF4444;
+  background-color: #FEF2F2;
+}
+
+.sz-co-field-error {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #EF4444;
+  margin-top: 0.2rem;
+}
+
+.sz-co-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .sz-co-form-row.two-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sz-co-form-row.three-col {
+    grid-template-columns: 1.2fr 1.2fr 0.8fr;
+  }
+}
+
+.sz-co-form-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.15rem 0;
+}
+
+.sz-co-addr-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sz-co-type-lbl {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.sz-co-type-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: #475569;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sz-co-type-btn.active {
+  color: #003366;
+  background-color: #FFFFFF;
+  border-color: #003366;
+  font-weight: 700;
+}
+
+.sz-co-type-btn:hover:not(.active) {
+  background-color: #F8FAFC;
+}
+
+.sz-co-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #334155;
+  user-select: none;
+}
+
+.sz-co-checkbox-label input {
+  width: 15px;
+  height: 15px;
+  accent-color: #003366;
+  cursor: pointer;
+}
+
+.sz-co-step-action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.sz-co-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #003366;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-primary-btn:hover:not(:disabled) {
+  background-color: #002244;
+}
+
+.sz-co-primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sz-co-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-cancel-btn:hover {
+  background-color: #F8FAFC;
+}
+
+/* ── ORDER REVIEW LIST (COMPACTED) ───────────────────────────────── */
+.sz-co-review-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.sz-co-review-item-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.sz-co-review-item-card:hover {
+  border-color: #CBD5E1;
+}
+
+.sz-co-review-img {
+  width: 52px;
+  height: 52px;
+  background-color: #FFFFFF;
+  border: 1px solid #F1F5F9;
+  border-radius: 8px;
+  padding: 0.15rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sz-co-review-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.sz-co-review-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.sz-co-review-name {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sz-co-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sz-co-meta-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  background-color: #F1F5F9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.sz-co-review-price-box {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sz-co-review-price {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.sz-co-review-mrp {
+  display: block;
+  font-size: 0.725rem;
+  text-decoration: line-through;
+  color: #94A3B8;
+}
+
+.sz-co-delivery-estimate-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  margin-top: 0.85rem;
+}
+
+.sz-co-delivery-icon {
+  color: #003366;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.sz-co-delivery-text {
+  font-size: 0.775rem;
+  color: #334155;
+  margin: 0;
+}
+
+.sz-co-delivery-text strong {
+  color: #003366;
+}
+
+/* ── PREMIUM PAYMENT SELECTABLE TILES ────────────────────────── */
+.sz-co-pay-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sz-co-pay-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #FFFFFF;
+}
+
+.sz-co-pay-tile:hover {
+  background-color: #FAFCFF;
+  border-color: #CBD5E1;
+}
+
+.sz-co-pay-tile.active {
+  border-color: #003366;
+  border-width: 2px;
+  padding: 0.8875rem 1.0875rem; /* Prevent layout jitter */
+  background-color: #F7FBFE;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.02);
+}
+
+.sz-co-pay-tile-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.sz-co-pay-tile-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.sz-co-pay-tile.active .sz-co-pay-tile-radio {
+  border-color: #003366;
+  background-color: #003366;
+}
+
+.sz-co-pay-tile.active .sz-co-pay-tile-radio::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+}
+
+.sz-co-pay-tile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-co-pay-tile-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.sz-co-pay-tile-desc {
+  font-size: 0.725rem;
+  color: #64748B;
+  margin-top: 0.1rem;
+}
+
+.sz-co-pay-tile-logos {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* UPI logos panel */
+.sz-co-upi-apps-row {
+  margin-top: 0.25rem;
+  padding-left: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sz-co-upi-logos-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sz-co-upi-disabled-banner {
+  background-color: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.725rem;
+  color: #B91C1C;
+  font-weight: 600;
+  width: fit-content;
+}
+
+/* Secure notes */
+.sz-co-secure-redirect-card {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  padding-left: 2.25rem;
+}
+
+.sz-co-redirect-shield-icon {
+  color: #10B981;
+  font-size: 0.85rem;
+}
+
+.sz-co-redirect-text {
+  font-size: 0.725rem;
+  color: #64748B;
+  margin: 0;
+}
+
+/* COD captcha verification styles */
+.sz-co-cod-captcha-panel {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-co-captcha-flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sz-co-captcha-image-box {
+  background-color: #E2E8F0;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  color: #0F172A;
+  user-select: none;
+  border: 1px solid #CBD5E1;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.sz-co-captcha-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sz-co-captcha-input-field label {
+  font-size: 0.675rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.02em;
+}
+
+.sz-co-captcha-input-field input {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  width: 90px;
+  outline: none;
+  height: 36px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sz-co-captcha-input-field input:focus {
+  border-color: #003366;
+}
+
+.sz-co-gateway-load {
+  font-size: 0.775rem;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.sz-co-secure-footer-card {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.15rem;
+  padding: 0.6rem 0.85rem;
+  background-color: #ECFDF5;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.sz-co-secure-footer-card svg {
+  color: #10B981;
+  font-size: 0.9rem;
+}
+
+.sz-co-secure-footer-card span {
+  font-size: 0.775rem;
+  color: #047857;
+  font-weight: 600;
+}
+
+/* ── STICKY ORDER SUMMARY (SIDEBAR) ────────────────────────────── */
+.sz-co-summary-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+.sz-co-summary-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.sz-co-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.sz-co-summary-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.sz-co-items-count-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #003366;
+  background-color: #F0F4F8;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Green Savings Block */
+.sz-co-savings-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.775rem;
+  color: #15803D;
+  background-color: #DCFCE7;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #BBF7D0;
+}
+
+.sz-co-savings-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sz-co-savings-banner strong {
+  font-weight: 700;
+}
+
+.sz-co-sidebar-items-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.sz-co-sidebar-items-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sz-co-sidebar-items-list::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 2px;
+}
+
+.sz-co-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #F8FAFC;
+}
+
+.sz-co-sidebar-item:last-child {
+  border-bottom: none;
+}
+
+.sz-co-sidebar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  padding: 0.15rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sz-co-sidebar-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.sz-co-sidebar-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sz-co-sidebar-info p {
+  margin: 0 0 0.1rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sz-co-sidebar-info span {
+  font-size: 0.675rem;
+  color: #64748B;
+}
+
+.sz-co-sidebar-item-price {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* Pricing Breakdown */
+.sz-co-breakdown-details {
+  border-top: 1px solid #E2E8F0;
+  padding-top: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.sz-co-row-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.sz-co-row-stat.discount {
+  color: #15803D;
+  font-weight: 600;
+}
+
+.sz-co-row-stat.grand-payable {
+  border-top: 1px solid #E2E8F0;
+  padding-top: 0.75rem;
+  margin-top: 0.65rem;
+  margin-bottom: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #003366;
+}
+
+.sz-co-free-shipping-text {
+  color: #15803D;
+  font-weight: 700;
+}
+
+.sz-co-free-shipping-text s {
+  color: #94A3B8;
+  font-weight: 400;
+  margin-right: 0.2rem;
+}
+
+/* Pay Button */
+.sz-co-submit-pay-btn {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #003366;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-submit-pay-btn:hover:not(:disabled) {
+  background-color: #002244;
+}
+
+.sz-co-submit-pay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sz-co-delivery-estimate-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.sz-co-delivery-estimate-sidebar svg {
+  color: #003366;
+}
+
+/* Trust Badges */
+.sz-co-trust-badges-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #E2E8F0;
+  gap: 0.25rem;
+}
+
+.sz-co-trust-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #64748B;
+  gap: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex: 1;
+}
+
+.sz-co-trust-badge svg {
+  color: #003366;
+  font-size: 0.95rem;
+}
+
+/* ── MOBILE ACTIONS BAR (STICKY BOTTOM) ──────────────────────── */
+.sz-co-mobile-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.65rem 1rem;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sz-co-mobile-val {
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-co-mobile-val small {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+.sz-co-mobile-val strong {
+  font-size: 1.05rem;
+  color: #003366;
+}
+
+.sz-co-mobile-savings {
+  font-size: 0.675rem;
+  font-weight: 700;
+  color: #15803D;
+}
+
+.sz-co-mobile-pay-btn {
+  flex: 1;
+  max-width: 160px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background-color: #003366;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-mobile-pay-btn:hover {
+  background-color: #002244;
+}
+
+.sz-co-mobile-pay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── EMPTY CHECKOUT STATE ────────────────────────────────────── */
+.sz-co-empty-wrapper {
+  max-width: 380px;
+  margin: 5rem auto;
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.sz-co-empty-wrapper svg {
+  color: #94A3B8;
+  margin-bottom: 0.75rem;
+}
+
+.sz-co-empty-wrapper h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.35rem;
+}
+
+.sz-co-empty-wrapper p {
+  font-size: 0.825rem;
+  color: #64748B;
+  margin-bottom: 1.25rem;
+}
+
+.sz-co-shop-redirect-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 1.5rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #003366;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sz-co-shop-redirect-btn:hover {
+  background-color: #002244;
+}
+
+/* Spin animations */
+.spin-icon {
+  animation: custom-spin 0.75s linear infinite;
+}
+
+@keyframes custom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -672,26 +672,6 @@
   border-color: var(--sz-color-primary);
 }
 
-/* Product Highlights list */
-.sz-pd-highlights-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.55rem;
-  padding-left: 0;
-  list-style: none;
-}
-.sz-pd-highlight-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--sz-color-text-main);
-}
-.sz-pd-highlight-dot {
-  color: var(--sz-color-accent);
-}
-
 /* Accordion Tab Styling */
 .sz-pd-info-tabs {
   border-top: 1px solid var(--sz-color-border);
@@ -1255,3 +1235,64 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Quantity Stepper Control */
+.sz-pd-qty {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--sz-color-border);
+  border-radius: var(--sz-radius-md);
+  background-color: var(--sz-color-bg-white);
+  overflow: hidden;
+  height: 38px;
+  width: fit-content;
+}
+.sz-pd-qty-btn {
+  background: none;
+  border: none;
+  width: 38px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--sz-color-text-main);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.sz-pd-qty-btn:hover:not(:disabled) {
+  background-color: var(--sz-color-bg-light);
+  color: var(--sz-color-primary);
+}
+.sz-pd-qty-btn:disabled {
+  color: var(--sz-color-text-muted);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sz-pd-qty-val {
+  min-width: 36px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--sz-color-text-main);
+  user-select: none;
+  border-left: 1px solid var(--sz-color-border);
+  border-right: 1px solid var(--sz-color-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Star rating button animations */
+.star-rating-btn {
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.star-rating-btn:hover {
+  transform: scale(1.2);
+}
+.star-rating-btn:active {
+  transform: scale(0.9);
+}
+

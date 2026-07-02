@@ -51,7 +51,7 @@ export default function DemandSection() {
               // Try directly by ID
               const res = await API.get(`products/${config.id}/`);
               product = res.data;
-            } catch (err) {
+            } catch {
               console.warn(`Direct fetch failed for ID ${config.id}, falling back to search...`);
               try {
                 const searchRes = await API.get("products/", {

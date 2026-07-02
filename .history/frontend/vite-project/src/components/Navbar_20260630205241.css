@@ -1,0 +1,645 @@
+/* Premium SportZone Navbar CSS */
+.sz-header-wrapper {
+  background-color: rgba(15, 15, 15, 0.97); /* Premium matte black */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+  z-index: 1040;
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.sz-navbar {
+  height: 76px;
+}
+
+.sz-navbar-container {
+  width: 95%;
+  max-width: 1215px;
+  margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sz-brand-text {
+  letter-spacing: -1px;
+}
+
+/* Search Box (Premium Dark Transparency) */
+.sz-search-box {
+  max-width: 1000px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sz-search-box:focus-within {
+  border-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.sz-search-input {
+  font-size: 0.95rem;
+  color: #ffffff;
+  height: 42px;
+  border-radius: 0;
+}
+
+.sz-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.sz-search-btn {
+  background: linear-gradient(135deg, #f4f5f7 0%, #f1f1f3 100%);
+  height: 42px;
+  width: 52px;
+  border-top-right-radius: 7px;
+  border-bottom-right-radius: 7px;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.sz-search-btn:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Action Buttons (Unified Styling) */
+.sz-action-btn {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 99px;
+}
+
+.sz-action-btn:hover {
+  color: #ffffff;
+  background: transparent;
+  transform: translateY(-2px);
+}
+
+.sz-action-btn svg {
+  transition: transform 0.25s ease;
+}
+
+.sz-action-btn:hover svg {
+  transform: scale(1.08);
+}
+
+/* User Dropdown */
+.sz-user-wrapper {
+  position: relative;
+}
+
+.sz-user-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 290px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  padding: 16px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.96);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
+  pointer-events: none;
+}
+
+.sz-user-wrapper:hover .sz-user-menu,
+.sz-user-wrapper:focus-within .sz-user-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(6px) scale(1);
+  pointer-events: auto;
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.sz-grid-item {
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+.sz-grid-item:hover {
+  background-color: rgba(37, 99, 235, 0.03);
+  border-color: #2563eb !important;
+}
+
+.sz-dropdown-item {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  border: none;
+}
+
+.sz-dropdown-item:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+  color: #2563eb;
+  padding-left: 20px;
+}
+
+/* Cart Badge */
+.sz-cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 800;
+  height: 18px;
+  min-width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 99px;
+  border: 2px solid rgba(15, 15, 15, 1);
+  padding: 0 5px;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.4);
+}
+
+/* Category Strip */
+.sz-category-strip {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(22, 22, 22, 0.97); /* Slightly lighter matte black */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  height: 68px; /* Reduced height from 108px for space optimization */
+  display: flex;
+  align-items: center;
+}
+
+.sz-category-strip.scrolled {
+  height: 52px;
+  background-color: rgba(15, 15, 15, 0.97); /* Match header */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sz-cat-container {
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.sz-cat-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.sz-cat-item {
+  display: flex;
+  flex-direction: row; /* Horizontal layout [Icon Text] */
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  padding: 8px 18px; /* Taller and wider for premium card feel */
+  border-radius: 99px; /* Pill shape */
+  background-color: rgba(255, 255, 255, 0.05); /* Slightly lighter glass */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: auto;
+}
+
+.sz-cat-item.active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08); /* Premium glassmorphic background */
+  border-color: rgba(96, 165, 250, 0.45); /* Elegant sky blue border outline */
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.12); /* Subtle professional glow */
+}
+
+.sz-cat-icon-wrapper {
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.sz-cat-name {
+  transition: color 0.3s ease;
+}
+
+.sz-cat-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06); /* Clean white glass highlight */
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1.5px);
+}
+
+.sz-cat-item:hover .sz-cat-icon-wrapper {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Scrolled overrides */
+.sz-category-strip.scrolled .sz-cat-item {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+/* Search Suggestions Styling */
+.sz-search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  z-index: 1100;
+  overflow: hidden;
+  max-width: 600px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.sz-search-suggestions.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sz-suggestion-loading,
+.sz-suggestion-no-results {
+  padding: 16px 20px;
+  font-size: 0.88rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.sz-suggestion-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  text-decoration: none;
+}
+
+.sz-suggestion-item:hover,
+.sz-suggestion-item.active {
+  background-color: rgba(37, 99, 235, 0.04);
+  text-decoration: none;
+}
+
+.sz-suggestion-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.sz-suggestion-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.sz-suggestion-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.sz-suggestion-category-name {
+  font-size: 0.72rem;
+  color: #2563eb;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Premium Slide-out Mobile Drawer */
+.sz-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1050;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sz-drawer-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sz-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  background-color: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 20px 0 40px rgba(0, 0, 0, 0.1);
+  z-index: 1060;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sz-drawer.open {
+  transform: translateX(0);
+}
+
+.sz-drawer-header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.sz-drawer-close-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.sz-drawer-close-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.sz-drawer-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Mobile Search in Drawer */
+.sz-drawer-search-wrapper {
+  position: relative;
+}
+
+.sz-drawer-search-box {
+  border: 3px solid #cbd5e1;
+  background-color: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.sz-drawer-search-box:focus-within {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.2);
+}
+
+.sz-drawer-search-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 1070;
+  overflow: hidden;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+@media (max-width: 991px) {
+  .sz-navbar {
+    height: 68px;
+  }
+}
+
+/* Redesigned User Dropdown Menu for SportZone */
+.sz-athlete-header {
+  background: linear-gradient(135deg, #003366 0%, #002244 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sz-athlete-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.sz-athlete-info {
+  min-w-0: 1;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.sz-athlete-greet {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sz-athlete-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.sz-athlete-badge {
+  font-size: 0.62rem;
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  display: inline-block;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.sz-dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sz-dropdown-grid-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background-color: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: #1e293b;
+}
+
+.sz-dropdown-grid-card:hover {
+  transform: translateY(-2px);
+  border-color: #2563eb !important;
+  background-color: rgba(37, 99, 235, 0.04);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
+  text-decoration: none;
+  color: #2563eb;
+}
+
+.sz-dropdown-grid-card svg {
+  color: #003366;
+  transition: transform 0.25s ease, color 0.2s;
+}
+
+.sz-dropdown-grid-card:hover svg {
+  transform: scale(1.12) rotate(3deg);
+  color: #2563eb;
+}
+
+.sz-dropdown-grid-card span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: 6px;
+  letter-spacing: -0.01em;
+}
+
+.sz-dropdown-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  width: 100%;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: transparent;
+}
+
+.sz-dropdown-action-btn.admin {
+  color: #475569;
+}
+
+.sz-dropdown-action-btn.admin:hover {
+  color: #2563eb;
+  background-color: rgba(37, 99, 235, 0.05);
+  padding-left: 18px;
+  text-decoration: none;
+}
+
+.sz-dropdown-action-btn.signout {
+  color: #dc2626;
+}
+
+.sz-dropdown-action-btn.signout:hover {
+  color: #ffffff;
+  background-color: #dc2626;
+  padding-left: 18px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  text-decoration: none;
+}

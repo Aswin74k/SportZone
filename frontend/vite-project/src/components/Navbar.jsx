@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import API from "../api";
 import { mediaUrl } from "../utils/mediaUrl";
@@ -30,20 +31,20 @@ import Logo from "./Logo";
 import "./Navbar.css";
 
 const MOCK_CATEGORIES = [
-  { name: "For You", icon: <FaStar size={18} />, path: "/" },
-  { name: "Cricket", icon: <MdSportsCricket size={18} />, path: "/shop?category=cricket" },
-  { name: "Football", icon: <FaFutbol size={16} />, path: "/shop?category=football" },
-  { name: "Running", icon: <FaRunning size={18} />, path: "/shop?category=running" },
-  { name: "Cycling", icon: <FaBicycle size={18} />, path: "/shop?category=cycling" },
-  { name: "Basketball", icon: <FaBasketballBall size={18} />, path: "/shop?category=basketball" },
-  { name: "Tennis", icon: <MdSportsTennis size={18} />, path: "/shop?category=tennis" },
-  { name: "Volleyball", icon: <FaVolleyballBall size={18} />, path: "/shop?category=volleyball" },
+  { name: "For You", icon: <FaStar size={18} />, path: "/", color: "#eab308" },
+  { name: "Cricket", icon: <MdSportsCricket size={18} />, path: "/shop?category=cricket", color: "#f87171" },
+  { name: "Football", icon: <FaFutbol size={16} />, path: "/shop?category=football", color: "#4ade80" },
+  { name: "Running", icon: <FaRunning size={18} />, path: "/shop?category=running", color: "#22d3ee" },
+  { name: "Cycling", icon: <FaBicycle size={18} />, path: "/shop?category=cycling", color: "#fb923c" },
+  { name: "Basketball", icon: <FaBasketballBall size={18} />, path: "/shop?category=basketball", color: "#f97316" },
+  { name: "Tennis", icon: <MdSportsTennis size={18} />, path: "/shop?category=tennis", color: "#a3e635" },
+  { name: "Volleyball", icon: <FaVolleyballBall size={18} />, path: "/shop?category=volleyball", color: "#60a5fa" },
 ];
 
 const CategoryStrip = React.memo(({ pathname, search, isScrolled }) => {
   return (
     <div className={`sz-category-strip d-none d-md-block ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="container-fluid container-xl h-100">
+      <div className="sz-navbar-container h-100">
         <div className="sz-cat-container">
           {MOCK_CATEGORIES.map((cat) => {
             const isActive = (pathname === '/' && cat.path === '/') || 
@@ -54,7 +55,7 @@ const CategoryStrip = React.memo(({ pathname, search, isScrolled }) => {
                 to={cat.path}
                 className={`sz-cat-item ${isActive ? 'active' : ''}`}
               >
-                <div className="sz-cat-icon-wrapper">
+                <div className="sz-cat-icon-wrapper" style={{ color: cat.color }}>
                   {cat.icon}
                 </div>
                 <span className="sz-cat-name">{cat.name}</span>
@@ -92,7 +93,7 @@ const MobileCategoryList = React.memo(({ pathname, search, setIsMenuOpen }) => {
           }`}
           onClick={() => setIsMenuOpen(false)}
         >
-          <span className="text-primary">{cat.icon}</span>
+          <span style={{ color: cat.color }}>{cat.icon}</span>
           {cat.name}
         </Link>
       ))}
@@ -167,12 +168,14 @@ function Navbar() {
     const trimmed = searchQuery.trim();
     if (!trimmed) {
       setSuggestions([]);
+      setSearchLoading(false);
       return;
     }
 
+    setSearchLoading(true);
+
     const timer = setTimeout(async () => {
       try {
-        setSearchLoading(true);
         const res = await API.get(`products/?search=${encodeURIComponent(trimmed)}`);
         const data = Array.isArray(res.data) ? res.data.slice(0, 5) : [];
         setSuggestions(data);
@@ -244,12 +247,12 @@ function Navbar() {
     <>
       <header className="sz-header-wrapper sticky-top">
         {/* Main Navbar */}
-        <nav className="sz-navbar container-fluid container-xl d-flex align-items-center justify-content-between px-3 px-md-4">
+        <nav className="sz-navbar sz-navbar-container d-flex align-items-center justify-content-between">
           
           {/* Left: Brand & Mobile Toggle */}
           <div className="d-flex align-items-center gap-3">
             <button
-              className="d-lg-none border-0 bg-transparent text-secondary p-0"
+              className="d-lg-none border-0 bg-transparent text-white p-0"
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open Menu"
             >
@@ -257,7 +260,7 @@ function Navbar() {
             </button>
             
             <Link to="/" className="text-decoration-none">
-              <Logo fontSize="1.6rem" />
+              <Logo fontSize="1.6rem" light={true} />
             </Link>
           </div>
 
@@ -400,11 +403,13 @@ function Navbar() {
           </div>
         </nav>
 
-        <CategoryStrip 
-          pathname={location.pathname} 
-          search={location.search} 
-          isScrolled={isScrolled} 
-        />
+        {location.pathname !== "/checkout" && (
+          <CategoryStrip 
+            pathname={location.pathname} 
+            search={location.search} 
+            isScrolled={isScrolled} 
+          />
+        )}
       </header>
 
       {/* Premium Slide-out Mobile Drawer */}

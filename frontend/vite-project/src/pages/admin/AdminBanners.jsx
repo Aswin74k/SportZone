@@ -50,7 +50,7 @@ export default function AdminBanners() {
   };
 
   useEffect(() => {
-    load();
+    Promise.resolve().then(() => load());
   }, []);
 
   const setImageFile = (files) => {

@@ -29,7 +29,7 @@ export default function AdminBrands() {
   };
 
   useEffect(() => {
-    load();
+    Promise.resolve().then(() => load());
   }, []);
 
   const setImageFile = (files) => {

@@ -27,7 +27,8 @@ import {
   FaRegCopy,
   FaInfoCircle,
   FaChevronRight,
-  FaChevronLeft
+  FaChevronLeft,
+  FaRegCommentDots
 } from "react-icons/fa";
 import { FiThumbsUp } from "react-icons/fi";
 import "./ProductDetail.css";
@@ -47,7 +48,11 @@ function ProductDetail() {
   const [cartLoading, setCartLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [recentlyViewedProducts, setRecentlyViewedProducts] = useState([]);
+  const [offers, setOffers] = useState([
+    { id: 1, title: "Championship Kickoff", description: "Gear up like a pro. Get 20% off all elite training gear.", promo_code: "KICKOFF20" },
+    { id: 2, title: "Summer Endurance Boost", description: "Maximize your pace. Extra savings on running gear.", promo_code: "ENDURE15" },
+    { id: 3, title: "SZ Welcome Coupon", description: "Get flat ₹150 off on your first purchase of premium gear.", promo_code: "SZWELCOME" }
+  ]);
 
   // Interactive UI states
   const [isZoomed, setIsZoomed] = useState(false);
@@ -58,6 +63,8 @@ function ProductDetail() {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [copiedOfferIndex, setCopiedOfferIndex] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [hoverRating, setHoverRating] = useState(0);
 
   // Accordion tabs state
   const [activeTab, setActiveTab] = useState("description");
@@ -118,7 +125,7 @@ function ProductDetail() {
             .slice(0, 6);
           if (mounted) setRelatedProducts(related);
         }
-      } catch (err) {
+      } catch {
         toast.error("Failed to load product");
       } finally {
         if (mounted) setLoading(false);
@@ -154,30 +161,27 @@ function ProductDetail() {
     setWishlisted(wishlist.includes(product.id));
   }, [product]);
 
-  // Load Recently Viewed Products detail info
+  // Load active offers from database
   useEffect(() => {
-    const fetchRecentlyViewed = async () => {
+    let mounted = true;
+    const fetchOffers = async () => {
       try {
-        const viewedIds = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
-        if (viewedIds.length <= 1) return; // Only current product is viewed
-
-        const res = await API.get("products/");
-        const all = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
-        const matched = all
-          .filter((p) => viewedIds.includes(p.id) && p.id !== product?.id)
-          .sort((a, b) => viewedIds.indexOf(a.id) - viewedIds.indexOf(b.id))
-          .slice(0, 6);
-
-        setRecentlyViewedProducts(matched);
-      } catch (e) {
-        console.error("Error loading recently viewed", e);
+        const res = await API.get("offers/");
+        if (!mounted) return;
+        const data = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
+        const activeOffers = data.filter((off) => off.is_active);
+        if (activeOffers.length > 0) {
+          setOffers(activeOffers);
+        }
+      } catch (err) {
+        console.error("Error fetching active offers:", err);
       }
     };
-
-    if (product) {
-      fetchRecentlyViewed();
-    }
-  }, [product]);
+    fetchOffers();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Image Gallery compute
   const gallery = useMemo(() => {
@@ -185,6 +189,14 @@ function ProductDetail() {
     const fromGallery = (product.images || []).map((img) => mediaUrl(img.image)).filter(Boolean);
     const primary = product.image ? [mediaUrl(product.image)] : [];
     return [...new Set([...primary, ...fromGallery])];
+  }, [product]);
+
+  // Check if product is a shoe
+  const isShoe = useMemo(() => {
+    if (!product) return false;
+    const cat = String(product.category || "").toLowerCase();
+    const name = String(product.name || "").toLowerCase();
+    return cat.includes("shoe") || cat.includes("footwear") || name.includes("shoe");
   }, [product]);
 
   // FBT bundle items compute (uses category products as FBT bundle choices)
@@ -248,7 +260,7 @@ function ProductDetail() {
         }
       }
       toast.success("Added bundle to cart successfully! 🛒");
-    } catch (err) {
+    } catch {
       toast.error("Failed to add bundle to cart");
     } finally {
       setBundleLoading(false);
@@ -324,6 +336,7 @@ function ProductDetail() {
       });
       toast.success("Thanks! Your review will appear after approval.");
       setReviewForm({ rating: 5, comment: "" });
+      setShowReviewForm(false);
       const r = await API.get(`reviews/?product=${id}`);
       const d = Array.isArray(r.data) ? r.data : r.data?.results ?? [];
       setReviews(d);
@@ -452,6 +465,80 @@ function ProductDetail() {
     setActiveTab((prev) => (prev === tab ? null : tab));
   };
 
+  const inStock = product ? Number(product.stock || 0) > 0 : false;
+  const parsedBrand = product
+    ? product.brand?.name || (typeof product.brand === "string" ? product.brand : "") || product.name?.split(" ")[0]?.toUpperCase() || "SPORTZONE"
+    : "SPORTZONE";
+
+  const specificationList = useMemo(() => {
+    if (!product) return [];
+    
+    const specs = [
+      { name: "Brand", value: parsedBrand },
+      { name: "Category", value: product.category || "General Sports" },
+      { name: "Availability", value: inStock ? "In Stock" : "Out of Stock" }
+    ];
+
+    const cat = String(product.category || "").toLowerCase();
+    const name = String(product.name || "").toLowerCase();
+
+    if (cat.includes("shoe") || name.includes("shoe")) {
+      specs.push(
+        { name: "Material", value: "Breathable Knit Mesh & Durable Rubber Sole" },
+        { name: "Fit Type", value: "Ergonomic Athletic Fit" },
+        { name: "Cushioning", value: "Responsive EVA Midsole" },
+        { name: "Warranty", value: "6 Months Official Warranty" }
+      );
+    } else if (cat.includes("badminton")) {
+      specs.push(
+        { name: "Material", value: "High Modulus Carbon Graphite Frame" },
+        { name: "Grip Type", value: "Synthetic Polyurethane Grip" },
+        { name: "Recommended Tension", value: "24-28 lbs" },
+        { name: "Warranty", value: "1 Year official manufacturer warranty" }
+      );
+    } else if (cat.includes("cricket")) {
+      specs.push(
+        { name: "Material", value: "Grade 1 English Willow" },
+        { name: "Handle Type", value: "Premium Cane Handle" },
+        { name: "Grip Type", value: "Textured Scale Rubber Grip" },
+        { name: "Warranty", value: "1 Year official manufacturer warranty" }
+      );
+    } else if (cat.includes("football") || cat.includes("soccer")) {
+      specs.push(
+        { name: "Material", value: "Textured TPU casing with reinforced stitching" },
+        { name: "Bladder Type", value: "Reinforced Butyl Bladder" },
+        { name: "Size", value: "Official Size 5 Matchball" }
+      );
+    } else if (cat.includes("basketball")) {
+      specs.push(
+        { name: "Material", value: "Premium Composite Leather" },
+        { name: "Grip Type", value: "Ribbed Pebbled Texture" },
+        { name: "Size", value: "Official Size 7 Matchball" }
+      );
+    } else if (cat.includes("volleyball")) {
+      specs.push(
+        { name: "Material", value: "Soft-Touch Polyurethane Leather" },
+        { name: "Bladder Type", value: "Butyl Bladder" },
+        { name: "Size", value: "Official Size 5" }
+      );
+    } else if (cat.includes("cycle")) {
+      specs.push(
+        { name: "Frame Material", value: "Lightweight Aluminum Alloy" },
+        { name: "Suspension", value: "Front Suspension Fork" },
+        { name: "Gears", value: "21-Speed Shimano Gear System" },
+        { name: "Warranty", value: "Lifetime Frame Warranty" }
+      );
+    } else {
+      specs.push(
+        { name: "Material", value: "Premium Performance Composite" },
+        { name: "Fit Type", value: "Regular Performance Fit" },
+        { name: "Warranty", value: "1 Year Official Manufacturer Warranty" }
+      );
+    }
+
+    return specs;
+  }, [product, parsedBrand, inStock]);
+
   // Skeleton Loader rendering
   if (loading) {
     return (
@@ -502,7 +589,6 @@ function ProductDetail() {
     );
   }
 
-  const inStock = Number(product.stock || 0) > 0;
   const sizes = Array.isArray(product?.sizes) ? product.sizes : [];
   const showSizes = sizes.length > 0;
 
@@ -511,23 +597,6 @@ function ProductDetail() {
   const savings = mrp - product.price;
   const emiVal = Math.round(product.price / 12);
 
-  const parsedBrand = product.brand?.name || (typeof product.brand === "string" ? product.brand : "") || product.name?.split(" ")[0]?.toUpperCase() || "SPORTZONE";
-
-  const specificationList = [
-    { name: "Brand", value: parsedBrand },
-    { name: "Category", value: product.category },
-    { name: "Material", value: "Premium Athlete-Grade Composite" },
-    { name: "Fit Type", value: "Regular Performance Fit" },
-    { name: "Warranty", value: "1 Year Official Manufacturer Warranty" },
-    { name: "Availability", value: inStock ? "In Stock" : "Out of Stock" }
-  ];
-
-  const mockOffers = [
-    { title: "HDFC Card Offer", desc: "Flat 10% Instant Discount on HDFC Credit Cards.", code: "HDFC10" },
-    { title: "UPI Cashback", desc: "Get flat ₹250 cashback on payments using UPI.", code: "UPI250" },
-    { title: "New User Coupon", desc: "Extra ₹100 off on your first transaction.", code: "SPORT10" }
-  ];
-
   return (
     <StoreShell>
       <div className="sz-pd-modern-page">
@@ -535,7 +604,7 @@ function ProductDetail() {
           
           {/* Breadcrumbs */}
           <div className="sz-pd-breadcrumb mb-4 text-muted small">
-            <Link to="/">Home</Link> &nbsp;/&nbsp; <Link to={`/shop?category=${product.category}`}>{product.category}</Link> &nbsp;/&nbsp; <span className="text-dark fw-bold">{product.name}</span>
+            <Link to={`/shop?category=${product.category}`}>{product.category}</Link> &nbsp;/&nbsp; <span className="text-dark fw-bold">{product.name}</span>
           </div>
 
           <div className="row g-4">
@@ -577,9 +646,7 @@ function ProductDetail() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && openLightboxAtIndex(gallery.indexOf(selectedImage))}
                   >
-                    {discount > 0 && (
-                      <span className="sz-pd-badge-overlay">{discount}% OFF</span>
-                    )}
+
 
                     {/* Image overlay actions */}
                     <div className="sz-pd-img-action-overlay">
@@ -691,13 +758,15 @@ function ProductDetail() {
                   <div className="d-flex flex-column gap-2">
                     <div className="sz-pd-size-header">
                       <span className="small fw-bold uppercase tracking-wider text-dark">Select Size</span>
-                      <button
-                        type="button"
-                        className="sz-pd-guide-trigger"
-                        onClick={() => setShowSizeGuide(true)}
-                      >
-                        <FaRegCopy size={12} /> Size Guide
-                      </button>
+                      {isShoe && (
+                        <button
+                          type="button"
+                          className="sz-pd-guide-trigger"
+                          onClick={() => setShowSizeGuide(true)}
+                        >
+                          <FaRegCopy size={12} /> Size Guide
+                        </button>
+                      )}
                     </div>
 
                     <div className="sz-pd-size-grid-box">
@@ -762,56 +831,35 @@ function ProductDetail() {
                       </div>
                     </div>
                   )}
-                  
-                  <div className="d-flex flex-column gap-2">
-                    <button
-                      type="button"
-                      className="btn sz-purchase-btn buy-now"
-                      onClick={() => {
-                        if (showSizes && !selectedSize) {
-                          toast.error("Please select a size first.");
-                          return;
-                        }
-                        navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });
-                      }}
-                      disabled={!inStock}
-                    >
-                      <FaBolt /> Buy Now
-                    </button>
-                    <button
-                      type="button"
-                      className="btn sz-purchase-btn add-to-cart"
-                      onClick={addToCartNow}
-                      disabled={!inStock || cartLoading}
-                    >
-                      <FaShoppingCart /> {cartLoading ? "Adding..." : "Add to Cart"}
-                    </button>
-                  </div>
                 </div>
 
                 <hr className="my-1 border-slate-200" />
 
                 {/* Bank / Promo coupon cards */}
-                <div className="d-flex flex-column gap-2">
-                  <span className="small fw-bold uppercase tracking-wider text-dark">Exclusive Offers</span>
-                  <div className="sz-pd-offers-carousel">
-                    {mockOffers.map((off, index) => (
-                      <div className="sz-pd-offer-card" key={off.code}>
-                        <div>
-                          <div className="fw-bold text-dark small mb-1">{off.title}</div>
-                          <div className="text-muted extra-small" style={{ fontSize: "0.75rem", lineHeight: "1.3" }}>{off.desc}</div>
+                {offers.length > 0 && (
+                  <div className="d-flex flex-column gap-2">
+                    <span className="small fw-bold uppercase tracking-wider text-dark">Exclusive Offers</span>
+                    <div className="sz-pd-offers-carousel">
+                      {offers.map((off, index) => (
+                        <div className="sz-pd-offer-card" key={off.id || off.promo_code}>
+                          <div>
+                            <div className="fw-bold text-dark small mb-1">{off.title}</div>
+                            <div className="text-muted extra-small" style={{ fontSize: "0.75rem", lineHeight: "1.3" }}>
+                              {off.description || off.desc}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="sz-offer-copy-btn"
+                            onClick={() => copyOfferCode(off.promo_code || off.code, index)}
+                          >
+                            {copiedOfferIndex === index ? "Copied! ✓" : (off.promo_code || off.code)}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          className="sz-offer-copy-btn"
-                          onClick={() => copyOfferCode(off.code, index)}
-                        >
-                          {copiedOfferIndex === index ? "Copied! ✓" : off.code}
-                        </button>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <hr className="my-1 border-slate-200" />
 
@@ -845,28 +893,6 @@ function ProductDetail() {
                     </div>
                   )}
                 </div>
-
-                <hr className="my-1 border-slate-200" />
-
-                {/* Product highlights */}
-                <div className="d-flex flex-column gap-2">
-                  <span className="small fw-bold uppercase tracking-wider text-dark">Product Highlights</span>
-                  <ul className="sz-pd-highlights-list">
-                    <li className="sz-pd-highlight-item">
-                      <span className="sz-pd-highlight-dot">✓</span> High-impact durability
-                    </li>
-                    <li className="sz-pd-highlight-item">
-                      <span className="sz-pd-highlight-dot">✓</span> Ergonomic athlete fit
-                    </li>
-                    <li className="sz-pd-highlight-item">
-                      <span className="sz-pd-highlight-dot">✓</span> Tested in professional conditions
-                    </li>
-                    <li className="sz-pd-highlight-item">
-                      <span className="sz-pd-highlight-dot">✓</span> Breathable sweat-wicking materials
-                    </li>
-                  </ul>
-                </div>
-
                 <hr className="my-1 border-slate-200" />
 
                 {/* Details Accordion Info Tabs */}
@@ -1005,17 +1031,24 @@ function ProductDetail() {
                 {inStock && (
                   <div className="sz-pd-qty-selector-row">
                     <span className="small text-muted font-semibold">Qty:</span>
-                    <select
-                      className="sz-pd-qty-dropdown"
-                      value={qty}
-                      onChange={(e) => setQty(Number(e.target.value))}
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="sz-pd-qty">
+                      <button
+                        type="button"
+                        className="sz-pd-qty-btn"
+                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        disabled={qty <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="sz-pd-qty-val">{qty}</span>
+                      <button
+                        type="button"
+                        className="sz-pd-qty-btn"
+                        onClick={() => setQty((q) => q + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1151,10 +1184,21 @@ function ProductDetail() {
             </div>
           )}
 
-          {/* CUSTOMER REVIEWS (Amazon-Style Redesign) */}
           <div id="reviews-section" className="row mt-5 pt-4 border-top">
             <div className="col-12">
-              <h3 className="h4 fw-bold mb-4">Customer Rating Feedbacks</h3>
+              <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h3 className="h4 fw-bold mb-0">Customer Reviews</h3>
+                {combinedReviews.length > 0 && !showReviewForm && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark rounded-pill px-4 fw-bold"
+                    style={{ fontSize: "0.85rem", transition: "all 0.25s" }}
+                    onClick={() => setShowReviewForm(true)}
+                  >
+                    Write a Review
+                  </button>
+                )}
+              </div>
 
               {combinedReviews.length > 0 && (
                 <>
@@ -1267,7 +1311,7 @@ function ProductDetail() {
                 
                 {/* Reviews List */}
                 {combinedReviews.length > 0 ? (
-                  <div className="col-lg-7 col-12">
+                  <div className={showReviewForm ? "col-lg-7 col-12" : "col-lg-12 col-12"}>
                     {filteredReviews.length === 0 ? (
                       <div className="p-4 border rounded text-center text-muted small bg-light">
                         No customer reviews found matching the filters.
@@ -1349,34 +1393,78 @@ function ProductDetail() {
                     )}
                   </div>
                 ) : (
-                  <div className="col-lg-7 col-12">
+                  <div className={showReviewForm ? "col-lg-7 col-12" : "col-lg-12 col-12"}>
                     <div className="p-4 border rounded text-center text-muted small bg-light h-100 d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "240px" }}>
-                      <span style={{ fontSize: "2rem" }}>💬</span>
+                      <FaRegCommentDots size={32} className="text-muted mb-2" />
                       <p className="mb-0 mt-2 fw-semibold text-dark">No reviews yet for this product</p>
-                      <p className="extra-small text-muted mb-0 mt-1">Be the first to share your thoughts by publishing a review below.</p>
+                      <p className="extra-small text-muted mb-3 mt-1">Be the first to share your thoughts by publishing a review.</p>
+                      {!showReviewForm && (
+                        <button
+                          type="button"
+                          className="btn btn-dark rounded-pill px-4 fw-bold py-2 mt-1"
+                          onClick={() => setShowReviewForm(true)}
+                        >
+                          Write a Review
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
 
                 {/* Submit Feedback Form */}
-                <div className="col-lg-5 col-12">
-                  <div className="sz-submit-review-card">
-                    <h4 className="h6 fw-bold mb-3 uppercase tracking-wider text-dark">Submit Feedback</h4>
+                {showReviewForm && (
+                  <div className="col-lg-5 col-12">
+                    <div className="sz-submit-review-card">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h4 className="h6 fw-bold m-0 uppercase tracking-wider text-dark">Submit Feedback</h4>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        style={{ fontSize: "0.8rem" }}
+                        onClick={() => setShowReviewForm(false)}
+                        aria-label="Close form"
+                      />
+                    </div>
                     <form onSubmit={submitReview} className="d-flex flex-column gap-3">
                       <div>
                         <label className="form-label small fw-bold text-dark uppercase tracking-wider">Overall Rating</label>
-                        <select
-                          className="form-select form-select-sm"
-                          value={reviewForm.rating}
-                          onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })}
-                          style={{ fontWeight: 600 }}
-                        >
-                          {[5, 4, 3, 2, 1].map((n) => (
-                            <option key={n} value={n}>
-                              {n} Stars {n === 5 ? "(Excellent)" : n === 1 ? "(Poor)" : ""}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="d-flex align-items-center gap-1 my-1">
+                          {[1, 2, 3, 4, 5].map((starValue) => {
+                            const active = starValue <= (hoverRating || reviewForm.rating);
+                            return (
+                              <button
+                                key={starValue}
+                                type="button"
+                                className="border-0 bg-transparent p-0 star-rating-btn"
+                                style={{ cursor: "pointer", transition: "transform 0.1s" }}
+                                onClick={() => setReviewForm({ ...reviewForm, rating: starValue })}
+                                onMouseEnter={() => setHoverRating(starValue)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                aria-label={`Rate ${starValue} stars`}
+                              >
+                                <FaStar
+                                  size={28}
+                                  className={active ? "text-warning" : "text-muted"}
+                                  style={{
+                                    color: active ? "var(--sz-color-warning)" : "#d1d5db",
+                                    filter: active ? "drop-shadow(0 0 2px rgba(234, 179, 8, 0.2))" : "none"
+                                  }}
+                                />
+                              </button>
+                            );
+                          })}
+                          <span className="small font-semibold ms-2 text-muted" style={{ fontSize: "0.85rem", minWidth: "80px" }}>
+                            {(() => {
+                              const r = hoverRating || reviewForm.rating;
+                              if (r === 5) return "Excellent";
+                              if (r === 4) return "Very Good";
+                              if (r === 3) return "Good";
+                              if (r === 2) return "Fair";
+                              if (r === 1) return "Poor";
+                              return "";
+                            })()}
+                          </span>
+                        </div>
                       </div>
                       
                       <div>
@@ -1402,6 +1490,7 @@ function ProductDetail() {
                     </form>
                   </div>
                 </div>
+              )}
 
               </div>
             </div>
@@ -1424,25 +1513,6 @@ function ProductDetail() {
               </div>
             </div>
           )}
-
-          {/* RECENTLY VIEWED PRODUCTS */}
-          {recentlyViewedProducts.length > 0 && (
-            <div className="row mt-5 pt-4 border-top">
-              <div className="col-12">
-                <h3 className="h5 fw-bold mb-3">Recently Viewed Gear</h3>
-                <div className="sz-pd-carousel-wrapper">
-                  <div className="sz-pd-scrolling-cards-row">
-                    {recentlyViewedProducts.map((p, idx) => (
-                      <div className="sz-pd-card-item-wrap" key={p.id}>
-                        <ProductCard product={p} index={idx} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
         </div>
 
         {/* Mobile Sticky CTA Footer (Visible below lg breakpoint) */}
@@ -1590,7 +1660,7 @@ function ProductDetail() {
 
       {/* SIZE GUIDE MODAL DIALOG */}
       <AnimatePresence>
-        {showSizeGuide && (
+        {showSizeGuide && isShoe && (
           <motion.div
             className="sz-modal-overlay-bg"
             initial={{ opacity: 0 }}

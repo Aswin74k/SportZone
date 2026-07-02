@@ -7,10 +7,15 @@ import { unwrapList } from "../../utils/unwrapList";
 export default function UserOrdersModal({ user, onClose }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastUserId, setLastUserId] = useState(user?.id);
+
+  if (user?.id !== lastUserId) {
+    setLastUserId(user?.id);
+    setLoading(true);
+  }
 
   useEffect(() => {
     if (!user) return;
-    setLoading(true);
     API.get(`admin/users/${user.id}/orders/`)
       .then((res) => setOrders(unwrapList(res.data)))
       .catch(() => setOrders([]))

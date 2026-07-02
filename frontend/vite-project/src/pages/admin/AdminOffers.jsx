@@ -34,7 +34,7 @@ export default function AdminOffers() {
   };
 
   useEffect(() => {
-    load();
+    Promise.resolve().then(() => load());
   }, []);
 
   const startEdit = (o) => {

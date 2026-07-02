@@ -423,6 +423,7 @@
   justify-content: center;
   height: 100%;
   position: relative;
+  animation: floatProduct 6s infinite ease-in-out; /* Float entire product showcase wrapper */
 }
 
 .sz-hero-cutout-glow {
@@ -466,13 +467,12 @@
   to { transform: rotate(360deg); }
 }
 
-/* Modern floating keyframe animation */
+/* Clean product image layout with high performance transition */
 .sz-hero-cutout-img {
   max-width: 95%;
   max-height: 330px; /* Fits comfortably inside 400px height */
   object-fit: contain;
   z-index: 2;
-  animation: floatProduct 6s infinite ease-in-out;
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -489,7 +489,7 @@
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-8px) rotate(1.5deg);
+    transform: translateY(-8px) rotate(1deg);
   }
   100% {
     transform: translateY(0px) rotate(0deg);
@@ -498,7 +498,7 @@
 
 /* Scale up and tilt on hover over slide */
 .sz-slide:hover .sz-hero-cutout-img {
-  transform: scale(1.05) translateY(-5px) rotate(2deg);
+  transform: scale(1.06) rotate(2.5deg);
 }
 
 .sz-theme-light .sz-slide:hover .sz-hero-cutout-img {
@@ -1469,16 +1469,17 @@
   border-radius: 50%;
   background: #cbd5e1;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
   opacity: 1;
   margin: 0 !important;
 }
 
 .swiper-pagination-custom .swiper-pagination-bullet-active {
-  background: #0f172a !important; /* Premium dark indicator dots */
-  width: 18px; /* pill shape active bullet */
-  border-radius: 4px;
+  background: linear-gradient(90deg, #2563eb, #00d2ff) !important; /* Premium brand gradient active pill */
+  width: 24px; /* Expanded pill shape active bullet */
+  border-radius: 99px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
 }
 
 /* Skeleton Loading styles */

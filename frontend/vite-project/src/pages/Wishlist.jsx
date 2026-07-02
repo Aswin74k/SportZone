@@ -128,7 +128,7 @@ function Wishlist() {
               </motion.div>
             ) : (
               <div className="sz-wishlist-list-wrap">
-                {wishlistProducts.map((product, index) => {
+                {wishlistProducts.map((product) => {
                   const imageSrc = mediaUrl(product.image) || "/no-image.png";
                   const displayBrand = product.brand?.name || 
                     (typeof product.brand === "string" ? product.brand : "") || 

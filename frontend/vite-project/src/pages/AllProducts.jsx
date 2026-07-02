@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaFilter, FaTimes, FaSlidersH, FaSyncAlt } from "react-icons/fa";
 import { mediaUrl } from "../utils/mediaUrl";
@@ -20,7 +20,6 @@ const normalizeCategory = (value) => {
 };
 
 function AllProducts() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // 1. URL search params sync
@@ -46,6 +45,16 @@ function AllProducts() {
   const [priceMinInput, setPriceMinInput] = useState(minPriceQuery);
   const [priceMaxInput, setPriceMaxInput] = useState(maxPriceQuery);
 
+  const [lastMinPrice, setLastMinPrice] = useState(minPriceQuery);
+  const [lastMaxPrice, setLastMaxPrice] = useState(maxPriceQuery);
+
+  if (minPriceQuery !== lastMinPrice || maxPriceQuery !== lastMaxPrice) {
+    setLastMinPrice(minPriceQuery);
+    setLastMaxPrice(maxPriceQuery);
+    setPriceMinInput(minPriceQuery);
+    setPriceMaxInput(maxPriceQuery);
+  }
+
   // Mobile drawer state
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -64,7 +73,7 @@ function AllProducts() {
           setActiveBanner(null);
         });
     } else {
-      setActiveBanner(null);
+      Promise.resolve().then(() => setActiveBanner(null));
     }
   }, [bannerId]);
 
@@ -79,15 +88,14 @@ function AllProducts() {
       .catch((err) => console.error("Error fetching brands:", err));
   }, []);
 
-  // Update input fields if the URL params change (e.g. from back button)
-  useEffect(() => {
-    setPriceMinInput(minPriceQuery);
-    setPriceMaxInput(maxPriceQuery);
-  }, [minPriceQuery, maxPriceQuery]);
+
 
   // 4. Products fetching logic triggered whenever searchParams changes
   useEffect(() => {
-    setLoading(true);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) setLoading(true);
+    });
     const apiParams = { page: currentPage };
     if (normalizedCategory) apiParams.category = normalizedCategory;
     if (search) apiParams.search = search;
@@ -99,6 +107,7 @@ function AllProducts() {
 
     API.get("products/", { params: apiParams })
       .then((res) => {
+        if (!active) return;
         if (res.data && res.data.results !== undefined) {
           setProducts(res.data.results);
           setTotalCount(res.data.count);
@@ -108,10 +117,17 @@ function AllProducts() {
         }
       })
       .catch(() => {
+        if (!active) return;
         setProducts([]);
         setTotalCount(0);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [normalizedCategory, search, brandId, minPriceQuery, maxPriceQuery, sortOption, currentPage, bannerId]);
 
   // 5. Update handler helper

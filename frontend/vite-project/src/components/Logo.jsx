@@ -1,6 +1,19 @@
 import React from "react";
 
 const Logo = ({ fontSize = "2.5rem", light = false }) => {
+  const zoneGradientStyle = {
+    background: light 
+      ? "linear-gradient(135deg, #60a5fa 0%, #06b6d4 100%)" 
+      : "linear-gradient(135deg, #2563eb 0%, #0891b2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+    position: "relative",
+    display: "inline-block",
+    zIndex: 0,
+    paddingRight: "0.15em" // Prevent italic slant clipping of the letter 'E'
+  };
+
   return (
     <span 
       className="sz-brand-text position-relative d-inline-block" 
@@ -15,7 +28,7 @@ const Logo = ({ fontSize = "2.5rem", light = false }) => {
       }}
     >
       <span style={{ color: light ? "#ffffff" : "#003366", marginRight: "1px" }}>SPORT</span>
-      <span style={{ color: light ? "#f8fafc" : "#0f172a", position: "relative", display: "inline-block", zIndex: 0 }}>
+      <span style={zoneGradientStyle}>
         ZONE
         {/* Premium athletic gradient swoosh */}
         <svg 
@@ -49,4 +62,3 @@ const Logo = ({ fontSize = "2.5rem", light = false }) => {
 };
 
 export default Logo;
-

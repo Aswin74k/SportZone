@@ -11,10 +11,7 @@ export default function StaffRoute({ children }) {
   const [allowed, setAllowed] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setAllowed(false);
-      return;
-    }
+    if (!isAuthenticated) return;
 
     let cancelled = false;
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
@@ -5,26 +6,26 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Initial load from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!(localStorage.getItem("access") || localStorage.getItem("token"));
+  });
+  const [user, setUser] = useState(() => {
     const token = localStorage.getItem("access") || localStorage.getItem("token");
     if (token) {
-      setIsAuthenticated(true);
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          setUser({ name: localStorage.getItem("user_name") || "User" });
+          return JSON.parse(storedUser);
+        } catch {
+          return { name: localStorage.getItem("user_name") || "User" };
         }
-      } else {
-        setUser({ name: localStorage.getItem("user_name") || "User" });
       }
+      return { name: localStorage.getItem("user_name") || "User" };
     }
+    return null;
+  });
 
+  useEffect(() => {
     // Sync via storage event (cross-tab) and custom event
     const handleStorageChange = () => {
       const newToken = localStorage.getItem("access") || localStorage.getItem("token");

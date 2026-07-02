@@ -26,7 +26,7 @@ export default function AdminCategories() {
   };
 
   useEffect(() => {
-    load();
+    Promise.resolve().then(() => load());
   }, []);
 
   const startEdit = (row) => {
