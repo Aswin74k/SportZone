@@ -19,6 +19,9 @@ import { useWishlist } from "../context/WishlistContext";
 import { mediaUrl } from "../utils/mediaUrl";
 import StoreShell from "../components/StoreShell";
 import { toast } from "react-toastify";
+import API from "../api";
+import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ui/ProductCardSkeleton";
 import "./Cart.css";
 
 function Cart() {
@@ -38,6 +41,43 @@ function Cart() {
     }
     return [];
   });
+
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [loadingViewed, setLoadingViewed] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchRecentlyViewed = async () => {
+      try {
+        const viewedIds = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+        if (viewedIds.length === 0) {
+          return;
+        }
+        setLoadingViewed(true);
+        const res = await API.get("products/");
+        const allProducts = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
+        
+        // Filter and sort according to the order of viewedIds
+        const filtered = allProducts.filter(p => viewedIds.includes(p.id));
+        const sorted = [...filtered].sort((a, b) => {
+          return viewedIds.indexOf(a.id) - viewedIds.indexOf(b.id);
+        });
+
+        if (mounted) {
+          setRecentlyViewed(sorted.slice(0, 8));
+          setLoadingViewed(false);
+        }
+      } catch (e) {
+        console.error("Error fetching recently viewed products:", e);
+        if (mounted) setLoadingViewed(false);
+      }
+    };
+
+    fetchRecentlyViewed();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
 
 
@@ -118,7 +158,6 @@ function Cart() {
     return itemsTotalMRP - cartTotal;
   }, [itemsTotalMRP, cartTotal]);
 
-  const platformFee = 0;
   const grandTotal = cartTotal;
   const netSavings = itemsTotalMRP - grandTotal;
 
@@ -129,27 +168,73 @@ function Cart() {
       <div className="sz-page sz-cart-page-bg">
         <div className="sz-page-inner container-fluid container-xl px-3 px-md-4">
             <motion.div 
-              className="sz-cart-empty-section text-center py-5"
+              className="sz-cart-empty-container text-center py-5"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="sz-cart-empty-illustration mb-4">
-                <div className="illustration-bag-wrap">
-                  <FaShoppingBag className="bag-icon" />
-                  <div className="empty-badge">0</div>
+              <div className="sz-cart-empty-card">
+                <div className="sz-cart-empty-icon-wrap mb-4">
+                  <div className="sz-cart-empty-glow" />
+                  <div className="sz-cart-empty-circle">
+                    <FaShoppingBag className="sz-empty-bag-icon" />
+                    <span className="sz-empty-badge">0</span>
+                  </div>
                 </div>
+                
+                <span className="sz-cart-empty-kicker mb-2 d-inline-block">Your Cart</span>
+                <h1 className="sz-cart-empty-title mb-3">Your Cart is Empty</h1>
+                <p className="sz-cart-empty-text mb-4">
+                  Looks like you haven't added any products to your cart yet. Explore our premium sports gear built for top-tier performance.
+                </p>
+                <Link to="/shop" className="sz-empty-cart-shop-btn">
+                  Continue Shopping
+                </Link>
               </div>
-              <h1 className="h3 fw-bold mb-2">Your Cart is Empty</h1>
-              <p className="text-muted mb-4 max-w-md mx-auto">
-                Looks like you haven't added any products to your cart yet. Explore our premium sports gear built for top-tier performance.
-              </p>
-              <Link to="/shop" className="btn sz-empty-cart-shop-btn px-5 py-3">
-                Continue Shopping
-              </Link>
             </motion.div>
 
-            {/* Recommendations removed */}
+            {(loadingViewed || recentlyViewed.length > 0) && (
+              <section className="sz-recently-viewed-section mt-5 pt-4 border-top">
+                <header className="sz-recently-viewed-header mb-4">
+                  <h2 className="sz-recently-viewed-title">Recently Viewed</h2>
+                </header>
+                <div className="sz-recently-viewed-list">
+                  {loadingViewed ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-skeleton-${idx}`}>
+                        <div className="flex-grow-1">
+                          <ProductCardSkeleton />
+                        </div>
+                        <div className="sz-skeleton mt-2" style={{ height: "42px", width: "100%", borderRadius: "8px" }} />
+                      </div>
+                    ))
+                  ) : (
+                    recentlyViewed.map((product, index) => (
+                      <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-${product.id}`}>
+                        <div className="flex-grow-1">
+                          <ProductCard product={product} index={index} />
+                        </div>
+                        <button
+                          type="button"
+                          className="sz-add-to-cart-btn-recently mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart({ 
+                              product_id: product.id, 
+                              size: "M", 
+                              quantity: 1 
+                            });
+                            toast.success(`${product.name} added to cart!`);
+                          }}
+                        >
+                          Add to cart
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </StoreShell>
@@ -513,6 +598,50 @@ function Cart() {
             )}
           </div>
         </div>
+
+        {(loadingViewed || recentlyViewed.length > 0) && (
+          <section className="sz-recently-viewed-section mt-5 pt-4 border-top">
+            <header className="sz-recently-viewed-header mb-4">
+              <h2 className="sz-recently-viewed-title">Recently Viewed</h2>
+            </header>
+            <div className="sz-recently-viewed-list">
+              {loadingViewed ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-skeleton-${idx}`}>
+                    <div className="flex-grow-1">
+                      <ProductCardSkeleton />
+                    </div>
+                    <div className="sz-skeleton mt-2" style={{ height: "42px", width: "100%", borderRadius: "8px" }} />
+                  </div>
+                ))
+              ) : (
+                recentlyViewed.map((product, index) => (
+                  <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-${product.id}`}>
+                    <div className="flex-grow-1">
+                      <ProductCard product={product} index={index} />
+                    </div>
+                    <button
+                      type="button"
+                      className="sz-add-to-cart-btn-recently mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart({ 
+                          product_id: product.id, 
+                          size: "M", 
+                          quantity: 1 
+                        });
+                        toast.success(`${product.name} added to cart!`);
+                      }}
+                    >
+                      Add to cart
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        )}
+
       </div>
     </div>
   </StoreShell>

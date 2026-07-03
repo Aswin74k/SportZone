@@ -1,10 +1,14 @@
-/* All Products Listing Layout Styles */
+/* ==========================================================================
+   Premium Sports E-commerce Theme (All Products page)
+   Inspired by Nike, Decathlon, Apple & Adidas
+   ========================================================================== */
 
-/* Sidebar Layout Container */
+/* Main layout containers */
 .sz-listing-layout {
   display: flex;
-  gap: 32px;
-  margin-top: 24px;
+  gap: 40px;
+  margin-top: 32px;
+  align-items: flex-start;
 }
 
 .sz-filter-sidebar {
@@ -13,13 +17,19 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-  padding: 24px;
+  padding: 28px;
   position: sticky;
-  top: 104px; /* Align below standard sticky header */
+  top: 100px;
   height: fit-content;
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 140px);
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  scrollbar-width: none; /* Hide scrollbar for clean look */
+  transition: all 0.3s ease;
+}
+
+.sz-filter-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sz-products-content {
@@ -28,8 +38,8 @@
 
 /* Sidebar Section Headers */
 .sz-filter-section {
-  margin-bottom: 24px;
-  padding-bottom: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -40,12 +50,13 @@
 }
 
 .sz-filter-title {
-  font-size: 0.95rem;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
 /* Filter Options (List) */
@@ -53,7 +64,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 200px;
+  max-height: 240px;
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -63,33 +74,35 @@
   border: none;
   width: 100%;
   text-align: left;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.9rem;
   color: #475569;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .sz-filter-item-btn:hover {
   background-color: #f8fafc;
   color: #0f172a;
-  padding-left: 16px;
+  transform: translateX(4px);
 }
 
 .sz-filter-item-btn.active {
-  background-color: #eff6ff;
-  color: #3b82f6;
-  font-weight: 700;
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
 /* Price Inputs */
 .sz-price-inputs {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -100,7 +113,7 @@
 
 .sz-price-currency {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
@@ -109,34 +122,43 @@
 }
 
 .sz-price-field {
-  padding-left: 20px;
+  padding-left: 24px;
   font-size: 0.88rem;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  height: 38px;
+  height: 42px;
+  width: 100%;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
 }
 
 .sz-price-field:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background-color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+  outline: none;
 }
 
 .sz-btn-apply-price {
-  background-color: #003366;
+  background-color: #0f172a;
   color: #ffffff;
   border: none;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  width: 100%;
 }
 
 .sz-btn-apply-price:hover {
-  background-color: #002244;
+  background-color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Top bar with count & sorting */
+/* Grid controls topbar */
 .sz-listing-topbar {
   display: flex;
   justify-content: space-between;
@@ -144,28 +166,46 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 12px 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
+  padding: 16px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
 }
 
 .sz-sort-select {
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
   background-color: #ffffff;
-  padding: 8px 16px;
+  padding: 8px 32px 8px 16px;
   font-size: 0.88rem;
   border-radius: 8px;
-  color: #1e293b;
-  font-weight: 500;
+  color: #0f172a;
+  font-weight: 600;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
 }
 
 .sz-sort-select:focus {
-  border-color: #3b82f6;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
 }
 
 /* Active Filters Drawer Tags */
+.sz-active-filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
 .sz-active-filters-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -174,16 +214,22 @@
 }
 
 .sz-filter-tag {
-  background-color: #f1f5f9;
+  background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  color: #334155;
+  color: #0f172a;
   font-size: 0.8rem;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 9999px;
+  padding: 6px 14px;
+  border-radius: 100px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.sz-filter-tag:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
 }
 
 .sz-filter-tag-remove {
@@ -195,6 +241,7 @@
   display: inline-flex;
   align-items: center;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 .sz-filter-tag-remove:hover {
@@ -206,15 +253,120 @@
   background: transparent;
   border: none;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #475569;
   font-weight: 600;
   text-decoration: underline;
   padding: 0;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 .sz-btn-clear-all:hover {
   color: #ef4444;
+}
+
+/* Premium Collection Banner */
+.sz-collection-banner {
+  position: relative;
+  min-height: 200px;
+  border-radius: 24px !important;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+}
+
+.sz-banner-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.sz-banner-badge {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: inline-block;
+}
+
+.sz-banner-img-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.sz-banner-img-container img {
+  max-height: 130px;
+  object-fit: contain;
+  width: 100%;
+  transition: transform 0.5s ease;
+}
+
+.sz-collection-banner:hover .sz-banner-img-container img {
+  transform: scale(1.06) rotate(2deg);
+}
+
+/* Generic Header Kicker */
+.sz-kicker {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.sz-listing-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 32px;
+}
+
+.sz-listing-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sz-listing-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.sz-listing-count {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Featured Products Section */
+.sz-featured-products-section {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015);
 }
 
 /* Mobile Filters Drawer Modal */
@@ -224,7 +376,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
   z-index: 1060;
   display: flex;
   justify-content: flex-end;
@@ -239,15 +392,15 @@
 }
 
 .sz-mobile-filter-content {
-  width: 320px;
+  width: 340px;
   height: 100%;
   background-color: #ffffff;
-  padding: 24px;
+  padding: 32px 28px;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sz-mobile-filter-modal.is-open .sz-mobile-filter-content {
@@ -257,35 +410,125 @@
 .sz-mobile-filter-body {
   flex-grow: 1;
   overflow-y: auto;
-  margin-top: 16px;
-  padding-bottom: 24px;
+  margin-top: 24px;
+  padding-bottom: 32px;
+  scrollbar-width: none;
+}
+
+.sz-mobile-filter-body::-webkit-scrollbar {
+  display: none;
+}
+
+.sz-close-btn {
+  background: transparent;
+  border: none;
+  color: #475569;
+  padding: 6px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sz-close-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
 
 /* Mobile Filter Trigger Btn */
 .sz-btn-mobile-filter {
   background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #475569;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
   font-size: 0.88rem;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .sz-btn-mobile-filter:hover {
-  border-color: #94a3b8;
+  border-color: #0f172a;
+  background-color: #f8fafc;
+}
+
+/* Pagination Styling */
+.pagination {
+  gap: 6px;
+  border: none;
+}
+
+.pagination .page-item .page-link {
+  border: 1px solid #e2e8f0;
   color: #0f172a;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+  border-radius: 8px;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: #f8fafc;
+  color: #cbd5e1;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Empty State Styling */
+.sz-empty-state {
+  text-align: center;
+  padding: 80px 32px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.015);
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.sz-empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  animation: pulse-slow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 /* Responsive Grid and Width tweaks */
 @media (max-width: 991px) {
   .sz-listing-layout {
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
 }

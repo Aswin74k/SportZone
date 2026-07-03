@@ -288,34 +288,31 @@ function AllProducts() {
         {/* COLLECTION HEADER / TOP TITLE HEADER */}
         {activeBanner ? (
           <div 
-            className="sz-collection-banner mb-4 p-4 rounded-4 text-white position-relative overflow-hidden shadow-sm"
+            className="sz-collection-banner mb-5 p-5 text-white position-relative d-flex align-items-center"
             style={{
-              background: activeBanner.background_color || "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-              minHeight: "160px",
-              display: "flex",
-              alignItems: "center",
-              borderRadius: "16px"
+              background: activeBanner.background_color || "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
             }}
           >
-            {/* Dark glassmorphic background overlay */}
-            <div className="position-absolute top-0 start-0 end-0 bottom-0" style={{ background: "rgba(0, 0, 0, 0.25)", zIndex: 1 }} />
+            {/* Ambient light glow inside banner */}
+            <div className="sz-banner-glow" />
             
-            <div className="row align-items-center g-4 w-100 position-relative" style={{ zIndex: 2 }}>
+            <div className="row align-items-center g-4 w-100 position-relative z-2">
               {activeBanner.image && (
                 <div className="col-md-3 text-center text-md-start">
-                  <img 
-                    src={mediaUrl(activeBanner.image)} 
-                    alt={activeBanner.title} 
-                    className="img-fluid rounded-3 shadow"
-                    style={{ maxHeight: "130px", objectFit: "contain", width: "100%", borderRadius: "12px", background: "rgba(255, 255, 255, 0.05)", padding: "4px" }}
-                  />
+                  <div className="sz-banner-img-container">
+                    <img 
+                      src={mediaUrl(activeBanner.image)} 
+                      alt={activeBanner.title} 
+                      className="img-fluid"
+                    />
+                  </div>
                 </div>
               )}
               <div className="col-md-9 text-center text-md-start">
-                <span className="badge bg-warning text-dark px-3 py-1.5 rounded-pill mb-2 text-uppercase fw-bold" style={{ letterSpacing: "0.05em", fontSize: "0.7rem" }}>
+                <span className="sz-banner-badge mb-3">
                   🏆 Special Collection
                 </span>
-                <h1 className="h2 fw-bold mb-2 text-white">
+                <h1 className="display-6 fw-extrabold mb-3 text-white tracking-tight">
                   {activeBanner.title}
                 </h1>
                 <p className="mb-0 text-white-50 lead fs-6 fw-normal">
@@ -325,19 +322,19 @@ function AllProducts() {
             </div>
           </div>
         ) : (
-          <div className="d-flex flex-column mb-4">
-            <p className="sz-kicker mb-1">Store</p>
-            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <h1 className="h3 fw-bold mb-0">{title}</h1>
-              {!loading && <p className="text-muted small mb-0">{totalCount} items found</p>}
+          <header className="sz-listing-header">
+            <p className="sz-kicker">Store</p>
+            <div className="sz-listing-header-row">
+              <h1 className="sz-listing-title">{title}</h1>
+              {!loading && <p className="sz-listing-count">{totalCount} items found</p>}
             </div>
-          </div>
+          </header>
         )}
 
         {/* ACTIVE FILTER TAGS DRAWER */}
         {(category || brandId || minPriceQuery || maxPriceQuery || search) && (
-          <div className="d-flex align-items-center gap-2 flex-wrap mb-4 bg-light p-3 rounded-3 border">
-            <span className="small fw-semibold text-secondary">Active filters:</span>
+          <div className="sz-active-filters-bar">
+            <span className="small fw-bold text-secondary">Active filters:</span>
             <div className="sz-active-filters-wrap flex-grow-1">
               {search && (
                 <span className="sz-filter-tag">
@@ -442,7 +439,7 @@ function AllProducts() {
               <div className="d-flex align-items-center gap-2">
                 <span className="small text-secondary fw-semibold d-none d-sm-block">Sort by:</span>
                 <select
-                  className="form-select sz-sort-select py-1"
+                  className="sz-sort-select"
                   value={sortOption}
                   onChange={(e) => updateParams({ ordering: e.target.value })}
                 >
@@ -465,11 +462,11 @@ function AllProducts() {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="sz-section text-center py-5 bg-white border rounded-4 shadow-sm">
-                <div className="display-4 text-muted mb-3">🔍</div>
-                <h3 className="fw-bold text-dark">No products found</h3>
-                <p className="text-secondary mb-4">Try relaxing your price filters or switching categories.</p>
-                <button onClick={clearAllFilters} className="btn btn-primary px-4 py-2 rounded-pill">
+              <div className="sz-empty-state">
+                <div className="sz-empty-icon">🔍</div>
+                <h3 className="fw-bold text-dark mb-2">No Products Found</h3>
+                <p className="text-secondary mb-4">We couldn't find any products matching your active criteria. Try adjusting your filters.</p>
+                <button onClick={clearAllFilters} className="sz-btn-apply-price px-4 py-2 rounded-pill w-auto">
                   Reset Filters
                 </button>
               </div>
@@ -540,8 +537,9 @@ function AllProducts() {
             <div className="d-flex align-items-center justify-content-between pb-3 border-bottom">
               <h3 className="h5 fw-bold mb-0">Filters</h3>
               <button
-                className="btn p-1 text-secondary"
+                className="sz-close-btn"
                 onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Close filters"
               >
                 <FaTimes size={18} />
               </button>

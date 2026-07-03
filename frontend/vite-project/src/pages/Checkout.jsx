@@ -183,10 +183,6 @@ export default function Checkout() {
     return fullName.trim() && phone.trim() && houseName.trim() && area.trim() && city.trim() && district.trim() && state.trim() && pincode.trim();
   }, [fullName, phone, houseName, area, city, district, state, pincode]);
 
-  const addressPreview = useMemo(() => {
-    return [getLine1(), city, district, state, pincode].filter(Boolean).join(", ");
-  }, [getLine1, city, district, state, pincode]);
-
   function applyAddress(addr) {
     setFullName(addr.full_name || "");
     setPhone(addr.phone || "");

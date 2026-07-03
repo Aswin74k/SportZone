@@ -29,6 +29,12 @@
   padding-bottom: 3rem;
 }
 
+/* Fix nested page padding globally to prevent excessive white space */
+.sz-page-inner .sz-page-inner {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 .sz-section {
   background: var(--sz-surface);
   border: 1px solid var(--sz-border);
