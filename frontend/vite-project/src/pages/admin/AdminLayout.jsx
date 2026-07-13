@@ -3,15 +3,14 @@ import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import "../../styles/admin.css";
 
 const links = [
-  { to: "/admin", label: "Overview", end: true, icon: "◉" },
+  { to: "/admin", label: "Dashboard", end: true, icon: "◉" },
   { to: "/admin/products", label: "Products", icon: "▣" },
   { to: "/admin/categories", label: "Categories", icon: "☰" },
   { to: "/admin/brands", label: "Brands", icon: "▧" },
+  { to: "/admin/banners", label: "Banner Management", icon: "▤" },
+  { to: "/admin/offers", label: "Offer Management", icon: "％" },
   { to: "/admin/orders", label: "Orders", icon: "◎" },
   { to: "/admin/users", label: "Users", icon: "◇" },
-  { to: "/admin/banners", label: "Banners", icon: "▤" },
-  { to: "/admin/offers", label: "Offers", icon: "％" },
-  { to: "/admin/reviews", label: "Reviews", icon: "★" },
 ];
 
 export default function AdminLayout() {

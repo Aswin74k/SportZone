@@ -1,148 +1,1161 @@
-/* Banners Stylesheet - SportZone Clean Hero Carousel */
+/* Banners.css - Premium Storefront Banner Redesign Styles */
 
-.hero-slide {
+:root {
+  --sz-luxury-dark: #090d16;
+  --sz-luxury-glow: rgba(37, 99, 235, 0.15);
+  --sz-glass-bg: rgba(255, 255, 255, 0.03);
+  --sz-glass-border: rgba(255, 255, 255, 0.08);
+  --sz-glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  --sz-accent-blue: #2563eb;
+  --sz-accent-hover: #1d4ed8;
+}
+
+/* Base Banner Section Outer Wrapper */
+.sz-store-banner-section {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+/* 1. FLASH SALE BANNER STYLING */
+.sz-flash-hero-container {
+  position: relative;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--sz-glass-shadow);
+  color: #ffffff;
+  min-height: 380px;
+}
+
+.sz-flash-hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.sz-flash-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(9, 13, 22, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
+  z-index: 2;
+}
+
+/* Glowing background ambient details */
+.sz-flash-ambient-glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.sz-flash-ambient-glow-bottom {
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.sz-flash-hero-content {
+  position: relative;
+  z-index: 5;
+  box-sizing: border-box;
+}
+
+/* Badges */
+.sz-badge-premium {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  display: inline-block;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sz-badge-premium.badge-flash {
+  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Discount indicator block */
+.sz-flash-discount-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  max-width: fit-content;
+}
+
+.sz-flash-discount-bubble .percentage {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ef4444;
+  line-height: 1;
+}
+
+.sz-flash-discount-bubble .label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+/* Countdown nodes */
+.sz-flash-countdown {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.countdown-box {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.65rem 0.95rem;
+  min-width: 65px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.countdown-box .val {
+  font-size: 1.5rem;
+  font-weight: 850;
+  font-family: monospace;
+  color: #ffffff;
+  display: block;
+  line-height: 1;
+}
+
+.countdown-box .lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+
+.sz-flash-countdown .sep {
+  font-size: 1.5rem;
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.3);
+  align-self: center;
+}
+
+/* Right side product composition in Hero */
+.sz-flash-img-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  border-radius: 20px;
-  background-color: #0a0d14; /* neutral background fallback */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.hero-slide img,
-.hero-slide-img {
+.sz-flash-product-image {
+  max-height: 380px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+  z-index: 3;
+}
+
+.sz-flash-ring {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.01) 0%, rgba(255, 255, 255, 0) 70%);
+  z-index: 1;
+  animation: rotateRing 25s infinite linear;
+}
+
+/* Action button */
+.sz-btn-flash {
+  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+  border: none;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 2.25rem;
+  border-radius: 12px;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sz-btn-flash:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.5);
+  background: linear-gradient(90deg, #ff4d4d 0%, #d92626 100%);
+}
+
+/* Animations */
+@keyframes rotateRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 4. GRID LAYOUT FOR HOMEPAGE */
+.sz-banners-grid-row {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+/* PREVIEW MOBILE SIMULATION STYLES */
+.preview-mobile .sz-flash-hero-container {
+  flex-direction: column;
+  padding: 2.5rem 1.5rem !important;
+  height: auto;
+  min-height: auto;
+}
+
+.preview-mobile .sz-flash-img-wrapper {
+  height: 200px !important;
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-mobile .sz-flash-product-image {
+  max-height: 180px !important;
+}
+
+.preview-mobile .sz-flash-ring {
+  width: 180px !important;
+  height: 180px !important;
+}
+
+.preview-mobile .sz-flash-countdown {
+  justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .sz-flash-hero-container {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .sz-flash-hero-container {
+    min-height: auto;
+  }
+  .sz-flash-img-wrapper {
+    height: 220px;
+    margin-top: 1.5rem;
+  }
+  .sz-flash-product-image {
+    max-height: 200px;
+  }
+  .sz-flash-ring {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sz-flash-hero-container {
+    border-radius: 16px;
+  }
+  .countdown-box {
+    min-width: 50px;
+    padding: 0.5rem 0.65rem;
+  }
+  .countdown-box .val {
+    font-size: 1.15rem;
+  }
+}
+
+/* Decathlon Model Banner UI Styling */
+.sz-decathlon-card {
+  position: relative;
   width: 100%;
   height: 100%;
-  object-fit: fill; /* Fit full image without any cut/crop or letterbox black bars */
-  object-position: center center;
-  display: block;
-  border-radius: 20px;
+  min-height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 1. AD Badge */
-.sz-banner-ad-badge {
+.sz-decathlon-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(9, 13, 22, 0.12);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.sz-decathlon-card-backdrop {
   position: absolute;
-  bottom: 16px;
-  right: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
-  z-index: 5;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+.sz-decathlon-card:hover .sz-decathlon-card-backdrop {
+  transform: scale(1.05);
+}
+
+.sz-decathlon-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(9, 13, 22, 0.1) 0%, rgba(9, 13, 22, 0.45) 45%, rgba(9, 13, 22, 0.88) 100%);
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.sz-decathlon-card-content {
+  position: relative;
+  z-index: 3;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.sz-decathlon-badge {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.sz-theme-light .sz-banner-ad-badge {
-  background-color: rgba(0, 0, 0, 0.12);
-  color: rgba(0, 0, 0, 0.5);
+.sz-decathlon-title {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0 0 0.4rem 0;
+  line-height: 1.15;
 }
 
-.sz-theme-dark .sz-banner-ad-badge {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
+.sz-decathlon-subtitle {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
 }
 
-.hero-slide .sz-banner-ad-badge {
-  background-color: rgba(0, 0, 0, 0.35);
-  color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.sz-decathlon-btn {
+  background-color: #ffffff !important;
+  color: #090d16 !important;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* 2. Brand Logo Top Left */
-.sz-hero-brand-logo-wrap {
-  margin-bottom: 1.25rem;
+.sz-decathlon-card:hover .sz-decathlon-btn {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+@media (max-width: 575.98px) {
+  .sz-decathlon-card {
+    min-height: 260px;
+    border-radius: 12px;
+  }
+  .sz-decathlon-card-content {
+    padding: 1.5rem;
+  }
+  .sz-decathlon-title {
+    font-size: 1.35rem;
+  }
+  .sz-decathlon-btn {
+    padding: 10px 20px;
+  }
+}
+
+/* Widescreen Hero Slider (Decathlon style) */
+.sz-hero-slider-section {
+  background: #f8fafc;
+  padding: 0.5rem 0 !important;
+}
+
+.sz-hero-slider {
+  width: 100%;
+  min-height: 440px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.sz-hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  height: 32px;
+  justify-content: flex-start;
 }
 
-.sz-hero-brand-logo {
-  height: 100%;
-  max-height: 32px;
+.sz-hero-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(9, 13, 22, 0.75) 0%, rgba(9, 13, 22, 0.35) 45%, rgba(9, 13, 22, 0) 100%);
+  z-index: 1;
+}
+
+.sz-hero-slide-content {
+  position: relative;
+  z-index: 2;
+  padding: 4rem 4rem 4rem 6.5rem;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sz-hero-slide-title {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+  text-transform: none;
+}
+
+.sz-hero-slide-subtitle {
+  font-size: 1.15rem;
+  color: #ffffff;
+  font-weight: 500;
+  margin: 0.1rem 0;
+}
+
+.sz-hero-slide-price {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0.25rem 0 0.75rem 0;
+  letter-spacing: -0.01em;
+}
+
+.sz-price-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.sz-price-amount {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.sz-price-suffix {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.sz-hero-slide-btn {
+  background-color: #ffffff !important;
+  color: #090d16 !important;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: fit-content;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sz-hero-slide-btn:hover {
+  transform: translateY(-2px);
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Slide arrows styling */
+.sz-hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff !important;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #090d16;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sz-hero-arrow:hover {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.sz-hero-arrow-left {
+  left: 1.5rem;
+}
+
+.sz-hero-arrow-right {
+  right: 1.5rem;
+}
+
+/* Dots styling */
+.sz-hero-dots-wrap {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.sz-hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sz-hero-dot.active {
+  width: 24px;
+  border-radius: 10px;
+  background: #3b82f6;
+}
+
+@media (max-width: 991.98px) {
+  .sz-hero-slider {
+    min-height: 360px;
+  }
+
+  .sz-hero-slide-content {
+    padding: 3rem 3rem 3rem 5.5rem;
+  }
+  
+  .sz-hero-slide-title {
+    font-size: 2.2rem;
+  }
+
+  .sz-price-amount {
+    font-size: 2.1rem;
+  }
+
+  .sz-price-suffix {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sz-hero-slider {
+    min-height: 300px;
+  }
+  
+  .sz-hero-slide-content {
+    padding: 2rem 2rem 2.5rem 4rem;
+  }
+  
+  .sz-hero-slide-title {
+    font-size: 1.6rem;
+  }
+  
+  .sz-hero-slide-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .sz-hero-slide-price {
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .sz-price-amount {
+    font-size: 1.8rem;
+  }
+
+  .sz-price-suffix {
+    font-size: 0.95rem;
+  }
+  
+  .sz-hero-slide-btn {
+    padding: 10px 24px;
+    font-size: 0.75rem;
+  }
+  
+  .sz-hero-arrow {
+    display: none !important;
+  }
+}
+
+/* Contained product image inside decathlon cards */
+.sz-decathlon-product-img-wrap {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.sz-decathlon-product-img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 3. CTA Link Style */
-.sz-hero-cta-wrapper {
-  margin-bottom: 1.5rem;
+.sz-decathlon-card:hover .sz-decathlon-product-img {
+  transform: scale(1.05) translateY(-3px);
 }
 
-.sz-hero-cta-link {
+@media (max-width: 575.98px) {
+  .sz-decathlon-product-img-wrap {
+    height: 110px;
+  }
+}
+
+/* Floating product image inside widescreen hero slider */
+.sz-hero-slide-product-wrap {
+  position: absolute;
+  top: 50%;
+  right: 6rem;
+  transform: translateY(-50%);
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.sz-hero-slide-product-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
+}
+
+@media (max-width: 1199.98px) {
+  .sz-hero-slide-product-wrap {
+    right: 3rem;
+    width: 220px;
+    height: 220px;
+    padding: 1rem;
+    border-radius: 16px;
+  }
+}
+
+/* 4. PRODUCT-FOCUSED BANK OFFERS SLIDER STYLING */
+.sz-offer-banners-section {
+  position: relative;
+  width: 100%;
+}
+
+.sz-offer-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sz-offer-nav-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.sz-offer-banners-window {
+  width: 100%;
+  overflow: hidden;
+  padding: 12px 0;
+  margin: -12px 0;
+}
+
+.sz-offer-banners-track {
+  width: 100%;
+  display: flex;
+  margin: 0 -12px;
+}
+
+.sz-offer-banner-slide {
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+/* Count 1: Full width */
+.sz-offer-banners-track.count-1 .sz-offer-banner-slide {
+  width: 100%;
+}
+.sz-offer-banners-track.count-1 .sz-offer-banner-card {
+  aspect-ratio: 3.5 / 1;
+  padding: 2.25rem 4rem;
+}
+
+/* Count 2: Two columns */
+.sz-offer-banners-track.count-2 .sz-offer-banner-slide {
+  width: 50%;
+}
+.sz-offer-banners-track.count-2 .sz-offer-banner-card {
+  aspect-ratio: 2.5 / 1;
+  padding: 1.75rem 2.5rem;
+}
+
+/* Count Multi: Three columns */
+.sz-offer-banners-track.count-multi .sz-offer-banner-slide {
+  width: 33.3333%;
+}
+.sz-offer-banners-track.count-multi .sz-offer-banner-card {
+  aspect-ratio: 2.1 / 1;
+  padding: 1.5rem 2rem;
+}
+
+@media (max-width: 991.98px) {
+  .sz-offer-banners-track.count-multi .sz-offer-banner-slide {
+    width: 50%;
+  }
+  .sz-offer-banners-track.count-multi .sz-offer-banner-card {
+    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sz-offer-banners-track.count-multi .sz-offer-banner-slide,
+  .sz-offer-banners-track.count-2 .sz-offer-banner-slide {
+    width: 100%;
+  }
+  
+  .sz-offer-banners-track.count-1 .sz-offer-banner-card,
+  .sz-offer-banners-track.count-2 .sz-offer-banner-card,
+  .sz-offer-banners-track.count-multi .sz-offer-banner-card {
+    aspect-ratio: auto;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.sz-offer-banner-card {
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.sz-offer-banner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.12);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.sz-offer-banner-card.theme-dark {
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5), 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.sz-offer-banner-card.theme-dark:hover {
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4), 0 20px 35px rgba(0, 0, 0, 0.25);
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.sz-offer-banner-card.theme-light {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.sz-offer-banner-card.theme-light:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+}
+
+/* Neon glows for the dark-neon theme */
+.sz-banner-neon-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  opacity: 0.35;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sz-offer-banner-card:hover .sz-banner-neon-glow {
+  opacity: 0.5;
+}
+
+
+
+.sz-offer-banner-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.theme-dark .sz-offer-banner-title {
+  color: #ffffff;
+}
+
+.theme-light .sz-offer-banner-title {
+  color: #090d16;
+}
+
+.sz-offer-banner-subtitle {
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.theme-dark .sz-offer-banner-subtitle {
+  color: #e2e8f0;
+}
+
+.theme-light .sz-offer-banner-subtitle {
+  color: #1e293b;
+}
+
+/* Call-to-action buttons inside banners */
+.sz-offer-action-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.05rem;
+  padding: 10px 22px;
+  font-size: 0.76rem;
   font-weight: 800;
-  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 99px;
+  border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s;
-  letter-spacing: -0.01em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sz-hero-cta-link svg {
-  transition: transform 0.2s ease;
+.theme-dark .sz-offer-action-btn {
+  background: #ffffff;
+  color: #090d16;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
-.sz-hero-cta-link:hover {
-  opacity: 0.85;
+.theme-light .sz-offer-action-btn {
+  background: #090d16;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(9, 13, 22, 0.15);
 }
 
-.sz-hero-cta-link:hover svg {
-  transform: translateX(4px);
+.sz-offer-btn-arrow {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+  font-size: 0.85rem;
 }
 
-/* 4. Secondary Text Formatting */
-.sz-hero-secondary-wrap {
-  margin-top: auto;
-  width: 100%;
+.sz-offer-action-btn:hover {
+  transform: translateY(-2px);
 }
 
-.sz-hero-secondary-split {
-  display: flex;
+.theme-dark .sz-offer-action-btn:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-light .sz-offer-action-btn:hover {
+  background-color: #1e293b;
+  box-shadow: 0 8px 20px rgba(9, 13, 22, 0.28);
+}
+
+.sz-offer-action-btn:hover .sz-offer-btn-arrow {
+  transform: translateX(5px);
+}
+
+/* Bank partner strip styling */
+.sz-offer-bank-strip {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+  display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  gap: 0.5rem;
 }
 
-.sz-theme-light .sz-hero-secondary-split {
-  color: #475569;
+.theme-dark .sz-offer-bank-strip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.sz-theme-dark .sz-hero-secondary-split {
-  color: #94a3b8;
+.sz-bank-promo-text {
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
-.sz-hero-secondary-divider {
-  font-weight: 300;
-}
-
-.sz-theme-light .sz-hero-secondary-divider {
+.theme-dark .sz-bank-promo-text {
   color: #cbd5e1;
 }
 
-.sz-theme-dark .sz-hero-secondary-divider {
-  color: #475569;
+.theme-light .sz-bank-promo-text {
+  color: #334155;
 }
 
-.sz-hero-secondary-badge {
-  display: inline-flex;
+/* Pop-out product image layout */
+.sz-offer-banner-right {
+  flex: 0 0 35%;
+  height: 100%;
+  display: flex;
   align-items: center;
-  background-color: #ffffff;
-  color: #0f172a;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  justify-content: center;
+  z-index: 2;
 }
+
+/* 3D background circle glow */
+.sz-offer-product-circle-bg {
+  position: absolute;
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, opacity 0.3s;
+}
+
+.theme-dark .sz-offer-product-circle-bg {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  filter: blur(4px);
+  opacity: 0.7;
+}
+
+.theme-light .sz-offer-product-circle-bg {
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+  filter: blur(4px);
+  opacity: 0.6;
+}
+
+.sz-offer-banner-card:hover .sz-offer-product-circle-bg {
+  transform: scale(1.3) rotate(15deg);
+}
+
+/* Product Image Frame container */
+.sz-offer-product-img-frame {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+.sz-offer-banner-card:hover .sz-offer-product-img-frame {
+  transform: scale(1.12) translateY(-6px) rotate(4deg);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.16);
+}
+
+.sz-offer-product-pop-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  transition: transform 0.4s ease;
+}
+
+.sz-offer-banner-card:hover .sz-offer-product-pop-img {
+  transform: scale(1.05);
+}
+
+.sz-offer-product-shadow {
+  position: absolute;
+  bottom: 8%;
+  width: 70%;
+  height: 12px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.4s ease;
+}
+
+.sz-offer-banner-card:hover .sz-offer-product-shadow {
+  transform: scaleX(0.85);
+}
+
+.sz-offer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sz-offer-dot.active {
+  background: #4b5563;
+  transform: scale(1.15);
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+@media (max-width: 991.98px) {
+  .sz-offer-banner-card {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 2rem;
+    min-height: auto;
+  }
+
+  .sz-offer-banner-left {
+    max-width: 100%;
+    min-height: auto;
+    margin-top: 1.5rem;
+  }
+
+  .sz-offer-banner-right {
+    height: 180px;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sz-offer-banner-card {
+    padding: 1.5rem;
+  }
+  
+  .sz-offer-banner-title {
+    font-size: 1.4rem;
+  }
+
+  .sz-offer-bank-strip {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+}
+
+/* Checkerboard transparency background pattern for admin image previews */
+.sz-checkerboard-bg {
+  background-color: #f8fafc;
+  background-image: 
+    linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+
+
+
 

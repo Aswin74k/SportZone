@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -69,20 +70,26 @@ export default function Checkout() {
   // Active step: "address" | "review" | "payment"
   const [activeStep, setActiveStep] = useState("address");
 
-  // Address fields mapping 1:1 with backend serializer
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [houseName, setHouseName] = useState("");
-  const [area, setArea] = useState("");
-  const [landmark, setLandmark] = useState("");
-  const [city, setCity] = useState("");
-  const [district, setDistrict] = useState("");
-  const [state, setState] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [addressType, setAddressType] = useState("HOME"); // "HOME" | "WORK"
-  const [saveToProfile, setSaveToProfile] = useState(true);
+  const { register, setValue, reset, trigger, watch, formState: { errors, dirtyFields } } = useForm({
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      houseName: "",
+      area: "",
+      landmark: "",
+      city: "",
+      district: "",
+      state: "",
+      pincode: "",
+      addressType: "HOME"
+    }
+  });
 
-  const [errors, setErrors] = useState({});
+  const [fullName, phone, houseName, area, landmark, city, district, state, pincode, addressType] = watch([
+    "fullName", "phone", "houseName", "area", "landmark", "city", "district", "state", "pincode", "addressType"
+  ]);
+
+  const [saveToProfile, setSaveToProfile] = useState(true);
   const [addressEditing, setAddressEditing] = useState(true);
 
   // Selected payment sub-method: "Card" | "NetBanking" | "UPI" | "COD"
@@ -180,41 +187,40 @@ export default function Checkout() {
   }, [houseName, area, landmark]);
 
   const addressComplete = useMemo(() => {
-    return fullName.trim() && phone.trim() && houseName.trim() && area.trim() && city.trim() && district.trim() && state.trim() && pincode.trim();
+    return (
+      (fullName || "").trim() &&
+      (phone || "").trim() &&
+      (houseName || "").trim() &&
+      (area || "").trim() &&
+      (city || "").trim() &&
+      (district || "").trim() &&
+      (state || "").trim() &&
+      (pincode || "").trim()
+    );
   }, [fullName, phone, houseName, area, city, district, state, pincode]);
 
   function applyAddress(addr) {
-    setFullName(addr.full_name || "");
-    setPhone(addr.phone || "");
-    setHouseName(addr.house_name || "");
-    setArea(addr.area || "");
-    setLandmark(addr.landmark || "");
-    setCity(addr.city || "");
-    setDistrict(addr.district || "");
-    setState(addr.state || "");
-    setPincode(addr.pincode || "");
-    setAddressType(addr.address_type || "HOME");
+    reset({
+      fullName: addr.full_name || "",
+      phone: addr.phone || "",
+      houseName: addr.house_name || "",
+      area: addr.area || "",
+      landmark: addr.landmark || "",
+      city: addr.city || "",
+      district: addr.district || "",
+      state: addr.state || "",
+      pincode: addr.pincode || "",
+      addressType: addr.address_type || "HOME"
+    });
   }
 
-  const validateAddressFields = () => {
-    const newErrors = {};
-    if (!fullName.trim()) newErrors.fullName = "Required";
-    if (!phone.trim()) newErrors.phone = "Required";
-    else if (!/^\d{10}$/.test(phone.trim().replace(/\D/g, ""))) newErrors.phone = "10 digits required";
-    if (!houseName.trim()) newErrors.houseName = "Required";
-    if (!area.trim()) newErrors.area = "Required";
-    if (!city.trim()) newErrors.city = "Required";
-    if (!district.trim()) newErrors.district = "Required";
-    if (!state.trim()) newErrors.state = "Required";
-    if (!pincode.trim()) newErrors.pincode = "Required";
-    else if (!/^\d{6}$/.test(pincode.trim())) newErrors.pincode = "6 digits required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validateAddressFields = async () => {
+    const isValid = await trigger();
+    return isValid;
   };
 
-  const validateForm = () => {
-    const isAddressValid = validateAddressFields();
+  const validateForm = async () => {
+    const isAddressValid = await validateAddressFields();
     if (!isAddressValid) {
       toast.error("Please fill required address details.");
       setActiveStep("address");
@@ -241,28 +247,16 @@ export default function Checkout() {
     return true;
   };
 
-  const handleFieldChange = (field, val) => {
-    const map = {
-      fullName: setFullName,
-      phone: setPhone,
-      houseName: setHouseName,
-      area: setArea,
-      landmark: setLandmark,
-      city: setCity,
-      district: setDistrict,
-      state: setState,
-      pincode: setPincode
-    };
-    map[field]?.(val);
-    setSelectedAddressId(null);
-    if (errors[field]) setErrors((p) => ({ ...p, [field]: null }));
-  };
+  useEffect(() => {
+    if (selectedAddressId && Object.keys(dirtyFields).length > 0) {
+      setSelectedAddressId(null);
+    }
+  }, [dirtyFields, selectedAddressId]);
 
   const handleSelectSavedAddress = (addr) => {
     applyAddress(addr);
     setSelectedAddressId(addr.id);
     setAddressEditing(false);
-    setErrors({});
     toast.success("Address selected");
     setActiveStep("review"); // Go to step 2
   };
@@ -294,7 +288,7 @@ export default function Checkout() {
   };
 
   const handleAddressSubmit = async () => {
-    if (!validateAddressFields()) {
+    if (!(await validateAddressFields())) {
       toast.error("Please fill required address details.");
       return;
     }
@@ -320,7 +314,6 @@ export default function Checkout() {
       applyAddress(defaultAddress);
       setSelectedAddressId(defaultAddress.id);
       setAddressEditing(false);
-      setErrors({});
     } else {
       toast.warning("Please fill in your delivery address to continue.");
     }
@@ -394,7 +387,7 @@ export default function Checkout() {
   );
 
   const handleSubmitOrder = async () => {
-    if (!validateForm()) return;
+    if (!(await validateForm())) return;
     setLoading(true);
     const payload = buildPayload();
     try {
@@ -526,16 +519,7 @@ export default function Checkout() {
                             whileTap={{ scale: 0.99 }}
                             className="sz-co-addr-card add-new-card"
                             onClick={() => {
-                              setFullName("");
-                              setPhone("");
-                              setHouseName("");
-                              setArea("");
-                              setLandmark("");
-                              setCity("");
-                              setDistrict("");
-                              setState("");
-                              setPincode("");
-                              setAddressType("HOME");
+                              reset();
                               setSaveToProfile(true);
                               setAddressEditing(true);
                             }}
@@ -563,11 +547,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="Full name"
                                   className={errors.fullName ? "invalid" : ""}
-                                  value={fullName}
-                                  onChange={(e) => handleFieldChange("fullName", e.target.value)}
+                                  {...register("fullName", { required: "Required" })}
                                 />
                                 {errors.fullName && (
-                                  <span className="sz-co-field-error">{errors.fullName}</span>
+                                  <span className="sz-co-field-error">{errors.fullName.message}</span>
                                 )}
                               </div>
 
@@ -578,11 +561,16 @@ export default function Checkout() {
                                   type="tel"
                                   placeholder="10-digit number"
                                   className={errors.phone ? "invalid" : ""}
-                                  value={phone}
-                                  onChange={(e) => handleFieldChange("phone", e.target.value)}
+                                  {...register("phone", {
+                                    required: "Required",
+                                    pattern: {
+                                      value: /^\d{10}$/,
+                                      message: "10 digits required"
+                                    }
+                                  })}
                                 />
                                 {errors.phone && (
-                                  <span className="sz-co-field-error">{errors.phone}</span>
+                                  <span className="sz-co-field-error">{errors.phone.message}</span>
                                 )}
                               </div>
                             </div>
@@ -596,11 +584,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="Flat, house no. details"
                                   className={errors.houseName ? "invalid" : ""}
-                                  value={houseName}
-                                  onChange={(e) => handleFieldChange("houseName", e.target.value)}
+                                  {...register("houseName", { required: "Required" })}
                                 />
                                 {errors.houseName && (
-                                  <span className="sz-co-field-error">{errors.houseName}</span>
+                                  <span className="sz-co-field-error">{errors.houseName.message}</span>
                                 )}
                               </div>
 
@@ -611,11 +598,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="Area, street name"
                                   className={errors.area ? "invalid" : ""}
-                                  value={area}
-                                  onChange={(e) => handleFieldChange("area", e.target.value)}
+                                  {...register("area", { required: "Required" })}
                                 />
                                 {errors.area && (
-                                  <span className="sz-co-field-error">{errors.area}</span>
+                                  <span className="sz-co-field-error">{errors.area.message}</span>
                                 )}
                               </div>
                             </div>
@@ -628,8 +614,7 @@ export default function Checkout() {
                                   id="landmark"
                                   type="text"
                                   placeholder="E.g., near park"
-                                  value={landmark}
-                                  onChange={(e) => handleFieldChange("landmark", e.target.value)}
+                                  {...register("landmark")}
                                 />
                               </div>
 
@@ -640,11 +625,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="City"
                                   className={errors.city ? "invalid" : ""}
-                                  value={city}
-                                  onChange={(e) => handleFieldChange("city", e.target.value)}
+                                  {...register("city", { required: "Required" })}
                                 />
                                 {errors.city && (
-                                  <span className="sz-co-field-error">{errors.city}</span>
+                                  <span className="sz-co-field-error">{errors.city.message}</span>
                                 )}
                               </div>
                             </div>
@@ -658,11 +642,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="District"
                                   className={errors.district ? "invalid" : ""}
-                                  value={district}
-                                  onChange={(e) => handleFieldChange("district", e.target.value)}
+                                  {...register("district", { required: "Required" })}
                                 />
                                 {errors.district && (
-                                  <span className="sz-co-field-error">{errors.district}</span>
+                                  <span className="sz-co-field-error">{errors.district.message}</span>
                                 )}
                               </div>
 
@@ -673,11 +656,10 @@ export default function Checkout() {
                                   type="text"
                                   placeholder="State"
                                   className={errors.state ? "invalid" : ""}
-                                  value={state}
-                                  onChange={(e) => handleFieldChange("state", e.target.value)}
+                                  {...register("state", { required: "Required" })}
                                 />
                                 {errors.state && (
-                                  <span className="sz-co-field-error">{errors.state}</span>
+                                  <span className="sz-co-field-error">{errors.state.message}</span>
                                 )}
                               </div>
 
@@ -689,11 +671,16 @@ export default function Checkout() {
                                   maxLength={6}
                                   placeholder="6 digits"
                                   className={errors.pincode ? "invalid" : ""}
-                                  value={pincode}
-                                  onChange={(e) => handleFieldChange("pincode", e.target.value)}
+                                  {...register("pincode", {
+                                    required: "Required",
+                                    pattern: {
+                                      value: /^\d{6}$/,
+                                      message: "6 digits required"
+                                    }
+                                  })}
                                 />
                                 {errors.pincode && (
-                                  <span className="sz-co-field-error">{errors.pincode}</span>
+                                  <span className="sz-co-field-error">{errors.pincode.message}</span>
                                 )}
                               </div>
                             </div>
@@ -705,14 +692,14 @@ export default function Checkout() {
                                 <button
                                   type="button"
                                   className={`sz-co-type-btn ${addressType === "HOME" ? "active" : ""}`}
-                                  onClick={() => setAddressType("HOME")}
+                                  onClick={() => setValue("addressType", "HOME", { shouldDirty: true })}
                                 >
                                   Home
                                 </button>
                                 <button
                                   type="button"
                                   className={`sz-co-type-btn ${addressType === "WORK" ? "active" : ""}`}
-                                  onClick={() => setAddressType("WORK")}
+                                  onClick={() => setValue("addressType", "WORK", { shouldDirty: true })}
                                 >
                                   Work
                                 </button>
@@ -825,10 +812,12 @@ export default function Checkout() {
                               </div>
                               <div className="sz-co-review-details">
                                 <h3 className="sz-co-review-name">{item.product.name}</h3>
-                                <div className="sz-co-review-meta">
-                                  <span className="sz-co-meta-pill">Size: {item.size}</span>
-                                  <span className="sz-co-meta-pill">Qty: {item.quantity}</span>
-                                </div>
+                                 <div className="sz-co-review-meta">
+                                   {item.size && item.size !== "N/A" && item.size !== "n/a" && (
+                                     <span className="sz-co-meta-pill">Size: {item.size}</span>
+                                   )}
+                                   <span className="sz-co-meta-pill">Qty: {item.quantity}</span>
+                                 </div>
                               </div>
                               <div className="sz-co-review-price-box">
                                 <strong className="sz-co-review-price">
@@ -1132,7 +1121,8 @@ export default function Checkout() {
                           <div className="sz-co-sidebar-info">
                             <p>{item.product.name}</p>
                             <span>
-                              Qty {item.quantity} · Size {item.size}
+                              Qty {item.quantity}
+                              {item.size && item.size !== "N/A" && item.size !== "n/a" && ` · Size ${item.size}`}
                             </span>
                           </div>
                           <strong className="sz-co-sidebar-item-price">

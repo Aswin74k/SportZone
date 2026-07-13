@@ -96,7 +96,7 @@ function AllProducts() {
     Promise.resolve().then(() => {
       if (active) setLoading(true);
     });
-    const apiParams = { page: currentPage };
+    const apiParams = { page: currentPage, page_size: 12 };
     if (normalizedCategory) apiParams.category = normalizedCategory;
     if (search) apiParams.search = search;
     if (brandId) apiParams.brand = brandId;
@@ -170,7 +170,7 @@ function AllProducts() {
     setMobileFiltersOpen(false);
   };
 
-  const totalPages = Math.ceil(totalCount / 8);
+  const totalPages = Math.ceil(totalCount / 12);
 
   const activeCategoryName = categories.find((c) => c.slug === category)?.name || category;
   const activeBrandName = brands.find((b) => String(b.id) === String(brandId))?.name || "";
@@ -196,7 +196,14 @@ function AllProducts() {
               onClick={() => updateParams({ category: "" })}
               className={`sz-filter-item-btn ${!category ? "active" : ""}`}
             >
-              All Categories
+              <span className="sz-filter-item-name">All Categories</span>
+              {!category && (
+                <motion.span
+                  layoutId="activeCategoryIndicator"
+                  className="sz-active-indicator"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </button>
           </li>
           {categories.map((cat) => (
@@ -205,7 +212,14 @@ function AllProducts() {
                 onClick={() => updateParams({ category: cat.slug })}
                 className={`sz-filter-item-btn ${category === cat.slug ? "active" : ""}`}
               >
-                {cat.name}
+                <span className="sz-filter-item-name">{cat.name}</span>
+                {category === cat.slug && (
+                  <motion.span
+                    layoutId="activeCategoryIndicator"
+                    className="sz-active-indicator"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
             </li>
           ))}
@@ -221,7 +235,14 @@ function AllProducts() {
               onClick={() => updateParams({ brand: "" })}
               className={`sz-filter-item-btn ${!brandId ? "active" : ""}`}
             >
-              All Brands
+              <span className="sz-filter-item-name">All Brands</span>
+              {!brandId && (
+                <motion.span
+                  layoutId="activeBrandIndicator"
+                  className="sz-active-indicator"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </button>
           </li>
           {brands.map((b) => (
@@ -230,7 +251,14 @@ function AllProducts() {
                 onClick={() => updateParams({ brand: b.id })}
                 className={`sz-filter-item-btn ${brandId === String(b.id) ? "active" : ""}`}
               >
-                {b.name}
+                <span className="sz-filter-item-name">{b.name}</span>
+                {brandId === String(b.id) && (
+                  <motion.span
+                    layoutId="activeBrandIndicator"
+                    className="sz-active-indicator"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
             </li>
           ))}
@@ -246,26 +274,38 @@ function AllProducts() {
               <span className="sz-price-currency">₹</span>
               <input
                 type="number"
+                min="0"
                 className="form-control sz-price-field"
                 placeholder="Min"
                 value={priceMinInput}
-                onChange={(e) => setPriceMinInput(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || parseFloat(val) >= 0) {
+                    setPriceMinInput(val);
+                  }
+                }}
               />
             </div>
-            <span className="text-muted small">to</span>
+            <span className="text-muted small px-1">to</span>
             <div className="sz-price-input-wrapper">
               <span className="sz-price-currency">₹</span>
               <input
                 type="number"
+                min="0"
                 className="form-control sz-price-field"
                 placeholder="Max"
                 value={priceMaxInput}
-                onChange={(e) => setPriceMaxInput(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || parseFloat(val) >= 0) {
+                    setPriceMaxInput(val);
+                  }
+                }}
               />
             </div>
           </div>
           <button type="submit" className="w-100 sz-btn-apply-price">
-            Apply
+            Apply Price
           </button>
         </form>
       </div>
@@ -283,12 +323,12 @@ function AllProducts() {
 
   return (
     <StoreShell>
-      <div className="container-fluid container-xl">
+      <div className="container-fluid container-xl px-3 px-md-4 py-4">
         
         {/* COLLECTION HEADER / TOP TITLE HEADER */}
         {activeBanner ? (
           <div 
-            className="sz-collection-banner mb-5 p-5 text-white position-relative d-flex align-items-center"
+            className="sz-collection-banner mb-5 p-4 p-md-5 text-white position-relative overflow-hidden"
             style={{
               background: activeBanner.background_color || "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
             }}
@@ -296,33 +336,35 @@ function AllProducts() {
             {/* Ambient light glow inside banner */}
             <div className="sz-banner-glow" />
             
-            <div className="row align-items-center g-4 w-100 position-relative z-2">
-              {activeBanner.image && (
-                <div className="col-md-3 text-center text-md-start">
-                  <div className="sz-banner-img-container">
-                    <img 
-                      src={mediaUrl(activeBanner.image)} 
-                      alt={activeBanner.title} 
-                      className="img-fluid"
-                    />
-                  </div>
-                </div>
-              )}
-              <div className="col-md-9 text-center text-md-start">
+            <div className="row align-items-center g-4 w-100 position-relative z-2 m-0">
+              <div className="col-md-7 p-0 text-center text-md-start">
                 <span className="sz-banner-badge mb-3">
                   🏆 Special Collection
                 </span>
-                <h1 className="display-6 fw-extrabold mb-3 text-white tracking-tight">
+                <h1 className="sz-banner-heading mb-3 text-white tracking-tight">
                   {activeBanner.title}
                 </h1>
-                <p className="mb-0 text-white-50 lead fs-6 fw-normal">
+                <p className="mb-0 text-white-50 lead fs-6 fw-normal max-w-xl">
                   {activeBanner.description || activeBanner.subtitle || "Official match gear and fan-favorite products."}
                 </p>
               </div>
+              {activeBanner.image && (
+                <div className="col-md-5 p-0 d-flex justify-content-center justify-content-md-end">
+                  <div className="sz-banner-img-container-wrapper">
+                    <div className="sz-banner-img-container">
+                      <img 
+                        src={mediaUrl(activeBanner.image)} 
+                        alt={activeBanner.title} 
+                        className="img-fluid"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
-          <header className="sz-listing-header">
+          <header className="sz-listing-header mb-5">
             <p className="sz-kicker">Store</p>
             <div className="sz-listing-header-row">
               <h1 className="sz-listing-title">{title}</h1>
@@ -333,9 +375,9 @@ function AllProducts() {
 
         {/* ACTIVE FILTER TAGS DRAWER */}
         {(category || brandId || minPriceQuery || maxPriceQuery || search) && (
-          <div className="sz-active-filters-bar">
-            <span className="small fw-bold text-secondary">Active filters:</span>
-            <div className="sz-active-filters-wrap flex-grow-1">
+          <div className="sz-active-filters-bar mb-4">
+            <span className="sz-active-filters-label">Active filters:</span>
+            <div className="sz-active-filters-wrap">
               {search && (
                 <span className="sz-filter-tag">
                   Search: "{search}"
@@ -368,7 +410,7 @@ function AllProducts() {
                   </button>
                 </span>
               )}
-              <button onClick={clearAllFilters} className="sz-btn-clear-all ms-2">
+              <button onClick={clearAllFilters} className="sz-btn-clear-all">
                 Clear all
               </button>
             </div>
@@ -388,7 +430,7 @@ function AllProducts() {
             
             {/* FEATURED PRODUCTS SECTION */}
             {activeBanner && activeBanner.featured_products && activeBanner.featured_products.length > 0 && (
-              <div className="sz-featured-products-section mb-5 p-4 rounded-4 shadow-sm border" style={{ background: "#f8fafc" }}>
+              <div className="sz-featured-products-section mb-5">
                 <div className="d-flex align-items-center gap-2 mb-4">
                   <span style={{ fontSize: "1.2rem" }}>⭐️</span>
                   <h3 className="h5 fw-bold mb-0 text-dark">Featured Products</h3>
@@ -427,7 +469,7 @@ function AllProducts() {
               </div>
 
               <div className="d-none d-lg-block">
-                <span className="text-secondary small fw-semibold">
+                <span className="sz-listing-stats text-secondary small fw-semibold">
                   {activeBanner && activeBanner.featured_products && activeBanner.featured_products.length > 0
                     ? `Other products: ${totalCount} items`
                     : `Showing ${products.length} of ${totalCount} items`
@@ -454,41 +496,60 @@ function AllProducts() {
 
             {/* PRODUCTS DISPLAY GRID */}
             {loading ? (
-              <div className="row g-4">
+              <motion.div 
+                className="row g-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div className="col-6 col-md-4" key={i}>
                     <ProductCardSkeleton />
                   </div>
                 ))}
-              </div>
+              </motion.div>
             ) : products.length === 0 ? (
-              <div className="sz-empty-state">
-                <div className="sz-empty-icon">🔍</div>
-                <h3 className="fw-bold text-dark mb-2">No Products Found</h3>
-                <p className="text-secondary mb-4">We couldn't find any products matching your active criteria. Try adjusting your filters.</p>
-                <button onClick={clearAllFilters} className="sz-btn-apply-price px-4 py-2 rounded-pill w-auto">
-                  Reset Filters
+              <motion.div 
+                className="sz-empty-state"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="sz-empty-icon-wrap">
+                  <svg className="sz-empty-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+                <h3 className="sz-empty-state-title">No Products Found</h3>
+                <p className="sz-empty-state-desc">We couldn't find any products matching your active filters. Try adjusting your selections or clear filters to start fresh.</p>
+                <button onClick={clearAllFilters} className="sz-empty-state-btn">
+                  Clear All Filters
                 </button>
-              </div>
+              </motion.div>
             ) : (
               <>
-                <div className="row g-4">
+                <motion.div 
+                  className="row g-4"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35 }}
+                >
                   {products.map((product, index) => (
                     <div className="col-6 col-md-4 d-flex" key={product.id}>
                       <ProductCard product={product} index={index} />
                     </div>
                   ))}
-                </div>
+                </motion.div>
 
                 {/* PAGINATION */}
                 {totalPages > 1 && (
                   <nav aria-label="Product pagination" className="d-flex justify-content-center mt-5">
-                    <ul className="pagination shadow-sm">
+                    <ul className="pagination sz-pagination">
                       <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
                         <button
-                          className="page-link shadow-none border-0 text-dark"
+                          className="page-link"
                           onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                          style={{ background: "#f8fafc" }}
                         >
                           &laquo; Prev
                         </button>
@@ -499,9 +560,8 @@ function AllProducts() {
                         return (
                           <li key={pageNum} className={`page-item ${isActive ? "active" : ""}`}>
                             <button
-                              className={`page-link border-0 ${isActive ? "bg-primary text-white fw-bold" : "text-dark"}`}
+                              className="page-link"
                               onClick={() => handlePageChange(pageNum)}
-                              style={!isActive ? { background: "#f8fafc" } : {}}
                             >
                               {pageNum}
                             </button>
@@ -510,9 +570,8 @@ function AllProducts() {
                       })}
                       <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
                         <button
-                          className="page-link shadow-none border-0 text-dark"
+                          className="page-link"
                           onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                          style={{ background: "#f8fafc" }}
                         >
                           Next &raquo;
                         </button>
@@ -525,7 +584,6 @@ function AllProducts() {
           </main>
         </div>
 
-        {/* MOBILE FILTERS MODAL SIDE DRAWER */}
         <div
           className={`sz-mobile-filter-modal ${mobileFiltersOpen ? "is-open" : ""}`}
           onClick={() => setMobileFiltersOpen(false)}

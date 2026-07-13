@@ -211,23 +211,6 @@
   background: var(--sz-color-accent-light);
 }
 
-/* Badge overlay */
-.sz-pd-badge-overlay {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: var(--sz-color-primary);
-  color: var(--sz-color-bg-white);
-  font-family: var(--sz-font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--sz-radius-sm);
-  z-index: 5;
-}
-
 /* Lightbox Fullscreen modal */
 .sz-pd-lightbox-overlay {
   position: fixed;
@@ -622,55 +605,6 @@
   color: var(--sz-color-error);
 }
 
-/* Promo Offers Card Grid */
-.sz-pd-offers-carousel {
-  display: flex;
-  gap: 0.75rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-.sz-pd-offers-carousel::-webkit-scrollbar {
-  height: 4px;
-}
-.sz-pd-offers-carousel::-webkit-scrollbar-thumb {
-  background-color: var(--sz-color-border);
-  border-radius: 99px;
-}
-.sz-pd-offer-card {
-  min-width: 220px;
-  flex: 0 0 220px;
-  border: 1.5px dashed var(--sz-color-border);
-  border-radius: var(--sz-radius-sm);
-  padding: 0.85rem;
-  background: var(--sz-color-bg-white);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  transition: all var(--sz-transition-fast);
-}
-.sz-pd-offer-card:hover {
-  border-color: var(--sz-color-accent);
-  background: var(--sz-color-accent-light);
-}
-.sz-offer-copy-btn {
-  font-family: var(--sz-font-display);
-  font-size: 0.78rem;
-  font-weight: 700;
-  background: var(--sz-color-bg-light);
-  border: 1px solid var(--sz-color-border);
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--sz-radius-sm);
-  cursor: pointer;
-  align-self: flex-start;
-  margin-top: 0.5rem;
-  transition: all var(--sz-transition-fast);
-}
-.sz-offer-copy-btn:hover {
-  background: var(--sz-color-primary);
-  color: var(--sz-color-bg-white);
-  border-color: var(--sz-color-primary);
-}
 
 /* Accordion Tab Styling */
 .sz-pd-info-tabs {
@@ -745,16 +679,6 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-.sz-pd-qty-dropdown {
-  border: 1.5px solid var(--sz-color-border);
-  border-radius: var(--sz-radius-sm);
-  padding: 0.35rem 0.75rem;
-  font-weight: 600;
-  outline: none;
-  font-size: 0.88rem;
-  cursor: pointer;
-  background-color: var(--sz-color-bg-white);
 }
 
 /* Purchase panel CTAs */
@@ -893,11 +817,6 @@
   color: var(--sz-color-success);
   font-weight: 700;
   font-size: 0.85rem;
-}
-
-
-.sz-pd-reviews-card-container {
-  background: var(--sz-color-bg-white);
 }
 
 /* Rating Stats Card */

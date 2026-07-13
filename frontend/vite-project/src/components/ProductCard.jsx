@@ -97,23 +97,23 @@ const ProductCard = ({ product, index = 0 }) => {
           {product.name}
         </h3>
 
-        {/* Rating */}
-        {product?.reviews_count > 0 && (
-          <div className="sz-product-card__rating d-flex align-items-center gap-2 mb-2">
-            <Rating value={product.rating} size={12} showValue={true} />
-            <span className="text-muted small">({product.reviews_count})</span>
-          </div>
-        )}
-
-        {/* Price Row */}
-        <div className="sz-product-card__price-row d-flex align-items-baseline gap-2 mt-auto">
-          <span className="sz-product-card__price">
-            ₹{price.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
-          </span>
-          {discount > 0 && (
-            <span className="sz-product-card__mrp text-muted text-decoration-line-through">
-              ₹{mrp.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+        {/* Price Row & Rating */}
+        <div className="sz-product-card__price-row d-flex align-items-center justify-content-between mt-auto">
+          <div className="d-flex align-items-baseline gap-2">
+            <span className="sz-product-card__price">
+              ₹{price.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
             </span>
+            {discount > 0 && (
+              <span className="sz-product-card__mrp text-muted text-decoration-line-through">
+                ₹{mrp.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+              </span>
+            )}
+          </div>
+          {product.rating > 0 && (
+            <div className="sz-product-card__rating-badge d-flex align-items-center gap-1">
+              <span className="sz-rating-star">★</span>
+              <span className="sz-rating-val">{Number(product.rating).toFixed(1)}</span>
+            </div>
           )}
         </div>
       </div>

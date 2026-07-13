@@ -23,7 +23,7 @@ export default function NewArrivalsSection() {
         
         if (!isMounted) return;
         const latestProducts = unwrapList(res.data);
-        setProducts(latestProducts.slice(0, 4));
+        setProducts(latestProducts.slice(0, 5));
       } catch (err) {
         console.error("Error fetching new arrival products:", err);
       } finally {
@@ -65,17 +65,17 @@ export default function NewArrivalsSection() {
 
         {/* PRODUCTS GRID */}
         {loading ? (
-          <div className="row g-4">
-            {[1, 2, 3, 4].map((idx) => (
-              <div className="col-6 col-lg-3 d-flex" key={idx}>
+          <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+            {[1, 2, 3, 4, 5].map((idx) => (
+              <div className="col d-flex" key={idx}>
                 <ProductCardSkeleton />
               </div>
             ))}
           </div>
         ) : (
-          <div className="row g-4 justify-content-center">
+          <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4 justify-content-center">
             {products.map((product, index) => (
-              <div className="col-6 col-lg-3 d-flex" key={product.id}>
+              <div className="col d-flex" key={product.id}>
                 <div className="sz-new-arrivals__card-wrapper w-100">
                   <ProductCard product={product} index={index} />
                 </div>

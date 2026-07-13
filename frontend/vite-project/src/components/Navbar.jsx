@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import API from "../api";
 import { mediaUrl } from "../utils/mediaUrl";
@@ -18,33 +17,46 @@ import {
   FaVolleyballBall,
   FaUserCircle,
   FaBoxOpen,
-  FaHeart,
+  FaRegHeart,
   FaGift,
   FaHeadset,
   FaSignOutAlt,
   FaRegUserCircle,
   FaStar,
   FaUserShield,
+  FaChevronDown,
+  FaWallet,
+  FaEnvelope,
+  FaAward,
 } from "react-icons/fa";
-import { MdSportsCricket, MdSportsTennis } from "react-icons/md";
+import { 
+  MdOutlineStarBorder,
+  MdOutlineSportsCricket,
+  MdOutlineSportsSoccer,
+  MdOutlineDirectionsRun,
+  MdOutlineDirectionsBike,
+  MdOutlineSportsBasketball,
+  MdOutlineSportsTennis,
+  MdOutlineSportsVolleyball
+} from "react-icons/md";
 import Logo from "./Logo";
 import "./Navbar.css";
 
 const MOCK_CATEGORIES = [
-  { name: "For You", icon: <FaStar size={18} />, path: "/", color: "#eab308" },
-  { name: "Cricket", icon: <MdSportsCricket size={18} />, path: "/shop?category=cricket", color: "#f87171" },
-  { name: "Football", icon: <FaFutbol size={16} />, path: "/shop?category=football", color: "#4ade80" },
-  { name: "Running", icon: <FaRunning size={18} />, path: "/shop?category=running", color: "#22d3ee" },
-  { name: "Cycling", icon: <FaBicycle size={18} />, path: "/shop?category=cycling", color: "#fb923c" },
-  { name: "Basketball", icon: <FaBasketballBall size={18} />, path: "/shop?category=basketball", color: "#f97316" },
-  { name: "Tennis", icon: <MdSportsTennis size={18} />, path: "/shop?category=tennis", color: "#a3e635" },
-  { name: "Volleyball", icon: <FaVolleyballBall size={18} />, path: "/shop?category=volleyball", color: "#60a5fa" },
+  { name: "For You", icon: <MdOutlineStarBorder size={20} />, path: "/" },
+  { name: "Cricket", icon: <MdOutlineSportsCricket size={20} />, path: "/shop?category=cricket" },
+  { name: "Football", icon: <MdOutlineSportsSoccer size={20} />, path: "/shop?category=football" },
+  { name: "Running", icon: <MdOutlineDirectionsRun size={20} />, path: "/shop?category=running" },
+  { name: "Cycling", icon: <MdOutlineDirectionsBike size={20} />, path: "/shop?category=cycling" },
+  { name: "Basketball", icon: <MdOutlineSportsBasketball size={20} />, path: "/shop?category=basketball" },
+  { name: "Tennis", icon: <MdOutlineSportsTennis size={20} />, path: "/shop?category=tennis" },
+  { name: "Volleyball", icon: <MdOutlineSportsVolleyball size={20} />, path: "/shop?category=volleyball" },
 ];
 
 const CategoryStrip = React.memo(({ pathname, search, isScrolled }) => {
   return (
     <div className={`sz-category-strip d-none d-md-block ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="sz-navbar-container h-100">
+      <div className="container-fluid container-xl h-100">
         <div className="sz-cat-container">
           {MOCK_CATEGORIES.map((cat) => {
             const isActive = (pathname === '/' && cat.path === '/') || 
@@ -55,9 +67,7 @@ const CategoryStrip = React.memo(({ pathname, search, isScrolled }) => {
                 to={cat.path}
                 className={`sz-cat-item ${isActive ? 'active' : ''}`}
               >
-                <div className="sz-cat-icon-wrapper" style={{ color: cat.color }}>
-                  {cat.icon}
-                </div>
+                <span className="sz-cat-icon">{cat.icon}</span>
                 <span className="sz-cat-name">{cat.name}</span>
               </Link>
             );
@@ -93,7 +103,7 @@ const MobileCategoryList = React.memo(({ pathname, search, setIsMenuOpen }) => {
           }`}
           onClick={() => setIsMenuOpen(false)}
         >
-          <span style={{ color: cat.color }}>{cat.icon}</span>
+          <span className="text-primary">{cat.icon}</span>
           {cat.name}
         </Link>
       ))}
@@ -241,90 +251,135 @@ function Navbar() {
   };
   const fullName = (user?.name || user?.username || "").trim();
   const userDisplayName = fullName ? fullName.split(" ")[0] : "Athlete";
-  const userInitial = userDisplayName.charAt(0).toUpperCase();
 
   return (
     <>
       <header className="sz-header-wrapper sticky-top">
         {/* Main Navbar */}
-        <nav className="sz-navbar sz-navbar-container d-flex align-items-center justify-content-between">
+        <nav className="sz-navbar container-fluid container-xl d-flex align-items-center justify-content-between px-3 px-md-4">
           
-          {/* Left: Brand & Mobile Toggle */}
-          <div className="d-flex align-items-center gap-3">
+          {/* Left: Brand & Mobile Toggle & Search Bar */}
+          <div className="d-flex align-items-center gap-3 gap-lg-4 flex-grow-1" style={{ maxWidth: "800px" }}>
             <button
-              className="d-lg-none border-0 bg-transparent text-white p-0"
+              className="d-lg-none border-0 bg-transparent text-secondary p-0"
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open Menu"
             >
               <FaBars size={22} />
             </button>
             
-            <Link to="/" className="text-decoration-none">
-              <Logo fontSize="1.6rem" light={true} />
+            <Link to="/" className="text-decoration-none flex-shrink-0">
+              <Logo fontSize="1.6rem" />
             </Link>
-          </div>
 
-          {/* Center: Search Bar */}
-          <div className="d-none d-lg-flex flex-grow-1 justify-content-center mx-4 position-relative" ref={searchWrapperRef} style={{ maxWidth: "600px" }}>
-            <form onSubmit={handleSearchSubmit} className="sz-search-box d-flex align-items-center w-100 ps-2" style={{ overflow: "visible" }}>
-              <input
-                type="text"
-                className="form-control border-0 bg-transparent shadow-none px-3 sz-search-input"
-                placeholder="Search sports gear..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => {
-                  if (searchQuery.trim()) setShowSuggestions(true);
-                }}
-                onKeyDown={handleKeyDown}
-              />
-              <button type="submit" className="border-0 sz-search-btn text-white d-flex align-items-center justify-content-center">
-                <FaSearch size={18} />
-              </button>
-            </form>
+            {/* Search Bar (Moved near brand name) */}
+            <div className="d-none d-lg-flex position-relative flex-grow-1 ms-2 sz-search-wrapper" ref={searchWrapperRef}>
+              <form onSubmit={handleSearchSubmit} className="sz-search-box d-flex align-items-center w-100 ps-2" style={{ overflow: "visible" }}>
+                <input
+                  type="text"
+                  className="form-control border-0 bg-transparent shadow-none px-3 sz-search-input"
+                  placeholder="Search sports gear..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => {
+                    if (searchQuery.trim()) setShowSuggestions(true);
+                  }}
+                  onKeyDown={handleKeyDown}
+                />
+                <button type="submit" className="border-0 sz-search-btn text-white d-flex align-items-center justify-content-center">
+                  <FaSearch size={18} />
+                </button>
+              </form>
 
-            {/* Suggestion Dropdown */}
-            {showSuggestions && searchQuery.trim() && (
-              <div className="sz-search-suggestions shadow-sm show">
-                {searchLoading && <div className="sz-suggestion-loading">Searching...</div>}
-                {!searchLoading && suggestions.length === 0 && (
-                  <div className="sz-suggestion-no-results">No products found</div>
-                )}
-                {!searchLoading && suggestions.length > 0 && (
-                  <div className="sz-suggestion-list">
-                    {suggestions.map((item, index) => (
-                      <div
-                        key={item.id}
-                        className={`sz-suggestion-item ${index === activeSuggestionIndex ? "active" : ""}`}
-                        onClick={() => {
-                          navigate(`/product/${item.id}`);
-                          setShowSuggestions(false);
-                          setSearchQuery("");
-                        }}
-                      >
-                        <img src={mediaUrl(item.image) || "/no-image.png"} alt={item.name} className="sz-suggestion-img" />
-                        <div className="sz-suggestion-details">
-                          <span className="sz-suggestion-name text-truncate">{item.name}</span>
-                          {item.category && (
-                            <span className="sz-suggestion-category-name">
-                              in {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                            </span>
-                          )}
+              {/* Suggestion Dropdown */}
+              {showSuggestions && searchQuery.trim() && (
+                <div className="sz-search-suggestions shadow-sm show">
+                  {searchLoading && <div className="sz-suggestion-loading">Searching...</div>}
+                  {!searchLoading && suggestions.length === 0 && (
+                    <div className="sz-suggestion-no-results">No products found</div>
+                  )}
+                  {!searchLoading && suggestions.length > 0 && (
+                    <div className="sz-suggestion-list">
+                      {suggestions.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className={`sz-suggestion-item ${index === activeSuggestionIndex ? "active" : ""}`}
+                          onClick={() => {
+                            navigate(`/product/${item.id}`);
+                            setShowSuggestions(false);
+                            setSearchQuery("");
+                          }}
+                        >
+                          <img src={mediaUrl(item.image) || "/no-image.png"} alt={item.name} className="sz-suggestion-img" />
+                          <div className="sz-suggestion-details">
+                            <span className="sz-suggestion-name text-truncate">{item.name}</span>
+                            {item.category && (
+                              <span className="sz-suggestion-category-name">
+                                in {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right: Actions */}
-          <div className="d-flex align-items-center gap-1 gap-md-2">
+          {/* Right Actions: Shop, Wishlist, User, Cart */}
+          <div className="d-flex align-items-center gap-2 gap-lg-3 flex-shrink-0">
+            
+            {/* Shop Hover Dropdown Link (Desktop) */}
+            <div className="d-none d-lg-block sz-mega-trigger-wrap">
+              <span className="sz-mega-trigger-btn d-flex align-items-center gap-1">
+                Shop <FaChevronDown className="sz-arrow-down" size={10} />
+              </span>
+              
+              {/* Mega Menu Dropdown */}
+              <div className="sz-mega-menu shadow">
+                <div className="container-fluid container-xl py-4">
+                  <div className="row g-4 text-start">
+                    {/* Column 1: Team Sports */}
+                    <div className="col-4">
+                      <h4 className="sz-mega-title">Team Sports</h4>
+                      <ul className="list-unstyled sz-mega-links">
+                        <li><Link to="/shop?category=cricket">Cricket Gear</Link></li>
+                        <li><Link to="/shop?category=football">Football Cleats & Balls</Link></li>
+                        <li><Link to="/shop?category=basketball">Basketballs & Gear</Link></li>
+                        <li><Link to="/shop?category=volleyball">Volleyball Gear</Link></li>
+                      </ul>
+                    </div>
+                    {/* Column 2: Racket & Fit */}
+                    <div className="col-4">
+                      <h4 className="sz-mega-title">Individual Sports</h4>
+                      <ul className="list-unstyled sz-mega-links">
+                        <li><Link to="/shop?category=running">Running Shoes</Link></li>
+                        <li><Link to="/shop?category=cycling">Bicycles & Cycling</Link></li>
+                        <li><Link to="/shop?category=tennis">Tennis Rackets & Balls</Link></li>
+                        <li><Link to="/shop?category=badminton">Badminton Rackets & Gear</Link></li>
+                        <li><Link to="/shop">All Sports Equipment</Link></li>
+                      </ul>
+                    </div>
+                    {/* Column 3: Membership & Deals */}
+                    <div className="col-4">
+                      <h4 className="sz-mega-title">Deals & Coupons</h4>
+                      <ul className="list-unstyled sz-mega-links">
+                        <li><Link to="/shop?best_seller=true">Best Seller Gear</Link></li>
+                        <li><Link to="/shop">Exclusive Clearance</Link></li>
+                        <li><Link to="/cart">Cart Coupon Offers</Link></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            {/* User Dropdown */}
             {isAuthenticated ? (
               <div className="sz-user-wrapper">
                 <button type="button" className="sz-action-btn fw-semibold">
@@ -332,52 +387,37 @@ function Navbar() {
                   <span className="d-none d-xl-block">You</span>
                 </button>
                 
-                <div className="sz-user-menu p-3 shadow-sm">
-                  {/* Athlete Header Card */}
-                  <div className="sz-athlete-header">
-                    <div className="sz-athlete-avatar">
-                      {userInitial}
-                    </div>
-                    <div className="sz-athlete-info">
-                      <div className="sz-athlete-greet">Hello,</div>
-                      <div className="sz-athlete-name text-truncate" title={user?.email}>{userDisplayName}</div>
-                      <div className="sz-athlete-badge">🏆 Athlete Member</div>
-                    </div>
-                  </div>
-
-                  {/* Action Cards Grid */}
-                  <div className="sz-dropdown-grid">
-                    <Link to="/orders" className="sz-dropdown-grid-card">
-                      <FaBoxOpen size={20} />
-                      <span>Orders</span>
+                <div className="sz-user-menu shadow-sm">
+                  <div className="sz-dropdown-list">
+                    <Link to="/orders" className="sz-dropdown-list-item">
+                      <FaShoppingCart className="sz-dropdown-icon" />
+                      <span>Orders & Returns</span>
                     </Link>
-                    <Link to="/wishlist" className="sz-dropdown-grid-card">
-                      <FaHeart size={20} />
-                      <span>Wishlist</span>
+                    
+                    <Link to="/profile" className="sz-dropdown-list-item">
+                      <FaEnvelope className="sz-dropdown-icon" />
+                      <span>My Addresses</span>
                     </Link>
-                    <Link to="#" className="sz-dropdown-grid-card" onClick={(e) => { e.preventDefault(); toast.info("Your Coupons are active at checkout! ⚡"); }}>
-                      <FaGift size={20} />
-                      <span>Coupons</span>
-                    </Link>
-                    <Link to="/help" className="sz-dropdown-grid-card">
-                      <FaHeadset size={20} />
+                    
+                    <Link to="/help" className="sz-dropdown-list-item">
+                      <FaHeadset className="sz-dropdown-icon" />
                       <span>Support</span>
                     </Link>
+
+                    {user?.is_staff && (
+                      <Link to="/admin" className="sz-dropdown-list-item admin">
+                        <FaUserShield className="sz-dropdown-icon" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+
+                    <div className="sz-dropdown-divider"></div>
+
+                    <button onClick={handleLogout} className="sz-dropdown-list-item logout">
+                      <FaSignOutAlt className="sz-dropdown-icon logout-icon" />
+                      <span>Logout</span>
+                    </button>
                   </div>
-                  
-                  <div className="dropdown-divider my-2 border-light"></div>
-                  
-                  {/* List Items */}
-                  {user?.is_staff && (
-                    <Link to="/admin" className="sz-dropdown-action-btn admin mb-1">
-                      <FaUserShield size={16} />
-                      Admin Panel
-                    </Link>
-                  )}
-                  <button onClick={handleLogout} className="sz-dropdown-action-btn signout">
-                    <FaSignOutAlt size={16} />
-                    Sign Out
-                  </button>
                 </div>
               </div>
             ) : (
@@ -387,6 +427,13 @@ function Navbar() {
               </button>
             )}
 
+            {/* Wishlist Link */}
+            <Link to="/wishlist" className="sz-action-btn text-decoration-none">
+              <FaRegHeart size={22} />
+              <span className="d-none d-xl-block">Wishlist</span>
+            </Link>
+
+            {/* Cart Link */}
             <Link
               to="/cart"
               className="sz-action-btn text-decoration-none"

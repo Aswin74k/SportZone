@@ -22,7 +22,7 @@ from .serializers import (
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 8
+    page_size = 12
     page_size_query_param = "page_size"
     max_page_size = 100
 
@@ -247,9 +247,9 @@ class BannerViewSet(viewsets.ModelViewSet):
     pagination_class = None
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["title"]
-    ordering_fields = ["id", "sort_order", "created_at"]
-    ordering = ["sort_order", "-id"]
+    search_fields = ["title", "subtitle"]
+    ordering_fields = ["id", "priority", "display_order", "created_at"]
+    ordering = ["priority", "display_order", "-id"]
 
     def get_permissions(self):
         if self.request.method in ("GET", "HEAD", "OPTIONS"):
@@ -257,10 +257,18 @@ class BannerViewSet(viewsets.ModelViewSet):
         return [IsAdminUser()]
 
     def get_queryset(self):
+        from django.utils import timezone
         qs = super().get_queryset()
-        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
-            return qs
-        return qs.filter(is_active=True)
+        is_admin = self.request.user and self.request.user.is_authenticated and self.request.user.is_staff
+        if not is_admin:
+            now = timezone.now()
+            qs = qs.filter(
+                is_active=True
+            ).filter(
+                (Q(start_date__isnull=True) | Q(start_date__lte=now)) &
+                (Q(end_date__isnull=True) | Q(end_date__gte=now))
+            )
+        return qs.order_by('priority', 'display_order', '-id')
 
 
 class OfferViewSet(viewsets.ModelViewSet):

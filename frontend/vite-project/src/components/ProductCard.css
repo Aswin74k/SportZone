@@ -1,36 +1,40 @@
 /* Premium Product Card Styling - Nike & Adidas Inspired */
 
 .sz-product-card {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid rgba(226, 232, 240, 0.7);
-  overflow: hidden;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
   cursor: pointer;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-              border-color 0.4s ease;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none !important;
   position: relative;
   width: 100%;
 }
 
 /* Hover Effects */
 .sz-product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 35px rgba(15, 23, 42, 0.08);
-  border-color: rgba(37, 99, 235, 0.2);
+  transform: translateY(-4px);
 }
 
 /* Image Wrapper */
 .sz-product-card__img-wrap {
-  height: 250px;
-  background-color: #f8fafc;
+  height: 270px;
+  background-color: #f5f5f5 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2.25rem;
   overflow: hidden;
   position: relative;
+  border-radius: 20px !important;
+  border: 1px solid rgba(226, 232, 240, 0.5) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sz-product-card:hover .sz-product-card__img-wrap {
+  background-color: #e9e9e9 !important;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.04);
 }
 
 .sz-product-card__img-container {
@@ -50,42 +54,45 @@
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
-  mix-blend-mode: multiply; /* Blends backgrounds */
+  mix-blend-mode: multiply;
 }
 
 /* Wishlist Button */
 .sz-product-card__wishlist {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(4px);
+  border-radius: 50% !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sz-product-card__wishlist:hover {
   transform: scale(1.1);
-  background: #ffffff;
-  border-color: rgba(239, 68, 68, 0.2);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
+  background: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
 .sz-product-card__wishlist.is-active {
-  background: #fff5f5;
-  border-color: #feb2b2;
+  background: #ffffff !important;
 }
 
 /* Premium Discount Badge */
 .sz-product-card__discount-badge {
   background: #000000;
   color: #ffffff;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 800;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 100px;
   letter-spacing: 0.05em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   z-index: 10;
   text-transform: uppercase;
   pointer-events: none;
@@ -93,21 +100,21 @@
 
 /* Card Body */
 .sz-product-card__body {
-  background: #ffffff;
-  padding: 1.25rem;
+  background: transparent !important;
+  padding: 1.25rem 0 0.5rem 0 !important;
 }
 
 .sz-product-card__brand {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  color: #94a3b8;
-  letter-spacing: 0.1em;
+  color: #3b82f6;
+  letter-spacing: 0.08em;
 }
 
 .sz-product-card__title {
   font-size: 0.95rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 600;
+  color: #1e293b;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -124,12 +131,13 @@
 /* Price Row */
 .sz-product-card__price-row {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .sz-product-card__price {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a; /* Slate 900 */
   letter-spacing: -0.01em;
@@ -138,6 +146,23 @@
 .sz-product-card__mrp {
   font-size: 0.82rem;
   color: #94a3b8;
+  text-decoration: line-through;
+}
+
+/* Rating Badge */
+.sz-product-card__rating-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sz-rating-star {
+  color: #f59e0b; /* Gold Star */
+  margin-right: 2px;
+}
+
+.sz-rating-val {
+  color: #64748b; /* Muted Slate */
 }
 
 /* ==========================================================================

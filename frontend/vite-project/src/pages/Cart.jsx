@@ -12,8 +12,17 @@ import {
   FaInfoCircle, 
   FaShoppingBag, 
   FaPlus, 
-  FaMinus
+  FaMinus,
+  FaFutbol,
+  FaRunning,
+  FaBicycle,
+  FaBasketballBall,
+  FaVolleyballBall,
+  FaCompass,
+  FaFire,
+  FaChevronRight
 } from "react-icons/fa";
+import { MdSportsCricket, MdSportsTennis } from "react-icons/md";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { mediaUrl } from "../utils/mediaUrl";
@@ -44,6 +53,8 @@ function Cart() {
 
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loadingViewed, setLoadingViewed] = useState(false);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [loadingRecommended, setLoadingRecommended] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -74,6 +85,38 @@ function Cart() {
     };
 
     fetchRecentlyViewed();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch recommended products (best sellers or standard products as fallback)
+  useEffect(() => {
+    let mounted = true;
+    const fetchRecommended = async () => {
+      try {
+        setLoadingRecommended(true);
+        const res = await API.get("products/", {
+          params: { is_best_seller: "true" }
+        });
+        const items = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
+        if (mounted) {
+          if (items.length > 0) {
+            setRecommendedProducts(items.slice(0, 8));
+          } else {
+            const fallbackRes = await API.get("products/");
+            const fallbackItems = Array.isArray(fallbackRes.data) ? fallbackRes.data : fallbackRes.data?.results ?? [];
+            setRecommendedProducts(fallbackItems.slice(0, 8));
+          }
+          setLoadingRecommended(false);
+        }
+      } catch (e) {
+        console.error("Error fetching recommended products:", e);
+        if (mounted) setLoadingRecommended(false);
+      }
+    };
+
+    fetchRecommended();
     return () => {
       mounted = false;
     };
@@ -165,76 +208,122 @@ function Cart() {
   if ((!cartItems || cartItems.length === 0) && savedItems.length === 0) {
     return (
       <StoreShell showFooter={true}>
-      <div className="sz-page sz-cart-page-bg">
-        <div className="sz-page-inner container-fluid container-xl px-3 px-md-4">
-            <motion.div 
-              className="sz-cart-empty-container text-center py-5"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="sz-cart-empty-card">
-                <div className="sz-cart-empty-icon-wrap mb-4">
-                  <div className="sz-cart-empty-glow" />
-                  <div className="sz-cart-empty-circle">
-                    <FaShoppingBag className="sz-empty-bag-icon" />
-                    <span className="sz-empty-badge">0</span>
+        <div className="sz-page sz-cart-page-bg">
+          <div className="sz-page-inner container-fluid container-xl px-3 px-md-4 py-5">
+            
+            {/* Centered Layout for Empty State */}
+            <div className="row g-4 justify-content-center mb-5">
+              
+              {/* Premium empty cart message */}
+              <div className="col-12 col-md-8 col-lg-6 d-flex">
+                <motion.div 
+                  className="sz-cart-empty-card w-100"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="sz-cart-empty-icon-wrap">
+                    <div className="sz-cart-empty-glow" />
+                    <div className="sz-cart-empty-circle-premium">
+                      <svg className="sz-empty-bag-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <span className="sz-cart-empty-kicker">YOUR SHOPPING BAG</span>
+                  <h1 className="sz-cart-empty-title">Your Cart is Empty</h1>
+                  <p className="sz-cart-empty-text-premium">
+                    It looks like you haven't added anything yet. Discover our premium gear and elevate your performance today.
+                  </p>
+                  
+                  <div className="d-flex flex-column flex-sm-row gap-3 w-100 justify-content-center mt-2">
+                    <Link to="/shop" className="sz-empty-cart-shop-btn">
+                      Explore Catalog <FaChevronRight size={12} className="arrow-icon" />
+                    </Link>
+                    <Link to="/wishlist" className="sz-empty-cart-wishlist-btn">
+                      <FaHeart className="wishlist-icon me-2" /> View Wishlist
+                    </Link>
+                  </div>
+                </motion.div>
+              </div>
+
+            </div>
+
+            <div className="py-2" />
+
+            {/* RECOMMENDATIONS / RECENTLY VIEWED SECTION */}
+            {recentlyViewed.length > 0 ? (
+              <section className="sz-recently-viewed-section mt-4">
+                <header className="sz-recently-viewed-header mb-4 d-flex justify-content-between align-items-center flex-row">
+                  <h2 className="sz-recently-viewed-title">
+                    <FaFire className="text-danger me-2" /> Recently Viewed
+                  </h2>
+                  <Link to="/shop" className="sz-recently-viewed-view-all">
+                    View all <span className="chevron">&gt;</span>
+                  </Link>
+                </header>
+                
+                <div className="sz-recently-viewed-carousel-wrapper position-relative">
+                  <div className="sz-recently-viewed-list">
+                    {loadingViewed ? (
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-skeleton-${idx}`}>
+                           <div className="flex-grow-1">
+                             <ProductCardSkeleton />
+                           </div>
+                        </div>
+                      ))
+                    ) : (
+                      recentlyViewed.map((product, index) => (
+                        <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-${product.id}`}>
+                          <div className="flex-grow-1">
+                            <ProductCard product={product} index={index} />
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
-                
-                <span className="sz-cart-empty-kicker mb-2 d-inline-block">Your Cart</span>
-                <h1 className="sz-cart-empty-title mb-3">Your Cart is Empty</h1>
-                <p className="sz-cart-empty-text mb-4">
-                  Looks like you haven't added any products to your cart yet. Explore our premium sports gear built for top-tier performance.
-                </p>
-                <Link to="/shop" className="sz-empty-cart-shop-btn">
-                  Continue Shopping
-                </Link>
-              </div>
-            </motion.div>
-
-            {(loadingViewed || recentlyViewed.length > 0) && (
-              <section className="sz-recently-viewed-section mt-5 pt-4 border-top">
-                <header className="sz-recently-viewed-header mb-4">
-                  <h2 className="sz-recently-viewed-title">Recently Viewed</h2>
+              </section>
+            ) : (
+              // Trending products section if no recently viewed items
+              <section className="sz-recently-viewed-section mt-4">
+                <header className="sz-recently-viewed-header mb-4 d-flex justify-content-between align-items-center flex-row">
+                  <h2 className="sz-recently-viewed-title">
+                    <FaFire className="text-warning me-2 animate-pulse" /> Trending Products
+                  </h2>
+                  <Link to="/shop" className="sz-recently-viewed-view-all">
+                    Explore all <span className="chevron">&gt;</span>
+                  </Link>
                 </header>
-                <div className="sz-recently-viewed-list">
-                  {loadingViewed ? (
-                    Array.from({ length: 5 }).map((_, idx) => (
-                      <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-skeleton-${idx}`}>
-                        <div className="flex-grow-1">
-                          <ProductCardSkeleton />
+                
+                <div className="sz-recently-viewed-carousel-wrapper position-relative">
+                  <div className="sz-recently-viewed-list">
+                    {loadingRecommended ? (
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <div className="sz-recently-viewed-item d-flex flex-column" key={`rec-empty-skeleton-${idx}`}>
+                           <div className="flex-grow-1">
+                             <ProductCardSkeleton />
+                           </div>
                         </div>
-                        <div className="sz-skeleton mt-2" style={{ height: "42px", width: "100%", borderRadius: "8px" }} />
-                      </div>
-                    ))
-                  ) : (
-                    recentlyViewed.map((product, index) => (
-                      <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-empty-${product.id}`}>
-                        <div className="flex-grow-1">
-                          <ProductCard product={product} index={index} />
+                      ))
+                    ) : (
+                      recommendedProducts.map((product, index) => (
+                        <div className="sz-recently-viewed-item d-flex flex-column" key={`rec-empty-${product.id}`}>
+                          <div className="flex-grow-1">
+                            <ProductCard product={product} index={index} />
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          className="sz-add-to-cart-btn-recently mt-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addToCart({ 
-                              product_id: product.id, 
-                              size: "M", 
-                              quantity: 1 
-                            });
-                            toast.success(`${product.name} added to cart!`);
-                          }}
-                        >
-                          Add to cart
-                        </button>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
               </section>
             )}
+
           </div>
         </div>
       </StoreShell>
@@ -329,7 +418,7 @@ function Cart() {
                               )}
 
                               <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-                                {(item.size || item.product?.size) && (
+                                {((item.size && item.size !== "N/A" && item.size !== "n/a") || (item.product?.size && item.product.size !== "N/A" && item.product.size !== "n/a")) && (
                                   <span className="sz-cart-meta-badge px-2.5 py-1" style={{ fontSize: "0.78rem" }}>
                                     Size: <strong>{item.size || item.product.size}</strong>
                                   </span>
@@ -479,7 +568,12 @@ function Cart() {
                                     {item.product.description}
                                   </p>
                                 )}
-                                <p className="small text-muted mb-2">Size: <strong>{item.size || "M"}</strong> · Qty: <strong>{item.quantity || 1}</strong></p>
+                                 <p className="small text-muted mb-2">
+                                  {item.size && item.size !== "N/A" && item.size !== "n/a" && (
+                                    <>Size: <strong>{item.size}</strong> · </>
+                                  )}
+                                  Qty: <strong>{item.quantity || 1}</strong>
+                                </p>
                                 
                                 <div className="d-flex align-items-baseline gap-2 mb-3">
                                   <span className="fw-bold text-dark">₹{price.toLocaleString("en-IN")}</span>
@@ -601,43 +695,33 @@ function Cart() {
 
         {(loadingViewed || recentlyViewed.length > 0) && (
           <section className="sz-recently-viewed-section mt-5 pt-4 border-top">
-            <header className="sz-recently-viewed-header mb-4">
+            <header className="sz-recently-viewed-header mb-4 d-flex justify-content-between align-items-center flex-row">
               <h2 className="sz-recently-viewed-title">Recently Viewed</h2>
+              <Link to="/shop" className="sz-recently-viewed-view-all">
+                View all <span className="chevron">&gt;</span>
+              </Link>
             </header>
-            <div className="sz-recently-viewed-list">
-              {loadingViewed ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-skeleton-${idx}`}>
-                    <div className="flex-grow-1">
-                      <ProductCardSkeleton />
+            
+            <div className="sz-recently-viewed-carousel-wrapper position-relative">
+              <div className="sz-recently-viewed-list">
+                {loadingViewed ? (
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-skeleton-${idx}`}>
+                      <div className="flex-grow-1">
+                        <ProductCardSkeleton />
+                      </div>
                     </div>
-                    <div className="sz-skeleton mt-2" style={{ height: "42px", width: "100%", borderRadius: "8px" }} />
-                  </div>
-                ))
-              ) : (
-                recentlyViewed.map((product, index) => (
-                  <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-${product.id}`}>
-                    <div className="flex-grow-1">
-                      <ProductCard product={product} index={index} />
+                  ))
+                ) : (
+                  recentlyViewed.map((product, index) => (
+                    <div className="sz-recently-viewed-item d-flex flex-column" key={`viewed-active-${product.id}`}>
+                      <div className="flex-grow-1">
+                        <ProductCard product={product} index={index} />
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      className="sz-add-to-cart-btn-recently mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart({ 
-                          product_id: product.id, 
-                          size: "M", 
-                          quantity: 1 
-                        });
-                        toast.success(`${product.name} added to cart!`);
-                      }}
-                    >
-                      Add to cart
-                    </button>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </section>
         )}

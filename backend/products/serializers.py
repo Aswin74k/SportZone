@@ -18,7 +18,7 @@ from .models import (
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "slug", "is_active", "created_at"]
+        fields = ["id", "name", "slug", "image", "is_active", "created_at"]
         read_only_fields = ["created_at"]
 
 
@@ -180,33 +180,23 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class BannerSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False, allow_null=True)
+    background_image = serializers.ImageField(required=False, allow_null=True)
+    product_image = serializers.ImageField(required=False, allow_null=True)
+    collection_image = serializers.ImageField(required=False, allow_null=True)
+    desktop_image = serializers.ImageField(required=False, allow_null=True)
+    mobile_image = serializers.ImageField(required=False, allow_null=True)
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="category",
+        allow_null=True,
+        required=False,
+    )
     product = ProductSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(),
         source="product",
         allow_null=True,
-        required=False,
-    )
-    linked_product = ProductSerializer(read_only=True)
-    linked_product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(),
-        source="linked_product",
-        allow_null=True,
-        required=False,
-    )
-    linked_category = CategorySerializer(read_only=True)
-    linked_category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(),
-        source="linked_category",
-        allow_null=True,
-        required=False,
-    )
-    featured_products = ProductSerializer(many=True, read_only=True)
-    featured_product_ids = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Product.objects.all(),
-        source="featured_products",
         required=False,
     )
 
@@ -216,26 +206,25 @@ class BannerSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "subtitle",
-            "description",
-            "image",
-            "link_url",
+            "discount_percentage",
+            "offer_text",
+            "banner_type",
+            "category",
+            "category_id",
             "product",
             "product_id",
-            "banner_type",
-            "linked_product",
-            "linked_product_id",
-            "linked_category",
-            "linked_category_id",
-            "featured_products",
-            "featured_product_ids",
-            "offer_percent",
-            "cashback_text",
-            "countdown_end",
             "background_color",
+            "background_image",
+            "product_image",
+            "collection_image",
+            "desktop_image",
+            "mobile_image",
             "button_text",
-            "badge_text",
-            "secondary_text",
-            "sort_order",
+            "button_link",
+            "priority",
+            "display_order",
+            "start_date",
+            "end_date",
             "is_active",
             "created_at",
             "updated_at",
@@ -243,28 +232,15 @@ class BannerSerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at", "updated_at"]
 
     def to_internal_value(self, data):
-        if isinstance(data, dict) or hasattr(data, 'getlist'):
+        if isinstance(data, dict) or hasattr(data, 'copy'):
             if hasattr(data, 'copy'):
                 data = data.copy()
-            
-            if 'featured_product_ids' in data:
-                if hasattr(data, 'getlist'):
-                    ids = data.getlist('featured_product_ids')
-                    cleaned_ids = [x for x in ids if x]
-                    data.setlist('featured_product_ids', cleaned_ids)
-                else:
-                    ids = data.get('featured_product_ids')
-                    if isinstance(ids, list):
-                        data['featured_product_ids'] = [x for x in ids if x]
-                    elif ids == "":
-                        data['featured_product_ids'] = []
-            
-            if 'linked_category_id' in data and data['linked_category_id'] == "":
-                data['linked_category_id'] = None
-                
-            if 'product_id' in data and data['product_id'] == "":
-                data['product_id'] = None
-                
+            if 'category_id' in data and data['category_id'] == "":
+                data['category_id'] = None
+            if 'start_date' in data and data['start_date'] == "":
+                data['start_date'] = None
+            if 'end_date' in data and data['end_date'] == "":
+                data['end_date'] = None
         return super().to_internal_value(data)
 
 

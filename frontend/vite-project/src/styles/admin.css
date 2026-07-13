@@ -223,11 +223,6 @@
   background: #f1f5f9;
 }
 
-.admin-thumb--lg {
-  width: 64px;
-  height: 64px;
-}
-
 .admin-badge {
   display: inline-flex;
   align-items: center;
@@ -239,29 +234,9 @@
   text-transform: capitalize;
 }
 
-.admin-badge--success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.admin-badge--warning {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.admin-badge--danger {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
 .admin-badge--info {
   background: #e0f2fe;
   color: #075985;
-}
-
-.admin-badge--secondary {
-  background: #f1f5f9;
-  color: #475569;
 }
 
 .admin-stat-card {
@@ -306,22 +281,6 @@
   justify-content: center;
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
-}
-
-.admin-stat-card .stat-icon--blue {
-  background: #dbeafe;
-}
-
-.admin-stat-card .stat-icon--green {
-  background: #dcfce7;
-}
-
-.admin-stat-card .stat-icon--amber {
-  background: #fef3c7;
-}
-
-.admin-stat-card .stat-icon--purple {
-  background: #ede9fe;
 }
 
 .admin-dashboard-link {
@@ -478,14 +437,6 @@
   box-shadow: var(--admin-shadow);
 }
 
-.admin-banner-card img {
-  width: 100%;
-  height: auto;
-  max-height: 220px;
-  object-fit: contain;
-  object-position: center;
-}
-
 .admin-rating {
   color: #f59e0b;
   font-weight: 600;
@@ -529,13 +480,4 @@
   .admin-sidebar-toggle {
     display: none !important;
   }
-}
-
-.banner-preview img {
-  width: 100%;
-  height: auto;
-  max-height: 220px;
-  object-fit: contain;
-  object-position: center;
-  background: #f8fafc;
 }

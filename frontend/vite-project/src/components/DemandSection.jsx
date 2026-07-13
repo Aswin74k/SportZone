@@ -30,6 +30,12 @@ const DEMAND_ITEMS_CONFIG = [
     label: "Most Loved",
     offer: "From ₹7,799",
   },
+  {
+    id: 22,
+    searchTerm: "Galaxis Pro",
+    label: "Top Choice",
+    offer: "Best Seller",
+  },
 ];
 
 export default function DemandSection() {
@@ -105,9 +111,9 @@ export default function DemandSection() {
           {/* Cards Glassmorphic Grid */}
           <div className="sz-demand-banner__card-grid">
             {loading ? (
-              <div className="row g-3">
-                {[1, 2, 3, 4].map((idx) => (
-                  <div className="col-6 col-md-3" key={idx}>
+              <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                {[1, 2, 3, 4, 5].map((idx) => (
+                  <div className="col" key={idx}>
                     <div className="sz-demand-card-skeleton">
                       <div className="sz-skeleton sz-demand-card-skeleton__img" />
                       <div className="sz-skeleton sz-demand-card-skeleton__line1 mt-3" />
@@ -117,11 +123,11 @@ export default function DemandSection() {
                 ))}
               </div>
             ) : (
-              <div className="row g-3 justify-content-center">
+              <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 justify-content-center">
                 {items.map((item) => {
                   const imageSrc = mediaUrl(item.product.image) || "/no-image.png";
                   return (
-                    <div className="col-6 col-md-3" key={item.product.id}>
+                    <div className="col" key={item.product.id}>
                       <div
                         className="sz-demand-card h-100"
                         onClick={() => navigate(`/product/${item.product.id}`)}

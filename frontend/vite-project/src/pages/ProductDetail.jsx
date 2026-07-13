@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -28,7 +29,8 @@ import {
   FaInfoCircle,
   FaChevronRight,
   FaChevronLeft,
-  FaRegCommentDots
+  FaRegCommentDots,
+  FaExclamationCircle
 } from "react-icons/fa";
 import { FiThumbsUp } from "react-icons/fi";
 import "./ProductDetail.css";
@@ -45,14 +47,11 @@ function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedSize, setSelectedSize] = useState(null);
+  const [sizeError, setSizeError] = useState(false);
+  const sizeSectionRef = useRef(null);
   const [cartLoading, setCartLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [offers, setOffers] = useState([
-    { id: 1, title: "Championship Kickoff", description: "Gear up like a pro. Get 20% off all elite training gear.", promo_code: "KICKOFF20" },
-    { id: 2, title: "Summer Endurance Boost", description: "Maximize your pace. Extra savings on running gear.", promo_code: "ENDURE15" },
-    { id: 3, title: "SZ Welcome Coupon", description: "Get flat ₹150 off on your first purchase of premium gear.", promo_code: "SZWELCOME" }
-  ]);
 
   // Interactive UI states
   const [isZoomed, setIsZoomed] = useState(false);
@@ -62,7 +61,6 @@ function ProductDetail() {
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
-  const [copiedOfferIndex, setCopiedOfferIndex] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
 
@@ -70,7 +68,13 @@ function ProductDetail() {
   const [activeTab, setActiveTab] = useState("description");
 
   // Pincode checker states
-  const [pincode, setPincode] = useState("");
+  const {
+    register: registerPincode,
+    handleSubmit: handlePincodeSubmit,
+  } = useForm({
+    defaultValues: { pincode: "" }
+  });
+
   const [pincodeStatus, setPincodeStatus] = useState(null);
   const [deliveryText, setDeliveryText] = useState("");
 
@@ -79,7 +83,18 @@ function ProductDetail() {
   const [bundleLoading, setBundleLoading] = useState(false);
 
   // Review states
-  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const {
+    register: registerReview,
+    handleSubmit: handleReviewSubmit,
+    setValue: setReviewValue,
+    watch: watchReview,
+    reset: resetReview,
+    formState: { errors: reviewErrors }
+  } = useForm({
+    defaultValues: { rating: 5, comment: "" }
+  });
+
+  const reviewRating = watchReview("rating") || 5;
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [selectedRatingFilter, setSelectedRatingFilter] = useState(null);
   const [onlyWithImagesFilter, setOnlyWithImagesFilter] = useState(false);
@@ -161,28 +176,6 @@ function ProductDetail() {
     setWishlisted(wishlist.includes(product.id));
   }, [product]);
 
-  // Load active offers from database
-  useEffect(() => {
-    let mounted = true;
-    const fetchOffers = async () => {
-      try {
-        const res = await API.get("offers/");
-        if (!mounted) return;
-        const data = Array.isArray(res.data) ? res.data : res.data?.results ?? [];
-        const activeOffers = data.filter((off) => off.is_active);
-        if (activeOffers.length > 0) {
-          setOffers(activeOffers);
-        }
-      } catch (err) {
-        console.error("Error fetching active offers:", err);
-      }
-    };
-    fetchOffers();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   // Image Gallery compute
   const gallery = useMemo(() => {
     if (!product) return [];
@@ -237,6 +230,8 @@ function ProductDetail() {
   const addBundleToCart = async () => {
     if (showSizes && !selectedSize) {
       toast.error("Please select a size for the main product first.");
+      setSizeError(true);
+      sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -298,15 +293,7 @@ function ProductDetail() {
   };
 
   // Pincode validation
-  const checkPincode = (e) => {
-    e.preventDefault();
-    const cleanPincode = pincode.trim();
-    if (!/^\d{6}$/.test(cleanPincode)) {
-      setPincodeStatus("error");
-      setDeliveryText("Please enter a valid 6-digit pincode.");
-      return;
-    }
-
+  const onCheckPincode = () => {
     setPincodeStatus("checking");
     setTimeout(() => {
       setPincodeStatus("success");
@@ -319,9 +306,13 @@ function ProductDetail() {
     }, 600);
   };
 
+  const onPincodeInvalid = (errors) => {
+    setPincodeStatus("error");
+    setDeliveryText(errors.pincode?.message || "Please enter a valid 6-digit pincode.");
+  };
+
   // Add review
-  const submitReview = async (e) => {
-    e.preventDefault();
+  const onReviewSubmit = async (data) => {
     if (!isAuthenticated) {
       toast.info("Please log in to write a review.");
       navigate("/login", { state: { from: { pathname: `/product/${id}` } } });
@@ -331,11 +322,11 @@ function ProductDetail() {
       setReviewSubmitting(true);
       await API.post("reviews/", {
         product: Number(id),
-        rating: Number(reviewForm.rating),
-        comment: reviewForm.comment
+        rating: Number(data.rating || 5),
+        comment: data.comment
       });
       toast.success("Thanks! Your review will appear after approval.");
-      setReviewForm({ rating: 5, comment: "" });
+      resetReview({ rating: 5, comment: "" });
       setShowReviewForm(false);
       const r = await API.get(`reviews/?product=${id}`);
       const d = Array.isArray(r.data) ? r.data : r.data?.results ?? [];
@@ -353,6 +344,8 @@ function ProductDetail() {
 
     if (showSizes && !selectedSize) {
       toast.error("Please select a size first.");
+      setSizeError(true);
+      sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -450,15 +443,6 @@ function ProductDetail() {
     setLightboxZoom(1);
   };
 
-  // Copy coupon codes
-  const copyOfferCode = (code, index) => {
-    navigator.clipboard.writeText(code);
-    setCopiedOfferIndex(index);
-    toast.success(`Coupon code ${code} copied!`);
-    setTimeout(() => {
-      setCopiedOfferIndex(null);
-    }, 2000);
-  };
 
   // Accordion toggle handler
   const toggleTab = (tab) => {
@@ -755,13 +739,18 @@ function ProductDetail() {
 
                 {/* Size Selector */}
                 {showSizes && (
-                  <div className="d-flex flex-column gap-2">
-                    <div className="sz-pd-size-header">
+                  <div ref={sizeSectionRef} className="d-flex flex-column gap-2">
+                    <div className="sz-pd-size-header d-flex align-items-center flex-wrap">
                       <span className="small fw-bold uppercase tracking-wider text-dark">Select Size</span>
+                      {sizeError && (
+                        <span className="sz-pd-size-error text-danger fw-bold ms-3 small d-flex align-items-center gap-1 animate-pulse" style={{ fontSize: "0.8rem" }}>
+                          <FaExclamationCircle /> Please select a size
+                        </span>
+                      )}
                       {isShoe && (
                         <button
                           type="button"
-                          className="sz-pd-guide-trigger"
+                          className="sz-pd-guide-trigger ms-auto"
                           onClick={() => setShowSizeGuide(true)}
                         >
                           <FaRegCopy size={12} /> Size Guide
@@ -781,7 +770,12 @@ function ProductDetail() {
                             key={sizeLabel}
                             type="button"
                             className={`sz-pd-size-btn ${active ? "active" : ""}`}
-                            onClick={() => !disabled && setSelectedSize(sizeLabel)}
+                            onClick={() => {
+                              if (!disabled) {
+                                setSelectedSize(sizeLabel);
+                                setSizeError(false);
+                              }
+                            }}
                             disabled={disabled}
                           >
                             <span>{sizeLabel}</span>
@@ -833,47 +827,24 @@ function ProductDetail() {
                   )}
                 </div>
 
-                <hr className="my-1 border-slate-200" />
-
-                {/* Bank / Promo coupon cards */}
-                {offers.length > 0 && (
-                  <div className="d-flex flex-column gap-2">
-                    <span className="small fw-bold uppercase tracking-wider text-dark">Exclusive Offers</span>
-                    <div className="sz-pd-offers-carousel">
-                      {offers.map((off, index) => (
-                        <div className="sz-pd-offer-card" key={off.id || off.promo_code}>
-                          <div>
-                            <div className="fw-bold text-dark small mb-1">{off.title}</div>
-                            <div className="text-muted extra-small" style={{ fontSize: "0.75rem", lineHeight: "1.3" }}>
-                              {off.description || off.desc}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="sz-offer-copy-btn"
-                            onClick={() => copyOfferCode(off.promo_code || off.code, index)}
-                          >
-                            {copiedOfferIndex === index ? "Copied! ✓" : (off.promo_code || off.code)}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <hr className="my-1 border-slate-200" />
+                 <hr className="my-1 border-slate-200" />
 
                 {/* Delivery Pin Checker */}
                 <div className="sz-pd-pincode-card">
                   <div className="small fw-bold uppercase tracking-wider text-dark">Delivery & Service Availability</div>
-                  <form onSubmit={checkPincode} className="sz-pincode-input-wrapper">
+                  <form onSubmit={handlePincodeSubmit(onCheckPincode, onPincodeInvalid)} className="sz-pincode-input-wrapper">
                     <input
                       type="text"
                       className="sz-pincode-field"
                       placeholder="Enter 6-digit Pincode"
                       maxLength={6}
-                      value={pincode}
-                      onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+                      {...registerPincode("pincode", {
+                        required: "Pincode is required.",
+                        pattern: {
+                          value: /^\d{6}$/,
+                          message: "Please enter a valid 6-digit pincode."
+                        }
+                      })}
                     />
                     <button type="submit" className="sz-pincode-btn">Check</button>
                   </form>
@@ -1060,6 +1031,8 @@ function ProductDetail() {
                     onClick={() => {
                       if (showSizes && !selectedSize) {
                         toast.error("Please select a size first.");
+                        setSizeError(true);
+                        sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
                         return;
                       }
                       navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });
@@ -1425,19 +1398,19 @@ function ProductDetail() {
                         aria-label="Close form"
                       />
                     </div>
-                    <form onSubmit={submitReview} className="d-flex flex-column gap-3">
+                    <form onSubmit={handleReviewSubmit(onReviewSubmit)} className="d-flex flex-column gap-3">
                       <div>
                         <label className="form-label small fw-bold text-dark uppercase tracking-wider">Overall Rating</label>
                         <div className="d-flex align-items-center gap-1 my-1">
                           {[1, 2, 3, 4, 5].map((starValue) => {
-                            const active = starValue <= (hoverRating || reviewForm.rating);
+                            const active = starValue <= (hoverRating || reviewRating);
                             return (
                               <button
                                 key={starValue}
                                 type="button"
                                 className="border-0 bg-transparent p-0 star-rating-btn"
                                 style={{ cursor: "pointer", transition: "transform 0.1s" }}
-                                onClick={() => setReviewForm({ ...reviewForm, rating: starValue })}
+                                onClick={() => setReviewValue("rating", starValue)}
                                 onMouseEnter={() => setHoverRating(starValue)}
                                 onMouseLeave={() => setHoverRating(0)}
                                 aria-label={`Rate ${starValue} stars`}
@@ -1455,7 +1428,7 @@ function ProductDetail() {
                           })}
                           <span className="small font-semibold ms-2 text-muted" style={{ fontSize: "0.85rem", minWidth: "80px" }}>
                             {(() => {
-                              const r = hoverRating || reviewForm.rating;
+                              const r = hoverRating || reviewRating;
                               if (r === 5) return "Excellent";
                               if (r === 4) return "Very Good";
                               if (r === 3) return "Good";
@@ -1473,11 +1446,12 @@ function ProductDetail() {
                           className="form-control form-control-sm"
                           rows={4}
                           placeholder="Tell us what you liked or disliked about this product..."
-                          value={reviewForm.comment}
-                          onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                          required
+                          {...registerReview("comment", { required: "Review message is required." })}
                           style={{ fontSize: "0.85rem", lineHeight: "1.4" }}
                         />
+                        {reviewErrors.comment && (
+                          <div className="text-danger small mt-1">{reviewErrors.comment.message}</div>
+                        )}
                       </div>
                       
                       <button
@@ -1531,6 +1505,8 @@ function ProductDetail() {
             onClick={() => {
               if (showSizes && !selectedSize) {
                 toast.error("Please select a size first.");
+                setSizeError(true);
+                sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
                 return;
               }
               navigate("/checkout", { state: { product, size: selectedSize || "N/A", quantity: qty } });

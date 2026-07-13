@@ -44,7 +44,7 @@ class ProductReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
-    list_display = ("title", "banner_type", "sort_order", "is_active", "created_at")
+    list_display = ("title", "banner_type", "priority", "display_order", "is_active", "created_at")
     list_filter = ("is_active", "banner_type")
 
 

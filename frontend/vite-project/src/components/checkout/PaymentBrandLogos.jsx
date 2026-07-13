@@ -120,13 +120,6 @@ export const RuPayLogo = ({ className = "" }) => (
   />
 );
 
-export const NetBankingLogo = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 48 24" width="48" height="24" aria-label="Net Banking">
-    <rect width="48" height="24" rx="4" fill="#eff6ff" stroke="#bfdbfe" />
-    <path d="M8 17V9h4l2 5 2-5h4v8h-2.2v-5.2L14.5 17h-1L10.2 11.8V17H8zm22-4.2c0 2.4-1.6 4.2-4 4.2-2.3 0-4-1.8-4-4.2s1.7-4.2 4-4.2 4 1.8 4 4.2zm-2.2 0c0-1.3-.8-2.2-1.8-2.2-1 0-1.8.9-1.8 2.2s.8 2.2 1.8 2.2c1 0 1.8-.9 1.8-2.2z" fill="#2563eb" />
-  </svg>
-);
-
 export const CODLogo = ({ className = "" }) => (
   <svg className={className} viewBox="0 0 48 24" width="48" height="24" aria-label="Cash on Delivery">
     <rect width="48" height="24" rx="4" fill="#ecfdf5" stroke="#a7f3d0" />
@@ -136,12 +129,6 @@ export const CODLogo = ({ className = "" }) => (
   </svg>
 );
 
-export const RazorpayBadge = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 72 16" width="72" height="16" aria-label="Secured by Razorpay">
-    <text x="0" y="12" fill="#64748b" fontSize="9" fontWeight="600" fontFamily="Inter, sans-serif">Secured by</text>
-    <text x="48" y="12" fill="#0f172a" fontSize="9" fontWeight="800" fontFamily="Inter, sans-serif">Razorpay</text>
-  </svg>
-);
 
 export const SbiLogo = ({ className = "" }) => (
   <img

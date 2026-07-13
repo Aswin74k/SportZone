@@ -20,6 +20,7 @@ const Login = () => {
     handleSubmit,
     watch,
     trigger,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
@@ -63,6 +64,7 @@ const Login = () => {
         toast.success("Welcome back 👋");
         navigate(from, { replace: true });
       } else {
+        setError("password", { type: "manual", message: "Incorrect password" });
         toast.error("Invalid email or password");
       }
     } catch {
@@ -87,14 +89,14 @@ const Login = () => {
           
           {step === 1 && (
             <div className="fade-in">
-              <div className="mb-4">
+              <div className="mb-3">
                 <label className="auth-label">Email Address</label>
                 <div className="auth-input-group">
                   <FaEnvelope className="auth-input-icon" />
                   <input
                     type="email"
+                    autoComplete="off"
                     className={`auth-input ${errors.email ? "is-invalid" : ""}`}
-                    placeholder="Enter your email"
                     {...register("email", { 
                       required: "Email is required",
                       pattern: {
@@ -117,6 +119,9 @@ const Login = () => {
               >
                 Continue
               </button>
+              <div className="auth-terms-text text-center mt-3 text-muted small">
+                By continuing, you agree to SportZone's <Link to="/terms" className="auth-link">Terms of Service</Link> and <Link to="/privacy" className="auth-link">Privacy Policy</Link>.
+              </div>
             </div>
           )}
 
@@ -127,7 +132,7 @@ const Login = () => {
                 <button type="button" className="auth-link" onClick={() => setStep(1)}>Change</button>
               </div>
 
-              <div className="mb-4">
+              <div className="mb-3">
                 <div className="d-flex justify-content-between align-items-center mb-1">
                    <label className="auth-label mb-0">Password</label>
                    <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
@@ -137,11 +142,10 @@ const Login = () => {
                   <FaLock className="auth-input-icon" />
                   <input
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     className={`auth-input ${errors.password ? "is-invalid" : ""}`}
-                    placeholder="Enter your password"
                     {...register("password", { 
-                      required: "Password is required",
-                      minLength: { value: 6, message: "Incorrect password" }
+                      required: "Password is required"
                     })}
                     autoFocus
                   />
@@ -175,6 +179,17 @@ const Login = () => {
           Don't have an account? <Link to="/register" className="auth-link fw-bold">Create Account</Link>
         </div>
       </div>
+
+      <footer className="auth-page-footer">
+        <div className="auth-footer-links">
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/help">Help & Support</Link>
+        </div>
+        <p className="auth-copyright">
+          © 2026 SportZone. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 };

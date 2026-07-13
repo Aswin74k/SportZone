@@ -78,39 +78,6 @@ h6 {
   box-shadow: var(--hover-shadow);
 }
 
-.hover-shadow {
-  transition: all var(--transition-speed);
-}
-
-.hover-shadow:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--hover-shadow) !important;
-}
-
-.hover-lift {
-  transition: transform var(--transition-speed) ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-3px);
-}
-
-/* Global utility for rounded cards */
-.rounded-card {
-  border-radius: var(--border-radius) !important;
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-color);
-}
-
-/* Slick Carousel Customization */
-.slick-dots li button:before {
-  color: var(--primary-color);
-}
-
-.slick-active button:before {
-  color: var(--primary-color) !important;
-}
-
 .form-control:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);

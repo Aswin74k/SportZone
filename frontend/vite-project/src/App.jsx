@@ -14,6 +14,7 @@ import Terms from "./pages/Terms";
 import ProductDetail from "./pages/ProductDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Checkout from "./pages/Checkout";
+import Profile from "./pages/Profile";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -53,23 +54,26 @@ function AppContent() {
       {/* 🔥 MAIN CONTENT */}
       <main className="flex-grow-1 main-content">
 
-        {/* 🔥 TOAST */}
-        <ToastContainer
-          position="top-center"
-          autoClose={3200}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          pauseOnHover
-          theme="colored"
-          toastClassName="sz-toast"
-        />
+        {/* 🔥 TOAST (Only in Admin Panel) */}
+        {isAdminSection && (
+          <ToastContainer
+            position="top-center"
+            autoClose={3200}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            theme="colored"
+            toastClassName="sz-toast"
+          />
+        )}
 
           <Routes>
 
             {/* 🔥 PUBLIC ROUTES */}
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<AllProducts />} />
+            <Route path="/products" element={<AllProducts />} />
             <Route path="/product/:id" element={<ProductDetail />} />
 
             {/* 🔥 PROTECTED ROUTES */}
@@ -107,6 +111,15 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Checkout />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />

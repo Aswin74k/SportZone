@@ -75,14 +75,14 @@ const Register = () => {
         <p className="auth-subtitle">Join SportZone for faster checkout</p>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="auth-label">Full Name</label>
             <div className="auth-input-group">
               <FaUser className="auth-input-icon" />
               <input
                 type="text"
+                autoComplete="off"
                 className={`auth-input ${errors.fullName ? "is-invalid" : ""}`}
-                placeholder="Enter your full name"
                 spellCheck="false"
                 {...register("fullName", { required: "Full name is required" })}
               />
@@ -92,14 +92,14 @@ const Register = () => {
             )}
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="auth-label">Email Address</label>
             <div className="auth-input-group">
               <FaEnvelope className="auth-input-icon" />
               <input
                 type="email"
+                autoComplete="off"
                 className={`auth-input ${errors.email ? "is-invalid" : ""}`}
-                placeholder="Enter your email"
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
@@ -114,14 +114,14 @@ const Register = () => {
             )}
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="auth-label">Password</label>
             <div className="auth-input-group">
               <FaLock className="auth-input-icon" />
               <input
                 type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 className={`auth-input ${errors.password ? "is-invalid" : ""}`}
-                placeholder="Create a password"
                 {...register("password", { 
                   required: "Password is required",
                   minLength: { value: 6, message: "Password must be at least 6 characters" }
@@ -136,14 +136,14 @@ const Register = () => {
             )}
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <label className="auth-label">Confirm Password</label>
              <div className="auth-input-group">
               <FaLock className="auth-input-icon" />
               <input
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 className={`auth-input ${errors.confirmPassword ? "is-invalid" : ""}`}
-                placeholder="Confirm your password"
                 {...register("confirmPassword", { 
                   required: "Please confirm your password",
                   validate: val => val === passwordVal || "Passwords do not match"
@@ -166,12 +166,26 @@ const Register = () => {
               </>
             ) : "Create Account"}
           </button>
+          <div className="auth-terms-text text-center mt-3 text-muted small">
+            By creating an account, you agree to SportZone's <Link to="/terms" className="auth-link">Terms of Service</Link> and <Link to="/privacy" className="auth-link">Privacy Policy</Link>.
+          </div>
         </form>
 
         <div className="auth-footer">
           Already have an account? <Link to="/login" className="auth-link fw-bold">Sign In</Link>
         </div>
       </div>
+
+      <footer className="auth-page-footer">
+        <div className="auth-footer-links">
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/help">Help & Support</Link>
+        </div>
+        <p className="auth-copyright">
+          © 2026 SportZone. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 };

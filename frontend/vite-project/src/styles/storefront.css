@@ -7,15 +7,15 @@
   --sz-blue-soft: #eff6ff;
   --sz-accent: #fbbf24;
   --sz-accent-dark: #d97706;
-  --sz-bg: #f4f7fb;
+  --sz-bg: #f1f5f9;
   --sz-surface: #ffffff;
   --sz-text: #0f172a;
   --sz-muted: #64748b;
-  --sz-border: #e2e8f0;
+  --sz-border: rgba(148, 163, 184, 0.15);
   --sz-radius: 14px;
   --sz-radius-lg: 20px;
-  --sz-shadow: 0 4px 20px rgba(0, 51, 102, 0.06);
-  --sz-shadow-hover: 0 12px 32px rgba(0, 51, 102, 0.12);
+  --sz-shadow: 0 10px 25px -5px rgba(0, 51, 102, 0.04), 0 8px 16px -6px rgba(0, 51, 102, 0.02);
+  --sz-shadow-hover: 0 20px 40px -10px rgba(0, 51, 102, 0.1), 0 10px 20px -8px rgba(0, 51, 102, 0.05);
   --sz-glass: rgba(255, 255, 255, 0.82);
 }
 
@@ -79,61 +79,6 @@
   box-shadow: var(--sz-shadow-hover);
 }
 
-.sz-btn-accent {
-  background: linear-gradient(135deg, var(--sz-accent) 0%, #f59e0b 100%);
-  color: var(--sz-navy-dark);
-  border: none;
-  font-weight: 700;
-  border-radius: 999px;
-}
-
-.sz-btn-accent:hover {
-  color: var(--sz-navy-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.35);
-}
-
-.sz-glass-card {
-  background: var(--sz-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--sz-radius-lg);
-  box-shadow: var(--sz-shadow);
-}
-
-.sz-badge-deal {
-  background: linear-gradient(135deg, #fef3c7, var(--sz-accent));
-  color: var(--sz-navy-dark);
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  letter-spacing: 0.03em;
-}
-
-.sz-badge-stock {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-}
-
-.sz-badge-stock--in {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.sz-badge-stock--low {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.sz-badge-stock--out {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
 /* Skeleton shimmer */
 @keyframes sz-shimmer {
   0% { background-position: -400px 0; }
@@ -144,24 +89,5 @@
   background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
   background-size: 800px 100%;
   animation: sz-shimmer 1.4s infinite linear;
-  border-radius: 10px;
-}
-
-/* Toast overrides */
-.Toastify__toast--success {
-  border-left: 4px solid var(--sz-navy) !important;
-}
-
-.Toastify__toast--error {
-  border-left: 4px solid #ef4444 !important;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
   border-radius: 10px;
 }
