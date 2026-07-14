@@ -12,6 +12,7 @@ import API from "../api";
 import { mediaUrl } from "../utils/mediaUrl";
 import "./Wishlist.css";
 
+
 function isPlaceholderProduct(product) {
   if (!product) return true;
   if (product.isLoading || product.pending || product.optimistic || product.loading) return true;

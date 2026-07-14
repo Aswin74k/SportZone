@@ -249,8 +249,6 @@ function Navbar() {
       navigate("/login");
     }
   };
-  const fullName = (user?.name || user?.username || "").trim();
-  const userDisplayName = fullName ? fullName.split(" ")[0] : "Athlete";
 
   return (
     <>

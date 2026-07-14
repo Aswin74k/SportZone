@@ -44,44 +44,14 @@
   box-shadow: var(--sz-shadow);
   padding: 1.5rem;
   gap: 2rem;
-  transition: box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   align-items: stretch;
 }
 
 .sz-wishlist-row:hover {
+  transform: translateY(-2px);
   box-shadow: var(--sz-shadow-hover);
   border-color: rgba(37, 99, 235, 0.2);
-}
-
-/* Subtle one-time entrance, not a persistent layout animation.
-   Kept short and small so it reads as a normal page-load fade,
-   not a "bouncy" or attention-grabbing effect. */
-.sz-wishlist-row--enter {
-  animation: sz-wishlist-row-in 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-
-@keyframes sz-wishlist-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sz-wishlist-row--enter {
-    animation: none;
-  }
-  .sz-wishlist-row,
-  .sz-wishlist-row__img-container,
-  .sz-wishlist-row__img,
-  .sz-wishlist-btn-cart,
-  .sz-wishlist-btn-buy {
-    transition: none;
-  }
 }
 
 /* Left: Image wrapper */
@@ -108,11 +78,11 @@
   height: 100%;
   width: 100%;
   position: relative;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s ease;
 }
 
 .sz-wishlist-row:hover .sz-wishlist-row__img-container {
-  transform: scale(1.02);
+  transform: scale(1.04);
 }
 
 /* Placeholder shown while the image is loading, so the browser's
@@ -123,7 +93,7 @@
   border-radius: 8px;
   background: linear-gradient(90deg, #eef2f7 25%, #f7f9fc 37%, #eef2f7 63%);
   background-size: 400% 100%;
-  animation: sz-wishlist-img-pulse 1.8s ease-in-out infinite;
+  animation: sz-wishlist-img-pulse 1.4s ease infinite;
 }
 
 @keyframes sz-wishlist-img-pulse {
@@ -251,6 +221,7 @@
   color: #dc2626;
 }
 
+/* Right: Actions block */
 .sz-wishlist-row__actions {
   display: flex;
   flex-direction: column;
@@ -271,7 +242,7 @@
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,7 +263,7 @@
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;

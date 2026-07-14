@@ -2,30 +2,17 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  FaArrowLeft,
   FaSpinner,
   FaExclamationTriangle,
-  FaLock,
   FaShieldAlt,
   FaCheckCircle,
   FaTruck,
   FaTag,
-  FaEdit,
-  FaShoppingCart,
-  FaCreditCard,
-  FaUniversity,
-  FaMoneyBillWave,
-  FaChevronRight,
   FaChevronDown,
-  FaPhone,
-  FaUser,
   FaHome,
   FaBriefcase,
-  FaCheck,
-  FaRegCheckCircle,
-  FaCalendarAlt,
   FaUndo,
 } from "react-icons/fa";
 import API from "../api";
@@ -33,10 +20,6 @@ import { useCart } from "../context/CartContext.jsx";
 import { mediaUrl } from "../utils/mediaUrl";
 import StoreShell from "../components/StoreShell";
 import {
-  GPayLogo,
-  PhonePeLogo,
-  PaytmLogo,
-  UPILogo,
   VisaLogo,
   MastercardLogo,
   RuPayLogo,
@@ -46,8 +29,6 @@ import {
   CODLogo,
 } from "../components/checkout/PaymentBrandLogos";
 import "./Checkout.css";
-
-const UPI_UNAVAILABLE = true;
 
 const RAZORPAY_METHOD_MAP = {
   Card: { upi: false, card: true, netbanking: false, wallet: false, paylater: false },
@@ -92,7 +73,7 @@ export default function Checkout() {
   const [saveToProfile, setSaveToProfile] = useState(true);
   const [addressEditing, setAddressEditing] = useState(true);
 
-  // Selected payment sub-method: "Card" | "NetBanking" | "UPI" | "COD"
+  // Selected payment sub-method: "Card" | "NetBanking" | "COD"
   const [paymentMethod, setPaymentMethod] = useState("Card");
   
   const [loading, setLoading] = useState(false);
@@ -237,11 +218,6 @@ export default function Checkout() {
         toast.error("Incorrect verification code.");
         return false;
       }
-    }
-
-    if (paymentMethod === "UPI") {
-      toast.error("Direct UPI is unavailable. Please select Card or Net Banking.");
-      return false;
     }
 
     return true;
@@ -437,7 +413,7 @@ export default function Checkout() {
     );
   }
 
-  const payDisabled = loading || activeStep !== "payment" || (isOnlinePayment && paymentMethod !== "UPI" && !razorpayReady) || (paymentMethod === "UPI");
+  const payDisabled = loading || (isOnlinePayment && !razorpayReady);
 
   return (
     <StoreShell>
@@ -856,7 +832,7 @@ export default function Checkout() {
                           className="sz-co-primary-btn"
                           onClick={() => setActiveStep("payment")}
                         >
-                          Select Payment Method
+                          Continue to Payment
                         </motion.button>
                       </div>
                     </motion.div>
@@ -923,40 +899,8 @@ export default function Checkout() {
                       className="sz-co-step-content"
                     >
                       <div className="sz-co-pay-options-list">
-                        
-                        {/* Option 1: UPI */}
-                        <div
-                          className={`sz-co-pay-tile ${paymentMethod === "UPI" ? "active" : ""}`}
-                          onClick={() => setPaymentMethod("UPI")}
-                        >
-                          <div className="sz-co-pay-tile-left">
-                            <span className="sz-co-pay-tile-radio" />
-                            <div className="sz-co-pay-tile-info">
-                              <strong className="sz-co-pay-tile-title">UPI</strong>
-                              <span className="sz-co-pay-tile-desc">Google Pay, PhonePe, Paytm</span>
-                            </div>
-                          </div>
-                          <div className="sz-co-pay-tile-logos">
-                            <UPILogo />
-                          </div>
-                        </div>
 
-                        {paymentMethod === "UPI" && (
-                          <div className="sz-co-upi-apps-row">
-                            <div className="sz-co-upi-logos-container">
-                              <GPayLogo />
-                              <PhonePeLogo />
-                              <PaytmLogo />
-                            </div>
-                            {UPI_UNAVAILABLE && (
-                              <div className="sz-co-upi-disabled-banner">
-                                UPI currently unavailable
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Option 2: Card */}
+                        {/* Option 1: Card */}
                         <div
                           className={`sz-co-pay-tile ${paymentMethod === "Card" ? "active" : ""}`}
                           onClick={() => setPaymentMethod("Card")}
@@ -984,7 +928,7 @@ export default function Checkout() {
                           </div>
                         )}
 
-                        {/* Option 3: NetBanking */}
+                        {/* Option 2: NetBanking */}
                         <div
                           className={`sz-co-pay-tile ${paymentMethod === "NetBanking" ? "active" : ""}`}
                           onClick={() => setPaymentMethod("NetBanking")}
@@ -1012,7 +956,7 @@ export default function Checkout() {
                           </div>
                         )}
 
-                        {/* Option 4: COD */}
+                        {/* Option 3: COD */}
                         <div
                           className={`sz-co-pay-tile ${paymentMethod === "COD" ? "active" : ""}`}
                           onClick={() => setPaymentMethod("COD")}

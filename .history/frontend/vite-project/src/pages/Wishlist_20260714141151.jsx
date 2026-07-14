@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaRegHeart, FaShoppingCart, FaTrashAlt } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
@@ -12,15 +12,6 @@ import API from "../api";
 import { mediaUrl } from "../utils/mediaUrl";
 import "./Wishlist.css";
 
-function isPlaceholderProduct(product) {
-  if (!product) return true;
-  if (product.isLoading || product.pending || product.optimistic || product.loading) return true;
-  if (typeof product.name === "string" && product.name.trim().toLowerCase() === "loading...") return true;
-  // A real product always has a price; a bare optimistic stub typically won't.
-  if (product.price === undefined || product.price === null) return true;
-  return false;
-}
-
 const WishlistRow = React.memo(function WishlistRow({
   product,
   onNavigate,
@@ -31,29 +22,6 @@ const WishlistRow = React.memo(function WishlistRow({
   wishlistBusy,
 }) {
   const imageSrc = mediaUrl(product.image) || "/no-image.png";
-  const [imgLoaded, setImgLoaded] = useState(false);
-
-  if (isPlaceholderProduct(product)) {
-    return (
-      <motion.div
-        className="sz-wishlist-row align-items-center"
-        layout
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.2 }}
-        style={{ opacity: 0.6 }}
-      >
-        <div style={{ width: 140, height: 140, background: "#f1f5f9", borderRadius: 12, flexShrink: 0 }} />
-        <div className="flex-grow-1">
-          <div style={{ height: 16, width: "30%", background: "#e2e8f0", marginBottom: 12, borderRadius: 4 }} />
-          <div style={{ height: 24, width: "60%", background: "#e2e8f0", marginBottom: 12, borderRadius: 4 }} />
-          <div style={{ height: 16, width: "80%", background: "#e2e8f0", borderRadius: 4 }} />
-        </div>
-      </motion.div>
-    );
-  }
-
   const displayBrand =
     product.brand?.name ||
     (typeof product.brand === "string" ? product.brand : "") ||
@@ -82,20 +50,7 @@ const WishlistRow = React.memo(function WishlistRow({
           </div>
         )}
         <div className="sz-wishlist-row__img-container">
-          {!imgLoaded && <div className="sz-wishlist-row__img-placeholder" />}
-          <img
-            src={imageSrc}
-            alt={product.name}
-            className="sz-wishlist-row__img"
-            style={{ opacity: imgLoaded ? 1 : 0 }}
-            decoding="async"
-            onLoad={() => setImgLoaded(true)}
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = "/no-image.png";
-              setImgLoaded(true);
-            }}
-          />
+          <img src={imageSrc} alt={product.name} className="sz-wishlist-row__img" />
         </div>
       </div>
 
@@ -172,7 +127,6 @@ function Wishlist() {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recsLoading, setRecsLoading] = useState(true);
 
- 
   const hasLoadedOnceRef = useRef(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
 
@@ -220,8 +174,11 @@ function Wishlist() {
     return () => {
       mounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Exclude items already in the wishlist, computed at render time so the
+  // fetch above doesn't need to depend on (and re-run for) wishlistProducts.
   const wishlistIds = new Set(wishlistProducts.map((p) => p.id));
   const visibleRecommendations = recommendedProducts.filter((p) => !wishlistIds.has(p.id)).slice(0, 4);
 
@@ -294,18 +251,20 @@ function Wishlist() {
               </motion.div>
             ) : (
               <div className="sz-wishlist-list-wrap">
-                {wishlistProducts.map((product) => (
-                  <WishlistRow
-                    key={product.id}
-                    product={product}
-                    onNavigate={handleNavigateToProduct}
-                    onAddToCart={handleAddToCart}
-                    onBuyNow={handleBuyNow}
-                    onRemove={handleRemove}
-                    cartLoading={cartLoading}
-                    wishlistBusy={wishlistBusy}
-                  />
-                ))}
+                <AnimatePresence initial={false}>
+                  {wishlistProducts.map((product) => (
+                    <WishlistRow
+                      key={product.id}
+                      product={product}
+                      onNavigate={handleNavigateToProduct}
+                      onAddToCart={handleAddToCart}
+                      onBuyNow={handleBuyNow}
+                      onRemove={handleRemove}
+                      cartLoading={cartLoading}
+                      wishlistBusy={wishlistBusy}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             )}
 

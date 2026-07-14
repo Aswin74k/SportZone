@@ -251,6 +251,7 @@
   color: #dc2626;
 }
 
+/* Right: Actions block */
 .sz-wishlist-row__actions {
   display: flex;
   flex-direction: column;

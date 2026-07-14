@@ -12,6 +12,19 @@ import API from "../api";
 import { mediaUrl } from "../utils/mediaUrl";
 import "./Wishlist.css";
 
+/**
+ * Single wishlist row, memoized so it only re-renders when its own
+ * product data (or busy state) actually changes. This stops the whole
+ * list from remounting/flickering whenever a *different* product's
+ * wishlist status changes elsewhere on the page (e.g. from a
+ * ProductCard in the "You May Also Like" section).
+ */
+/**
+ * Detects a placeholder/optimistic item pushed into the wishlist array
+ * before its real product data has come back from the server. Different
+ * context implementations signal this differently, so we check the
+ * common patterns rather than assuming one specific shape.
+ */
 function isPlaceholderProduct(product) {
   if (!product) return true;
   if (product.isLoading || product.pending || product.optimistic || product.loading) return true;
@@ -172,7 +185,12 @@ function Wishlist() {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recsLoading, setRecsLoading] = useState(true);
 
- 
+  // Track whether we've completed the FIRST successful wishlist load.
+  // Any subsequent background refetch (e.g. triggered by toggling a
+  // heart icon anywhere on the page) will also flip `wishlistLoading`
+  // to true in the context, but we no longer want that to blow away
+  // the already-rendered list and show skeletons again — that's what
+  // was causing the "refresh" flicker.
   const hasLoadedOnceRef = useRef(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
 
@@ -187,6 +205,10 @@ function Wishlist() {
 
   const countText = wishlistProducts.length === 1 ? "1 item" : `${wishlistProducts.length} items`;
 
+  // Load "You May Also Like" recommendations — runs once on mount only.
+  // Intentionally NOT re-run when wishlistProducts changes; we filter
+  // against the latest wishlist ids at render time instead, so toggling
+  // a wishlist item never re-triggers this fetch/section.
   useEffect(() => {
     let mounted = true;
     const fetchRecommendations = async () => {
@@ -220,6 +242,7 @@ function Wishlist() {
     return () => {
       mounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const wishlistIds = new Set(wishlistProducts.map((p) => p.id));

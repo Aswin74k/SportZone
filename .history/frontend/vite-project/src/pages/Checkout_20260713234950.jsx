@@ -437,7 +437,7 @@ export default function Checkout() {
     );
   }
 
-  const payDisabled = loading || activeStep !== "payment" || (isOnlinePayment && paymentMethod !== "UPI" && !razorpayReady) || (paymentMethod === "UPI");
+  const payDisabled = loading || (isOnlinePayment && paymentMethod !== "UPI" && !razorpayReady) || (paymentMethod === "UPI");
 
   return (
     <StoreShell>
@@ -856,7 +856,7 @@ export default function Checkout() {
                           className="sz-co-primary-btn"
                           onClick={() => setActiveStep("payment")}
                         >
-                          Select Payment Method
+                          Continue to Payment
                         </motion.button>
                       </div>
                     </motion.div>
