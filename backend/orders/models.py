@@ -42,6 +42,7 @@ class Order(models.Model):
     # Payment details
     payment_method = models.CharField(max_length=20, default="COD")  # "COD" or "Razorpay"
     payment_status = models.CharField(max_length=20, default="Pending")  # "Pending", "Paid", "Failed"
+    payment_completed_at = models.DateTimeField(blank=True, null=True)
 
     # Razorpay details
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
@@ -58,8 +59,15 @@ class Order(models.Model):
                 old_order = Order.objects.get(pk=self.pk)
                 if old_order.status != "Delivered" and self.status == "Delivered":
                     is_delivered_now = True
+                if old_order.payment_status != "Paid" and self.payment_status == "Paid" and not self.payment_completed_at:
+                    from django.utils import timezone
+                    self.payment_completed_at = timezone.now()
             except Order.DoesNotExist:
                 pass
+        else:
+            if self.payment_status == "Paid" and not self.payment_completed_at:
+                from django.utils import timezone
+                self.payment_completed_at = timezone.now()
 
         super().save(*args, **kwargs)
 
@@ -102,3 +110,24 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - wishlist {self.product.name}"
+
+class PendingPayment(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="pending_payments"
+    )
+
+    razorpay_order_id = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    checkout_data = models.JSONField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - {self.razorpay_order_id}"

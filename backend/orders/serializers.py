@@ -114,6 +114,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "shipping_pincode",
             "payment_method",
             "payment_status",
+            "payment_completed_at",
         ]
 
 

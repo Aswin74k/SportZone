@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 import threading
 
 from products.models import Category, Product
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, PendingPayment
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -92,29 +92,24 @@ class OrderEmailTestCase(TestCase):
         mock_razorpay_client.return_value = mock_client_instance
         mock_client_instance.utility.verify_payment_signature.return_value = True
 
-        # Pre-create a Razorpay order in local DB
-        order = Order.objects.create(
+        # Pre-create a PendingPayment in local DB
+        PendingPayment.objects.create(
             user=self.user,
-            total_price=2999.00,
-            status="Pending",
-            shipping_name="Buyer Kumar",
-            shipping_phone="9876543210",
-            shipping_address="123 Green Avenue",
-            shipping_city="Chennai",
-            shipping_state="Tamil Nadu",
-            shipping_pincode="600001",
-            payment_method="Razorpay",
-            payment_status="Pending",
-            razorpay_order_id="rzp_order_test123"
-        )
-        OrderItem.objects.create(
-            order=order,
-            product=self.product,
-            product_name=self.product.name,
-            quantity=1,
-            price=self.product.price,
-            unit_price=self.product.price,
-            selected_size="M"
+            razorpay_order_id="rzp_order_test123",
+            checkout_data={
+                "fullName": "Buyer Kumar",
+                "phone": "9876543210",
+                "line1": "123 Green Avenue",
+                "city": "Chennai",
+                "state": "Tamil Nadu",
+                "pincode": "600001",
+                "discount": 0.0,
+                "total_price": 2999.00,
+                "is_buy_now": True,
+                "buy_now_product_id": self.product.id,
+                "buy_now_qty": 1,
+                "buy_now_size": "M"
+            }
         )
 
         data = {
@@ -130,10 +125,15 @@ class OrderEmailTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        # Refresh order from DB
-        order.refresh_from_db()
+        # Retrieve order from DB
+        order = Order.objects.filter(razorpay_order_id="rzp_order_test123").first()
+        self.assertIsNotNone(order)
         self.assertEqual(order.payment_status, "Paid")
         self.assertEqual(order.razorpay_payment_id, "pay_test123")
+        self.assertEqual(order.razorpay_signature, "sig_test123")
+        
+        # Verify that PendingPayment is deleted
+        self.assertFalse(PendingPayment.objects.filter(razorpay_order_id="rzp_order_test123").exists())
 
         # Verify confirmation email was sent
         self.assertEqual(len(mail.outbox), 1)
