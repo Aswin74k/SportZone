@@ -12,7 +12,7 @@ import Wishlist from "./pages/Wishlist";
 import Help from "./pages/Help";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import ProductDetail from "./pages/ProductDetail";
+import ProductDetail from "./pages/ProductDetails/ProductDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";

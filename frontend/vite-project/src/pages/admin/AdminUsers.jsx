@@ -93,14 +93,28 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((u) => (
-                  <tr key={u.id}>
-                    <td>
-                      <div className="fw-semibold">{u.email}</div>
-                      <div className="text-muted small">
-                        {u.first_name || u.username} · ID #{u.id}
-                      </div>
-                    </td>
+                {rows.map((u) => {
+                  const initial = (u.email ? u.email[0] : (u.username ? u.username[0] : "?")).toUpperCase();
+                  const charCode = initial.toLowerCase().charCodeAt(0);
+                  const hues = [200, 220, 240, 260, 280, 300, 320, 340, 360, 180, 160, 140, 120, 100];
+                  const hue = hues[charCode % hues.length];
+                  const avatarColor = `hsl(${hue}, 70%, 45%)`;
+
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <div className="admin-user-row">
+                          <div className="admin-user-avatar" style={{ backgroundColor: avatarColor }}>
+                            {initial}
+                          </div>
+                          <div>
+                            <div className="fw-semibold">{u.email}</div>
+                            <div className="text-muted small">
+                              {u.first_name || u.username} · ID #{u.id}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
                     <td>
                       {u.is_staff ? (
                         <AdminStatusBadge status="Staff" variant="info" />
@@ -130,7 +144,8 @@ export default function AdminUsers() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </AdminTableCard>

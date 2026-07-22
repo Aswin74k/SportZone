@@ -318,7 +318,6 @@
   border-radius: 2px;
 }
 
-
 .sz-pd-info-col {
   display: flex;
   flex-direction: column;
@@ -507,25 +506,7 @@
   margin-top: 2px;
 }
 
-/* size guide button */
-.sz-pd-guide-trigger {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--sz-color-text-muted);
-  background: transparent;
-  border: none;
-  text-decoration: underline;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  cursor: pointer;
-  padding: 0;
-}
-.sz-pd-guide-trigger:hover {
-  color: var(--sz-color-primary);
-}
-
-/* size guide modal overlay */
+/* Modal overlay */
 .sz-modal-overlay-bg {
   position: fixed;
   top: 0;
@@ -539,14 +520,6 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-}
-.sz-size-modal-card {
-  width: 100%;
-  max-width: 500px;
-  background: var(--sz-color-bg-white);
-  border-radius: var(--sz-radius-md);
-  box-shadow: var(--sz-shadow-lg);
-  overflow: hidden;
 }
 
 /* Pincode Checker */
@@ -605,7 +578,6 @@
   color: var(--sz-color-error);
 }
 
-
 /* Accordion Tab Styling */
 .sz-pd-info-tabs {
   border-top: 1px solid var(--sz-color-border);
@@ -634,28 +606,6 @@
   font-size: 0.88rem;
   color: var(--sz-color-text-muted);
   line-height: 1.5;
-}
-
-/* Specification grid style */
-.sz-specs-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.85rem;
-}
-.sz-spec-row {
-  border-bottom: 1px solid var(--sz-color-border);
-  padding-bottom: 0.5rem;
-}
-.sz-spec-label {
-  font-size: 0.78rem;
-  color: var(--sz-color-text-light);
-  font-weight: 500;
-  text-transform: uppercase;
-}
-.sz-spec-value {
-  font-size: 0.88rem;
-  color: var(--sz-color-primary);
-  font-weight: 600;
 }
 
 /* ==========================================================================
@@ -1149,10 +1099,6 @@
   .sz-pd-main-img-box {
     height: 320px;
   }
-  
-  .sz-specs-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Quantity Stepper Control */
@@ -1214,4 +1160,3 @@
 .star-rating-btn:active {
   transform: scale(0.9);
 }
-
