@@ -21,8 +21,9 @@ const empty = {
   stock: 0,
   sizes_json: "[]",
   is_trending: false,
-  is_new_arrival: false,
-  is_deal_of_the_week: false,
+  is_best_seller: false,
+  is_premium: false,
+  is_in_demand: false,
 };
 
 export default function AdminProducts() {
@@ -135,8 +136,9 @@ export default function AdminProducts() {
         2,
       ),
       is_trending: p.is_trending || false,
-      is_new_arrival: p.is_new_arrival || false,
-      is_deal_of_the_week: p.is_deal_of_the_week || false,
+      is_best_seller: p.is_best_seller || false,
+      is_premium: p.is_premium || false,
+      is_in_demand: p.is_in_demand || false,
     });
     setPendingFiles([]);
     setPrimaryPendingKey(null);
@@ -186,8 +188,9 @@ export default function AdminProducts() {
     fd.append("stock", String(form.stock || 0));
     fd.append("sizes_json", form.sizes_json || "[]");
     fd.append("is_trending", form.is_trending ? "true" : "false");
-    fd.append("is_new_arrival", form.is_new_arrival ? "true" : "false");
-    fd.append("is_deal_of_the_week", form.is_deal_of_the_week ? "true" : "false");
+    fd.append("is_best_seller", form.is_best_seller ? "true" : "false");
+    fd.append("is_premium", form.is_premium ? "true" : "false");
+    fd.append("is_in_demand", form.is_in_demand ? "true" : "false");
     if (primaryFile) fd.append("image", primaryFile);
 
     try {
@@ -207,8 +210,9 @@ export default function AdminProducts() {
             stock: form.stock,
             sizes_json: form.sizes_json || "[]",
             is_trending: form.is_trending,
-            is_new_arrival: form.is_new_arrival,
-            is_deal_of_the_week: form.is_deal_of_the_week,
+            is_best_seller: form.is_best_seller,
+            is_premium: form.is_premium,
+            is_in_demand: form.is_in_demand,
           });
         }
         if (extraPending.length) await uploadGalleryBatch(editingId, extraPending);
@@ -360,31 +364,43 @@ export default function AdminProducts() {
                         onChange={(e) => setForm({ ...form, is_trending: e.target.checked })}
                       />
                       <label className="form-check-label" htmlFor="isTrending">
-                        Trending Gear
+                        Trending
                       </label>
                     </div>
                     <div className="form-check">
                       <input
                         type="checkbox"
                         className="form-check-input"
-                        id="isNewArrival"
-                        checked={form.is_new_arrival}
-                        onChange={(e) => setForm({ ...form, is_new_arrival: e.target.checked })}
+                        id="isBestSeller"
+                        checked={form.is_best_seller}
+                        onChange={(e) => setForm({ ...form, is_best_seller: e.target.checked })}
                       />
-                      <label className="form-check-label" htmlFor="isNewArrival">
-                        New Arrival
+                      <label className="form-check-label" htmlFor="isBestSeller">
+                        Best Seller
                       </label>
                     </div>
                     <div className="form-check">
                       <input
                         type="checkbox"
                         className="form-check-input"
-                        id="isDeal"
-                        checked={form.is_deal_of_the_week}
-                        onChange={(e) => setForm({ ...form, is_deal_of_the_week: e.target.checked })}
+                        id="isPremium"
+                        checked={form.is_premium}
+                        onChange={(e) => setForm({ ...form, is_premium: e.target.checked })}
                       />
-                      <label className="form-check-label" htmlFor="isDeal">
-                        Deals of the week
+                      <label className="form-check-label" htmlFor="isPremium">
+                        Premium Edit
+                      </label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="isInDemand"
+                        checked={form.is_in_demand}
+                        onChange={(e) => setForm({ ...form, is_in_demand: e.target.checked })}
+                      />
+                      <label className="form-check-label" htmlFor="isInDemand">
+                        In Demand
                       </label>
                     </div>
                   </div>
@@ -492,7 +508,7 @@ export default function AdminProducts() {
               <th>Brand</th>
               <th>Price</th>
               <th>Flags</th>
-              <th>Stock</th>
+              <th className="text-center">Stock</th>
               <th className="text-end">Actions</th>
             </tr>
           </thead>
@@ -523,21 +539,26 @@ export default function AdminProducts() {
                   <td>
                     <div className="d-flex flex-wrap gap-1">
                       {p.is_trending && <span className="badge bg-primary text-white" style={{ fontSize: "0.65rem" }}>Trending</span>}
-                      {p.is_new_arrival && <span className="badge bg-info text-dark" style={{ fontSize: "0.65rem" }}>New</span>}
-                      {p.is_deal_of_the_week && <span className="badge bg-danger text-white" style={{ fontSize: "0.65rem" }}>Deal</span>}
+                      {p.is_best_seller && <span className="badge bg-success text-white" style={{ fontSize: "0.65rem" }}>Best Seller</span>}
+                      {p.is_premium && <span className="badge bg-warning text-dark" style={{ fontSize: "0.65rem" }}>Premium</span>}
+                      {p.is_in_demand && <span className="badge bg-danger text-white" style={{ fontSize: "0.65rem" }}>In Demand</span>}
                     </div>
                   </td>
-                  <td>
-                    <AdminStatusBadge status={low ? "Low stock" : "In stock"} variant={low ? "warning" : "success"} />
-                    <span className="ms-1 text-muted small">{p.stock}</span>
+                  <td className="text-center">
+                    <div className="d-flex flex-column align-items-center gap-1">
+                      <AdminStatusBadge status={low ? "Low stock" : "In stock"} variant={low ? "warning" : "success"} />
+                      <span className="text-muted small fw-semibold">{p.stock}</span>
+                    </div>
                   </td>
-                  <td className="text-end admin-btn-group-actions">
-                    <button type="button" className="btn btn-outline-primary" onClick={() => startEdit(p)}>
-                      Edit
-                    </button>
-                    <button type="button" className="btn btn-outline-danger" onClick={() => del(p.id)}>
-                      Delete
-                    </button>
+                  <td className="text-end text-nowrap">
+                    <div className="admin-btn-group-actions">
+                      <button type="button" className="btn btn-outline-primary" onClick={() => startEdit(p)}>
+                        Edit
+                      </button>
+                      <button type="button" className="btn btn-outline-danger" onClick={() => del(p.id)}>
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

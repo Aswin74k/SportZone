@@ -132,7 +132,7 @@ export default function ProductReviews({
                   <input
                     type="checkbox"
                     id="imageFilterCheck"
-                    className="sz-fbt-checkbox"
+                    className="sz-reviews-checkbox"
                     checked={onlyWithImagesFilter}
                     onChange={(e) => setOnlyWithImagesFilter(e.target.checked)}
                   />

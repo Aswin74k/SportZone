@@ -172,34 +172,43 @@ export default function AdminCategories() {
         isEmpty={rows.length === 0}
         empty={<AdminEmptyState title="No categories" message="Create a category to group your products." />}
       >
-        <table className="table admin-table mb-0" style={{ opacity: tableLoading ? 0.5 : 1 }}>
+        <table className="table admin-table admin-table--categories mb-0" style={{ opacity: tableLoading ? 0.5 : 1 }}>
+          <colgroup>
+            <col className="admin-col-flex" />
+            <col style={{ width: "160px" }} />
+            <col style={{ width: "104px" }} />
+            <col style={{ width: "112px" }} />
+            <col style={{ width: "190px" }} />
+          </colgroup>
           <thead>
             <tr>
               <th>Name</th>
               <th>Slug</th>
-              <th>Products</th>
-              <th>Status</th>
+              <th className="text-center">Products</th>
+              <th className="text-center">Status</th>
               <th className="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td className="fw-semibold">{r.name}</td>
-                <td>
+                <td className="fw-semibold admin-cell-truncate">{r.name}</td>
+                <td className="admin-cell-truncate">
                   <code className="small">{r.slug}</code>
                 </td>
-                <td>{r.product_count}</td>
-                <td>
+                <td className="text-center">{r.product_count}</td>
+                <td className="text-center">
                   <AdminStatusBadge status={r.is_active ? "Active" : "Hidden"} variant={r.is_active ? "success" : "secondary"} />
                 </td>
-                <td className="text-end admin-btn-group-actions">
-                  <button type="button" className="btn btn-outline-primary" onClick={() => startEdit(r)}>
-                    Edit
-                  </button>
-                  <button type="button" className="btn btn-outline-danger" onClick={() => remove(r)}>
-                    Delete
-                  </button>
+                <td className="text-end text-nowrap">
+                  <div className="admin-btn-group-actions">
+                    <button type="button" className="btn btn-outline-primary" onClick={() => startEdit(r)}>
+                      Edit
+                    </button>
+                    <button type="button" className="btn btn-outline-danger" onClick={() => remove(r)}>
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

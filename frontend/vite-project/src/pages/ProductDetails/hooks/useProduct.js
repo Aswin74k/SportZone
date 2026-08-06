@@ -17,9 +17,6 @@ export function useProduct(id, addToCart, navigate) {
   const [pincodeStatus, setPincodeStatus] = useState(null);
   const [deliveryText, setDeliveryText] = useState("");
 
-  // FBT bundle state
-  const [fbtCheckedItems, setFbtCheckedItems] = useState({ 0: true, 1: true });
-  const [bundleLoading, setBundleLoading] = useState(false);
 
   // Wishlist state
   const [wishlisted, setWishlisted] = useState(false);
@@ -99,81 +96,12 @@ export function useProduct(id, addToCart, navigate) {
     return cat.includes("shoe") || cat.includes("footwear") || name.includes("shoe");
   }, [product]);
 
-  // FBT bundle items compute (uses category products as FBT bundle choices)
-  const fbtItems = useMemo(() => {
-    if (relatedProducts.length >= 2) {
-      return relatedProducts.slice(0, 2);
-    }
-    return [];
-  }, [relatedProducts]);
-
-  // FBT pricing calculations
-  const fbtPricing = useMemo(() => {
-    if (!product) return { current: 0, mrp: 0, discount: 0, savings: 0 };
-    let current = Number(product.price);
-    let mrp = Math.round(Number(product.price) * 1.25);
-
-    fbtItems.forEach((item, index) => {
-      if (fbtCheckedItems[index]) {
-        current += Number(item.price);
-        mrp += Math.round(Number(item.price) * 1.25);
-      }
-    });
-
-    return {
-      current,
-      mrp,
-      discount: mrp > current ? Math.round(((mrp - current) / mrp) * 100) : 0,
-      savings: mrp - current
-    };
-  }, [product, fbtItems, fbtCheckedItems]);
-
-  // Toggle FBT items
-  const handleFbtToggle = (index) => {
-    setFbtCheckedItems((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
 
   const sizes = useMemo(() => {
     return Array.isArray(product?.sizes) ? product.sizes : [];
   }, [product]);
 
   const showSizes = sizes.length > 0;
-
-  // Add FBT bundle items to cart
-  const addBundleToCart = async (sizeSectionRef) => {
-    if (showSizes && !selectedSize) {
-      toast.error("Please select a size for the main product first.");
-      setSizeError(true);
-      sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    try {
-      setBundleLoading(true);
-      // Add main product
-      await addToCart({
-        product_id: product.id,
-        size: selectedSize || "N/A",
-        quantity: 1
-      });
-
-      // Add checked FBT choices
-      for (let i = 0; i < fbtItems.length; i++) {
-        if (fbtCheckedItems[i]) {
-          await addToCart({
-            product_id: fbtItems[i].id,
-            size: "N/A",
-            quantity: 1
-          });
-        }
-      }
-      toast.success("Added bundle to cart successfully! 🛒");
-    } catch (err) {
-      toast.error("Failed to add bundle to cart");
-    } finally {
-      setBundleLoading(false);
-    }
-  };
 
   // Wishlist toggle handler
   const toggleWishlist = () => {
@@ -182,11 +110,10 @@ export function useProduct(id, addToCart, navigate) {
     if (wishlist.includes(product.id)) {
       wishlist = wishlist.filter((idVal) => idVal !== product.id);
       setWishlisted(false);
-      toast.success("Removed from wishlist 🤍");
+
     } else {
       wishlist.push(product.id);
       setWishlisted(true);
-      toast.success("Added to wishlist ❤️");
     }
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   };
@@ -230,7 +157,6 @@ export function useProduct(id, addToCart, navigate) {
     if (!product?.id) return;
 
     if (showSizes && !selectedSize) {
-      toast.error("Please select a size first.");
       setSizeError(true);
       sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -264,16 +190,10 @@ export function useProduct(id, addToCart, navigate) {
     wishlisted,
     pincodeStatus,
     deliveryText,
-    fbtCheckedItems,
-    bundleLoading,
     gallery,
     isShoe,
-    fbtItems,
-    fbtPricing,
     sizes,
     showSizes,
-    handleFbtToggle,
-    addBundleToCart,
     toggleWishlist,
     shareProduct,
     onCheckPincode,

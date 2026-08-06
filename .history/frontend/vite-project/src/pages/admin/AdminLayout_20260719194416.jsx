@@ -224,7 +224,6 @@ export default function AdminLayout() {
             <span className="fw-bold text-primary">{getPageTitle()}</span>
           </div>
           <div className="admin-topbar-right">
-            {/* Theme toggle removed per user request */}
           </div>
         </header>
         <main className="admin-content">

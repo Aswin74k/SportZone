@@ -42,3 +42,10 @@
   font-weight: 600;
   font-size: 0.85rem;
 }
+
+@media (min-width: 768px) {
+  .sz-new-arrivals .row > *:nth-child(n+6) {
+    display: none !important;
+  }
+}
+

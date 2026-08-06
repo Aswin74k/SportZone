@@ -4,7 +4,6 @@ export default function ProductPrice({ price, variant = "default" }) {
   const mrp = Math.round(Number(price) * 1.25);
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
   const savings = mrp - price;
-  const emiVal = Math.round(price / 12);
 
   if (variant === "desktop-panel") {
     return (
@@ -45,11 +44,6 @@ export default function ProductPrice({ price, variant = "default" }) {
           Instant Savings: ₹{savings.toLocaleString("en-IN")}
         </div>
       )}
-      <div className="sz-pd-emi-note">
-        Standard EMI starting from <b>₹{emiVal.toLocaleString("en-IN")}/month</b>. 
-        <br />
-        <span className="text-decoration-underline cursor-pointer text-dark font-semibold">View Plans & Banks</span>
-      </div>
     </div>
   );
 }

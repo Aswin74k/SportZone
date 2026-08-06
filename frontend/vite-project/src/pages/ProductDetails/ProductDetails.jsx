@@ -12,7 +12,7 @@ import ProductActions from "./ProductActions";
 import ProductQuantity from "./ProductQuantity";
 import ProductReviews from "./ProductReviews";
 import RelatedProducts from "./RelatedProducts";
-import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
+
 import ImageLightbox from "./ImageLightbox";
 import StickyPurchaseBar from "./StickyPurchaseBar";
 
@@ -46,15 +46,9 @@ function ProductDetails() {
     wishlisted,
     pincodeStatus,
     deliveryText,
-    fbtCheckedItems,
-    bundleLoading,
     gallery,
-    fbtItems,
-    fbtPricing,
     sizes,
     showSizes,
-    handleFbtToggle,
-    addBundleToCart,
     toggleWishlist,
     shareProduct,
     onCheckPincode,
@@ -262,17 +256,7 @@ function ProductDetails() {
 
           </div>
 
-          {/* Frequently Bought Together Bundle */}
-          <FrequentlyBoughtTogether
-            product={product}
-            fbtItems={fbtItems}
-            fbtCheckedItems={fbtCheckedItems}
-            fbtPricing={fbtPricing}
-            handleFbtToggle={handleFbtToggle}
-            addBundleToCart={addBundleToCart}
-            bundleLoading={bundleLoading}
-            sizeSectionRef={sizeSectionRef}
-          />
+
 
           {/* Reviews section */}
           <ProductReviews
@@ -296,7 +280,7 @@ function ProductDetails() {
           />
 
           {/* Related products */}
-          <RelatedProducts relatedProducts={relatedProducts} />
+          <RelatedProducts relatedProducts={relatedProducts} category={product?.category} />
 
         </div>
 

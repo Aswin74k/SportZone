@@ -83,12 +83,18 @@ export default function AdminUsers() {
             isEmpty={rows.length === 0}
             empty={<AdminEmptyState title="No users found" message="Try a different search term." />}
           >
-            <table className="table admin-table mb-0">
+            <table className="table admin-table admin-table--users mb-0" style={{ opacity: loading ? 0.5 : 1 }}>
+              <colgroup>
+                <col className="admin-col-flex" />
+                <col style={{ width: "112px" }} />
+                <col style={{ width: "112px" }} />
+                <col style={{ width: "210px" }} />
+              </colgroup>
               <thead>
                 <tr>
                   <th>Customer</th>
-                  <th>Role</th>
-                  <th>Status</th>
+                  <th className="text-center">Role</th>
+                  <th className="text-center">Status</th>
                   <th className="text-end">Actions</th>
                 </tr>
               </thead>
@@ -107,43 +113,45 @@ export default function AdminUsers() {
                           <div className="admin-user-avatar" style={{ backgroundColor: avatarColor }}>
                             {initial}
                           </div>
-                          <div>
-                            <div className="fw-semibold">{u.email}</div>
-                            <div className="text-muted small">
+                          <div className="admin-user-info">
+                            <div className="fw-semibold admin-cell-truncate">{u.email}</div>
+                            <div className="text-muted small admin-cell-truncate">
                               {u.first_name || u.username} · ID #{u.id}
                             </div>
                           </div>
                         </div>
                       </td>
-                    <td>
-                      {u.is_staff ? (
-                        <AdminStatusBadge status="Staff" variant="info" />
-                      ) : (
-                        <AdminStatusBadge status="Customer" variant="secondary" />
-                      )}
-                    </td>
-                    <td>
-                      {u.is_blocked ? (
-                        <AdminStatusBadge status="Blocked" variant="danger" />
-                      ) : u.is_active ? (
-                        <AdminStatusBadge status="Active" variant="success" />
-                      ) : (
-                        <AdminStatusBadge status="Inactive" variant="secondary" />
-                      )}
-                    </td>
-                    <td className="text-end admin-btn-group-actions text-nowrap">
-                      <button type="button" className="btn btn-outline-secondary" onClick={() => setOrdersUser(u)}>
-                        Orders
-                      </button>
-                      <button
-                        type="button"
-                        className={`btn ${u.is_blocked ? "btn-success" : "btn-warning"}`}
-                        onClick={() => toggleBlock(u)}
-                      >
-                        {u.is_blocked ? "Unblock" : "Block"}
-                      </button>
-                    </td>
-                  </tr>
+                      <td className="text-center">
+                        {u.is_staff ? (
+                          <AdminStatusBadge status="Staff" variant="info" />
+                        ) : (
+                          <AdminStatusBadge status="Customer" variant="secondary" />
+                        )}
+                      </td>
+                      <td className="text-center">
+                        {u.is_blocked ? (
+                          <AdminStatusBadge status="Blocked" variant="danger" />
+                        ) : u.is_active ? (
+                          <AdminStatusBadge status="Active" variant="success" />
+                        ) : (
+                          <AdminStatusBadge status="Inactive" variant="secondary" />
+                        )}
+                      </td>
+                      <td className="text-end text-nowrap">
+                        <div className="admin-btn-group-actions">
+                          <button type="button" className="btn btn-outline-secondary" onClick={() => setOrdersUser(u)}>
+                            Orders
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn ${u.is_blocked ? "btn-success" : "btn-warning"}`}
+                            onClick={() => toggleBlock(u)}
+                          >
+                            {u.is_blocked ? "Unblock" : "Block"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>

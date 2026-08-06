@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api";
 import { unwrapList } from "../utils/unwrapList";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ui/ProductCardSkeleton";
+import useResponsiveDisplayCount from "../hooks/useResponsiveDisplayCount";
+import { PRODUCT_FILTERS } from "../constants/productFilters";
+import getSkeletonItems from "../utils/getSkeletonItems";
 import "./NewArrivalsSection.css";
 
 export default function NewArrivalsSection() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const displayCount = useResponsiveDisplayCount(5, 6);
 
   useEffect(() => {
     let isMounted = true;
@@ -18,12 +22,12 @@ export default function NewArrivalsSection() {
         setLoading(true);
         // Fetch products ordered by id descending (latest added products first)
         const res = await API.get("products/", {
-          params: { ordering: "-id" }
+          params: PRODUCT_FILTERS.NEWEST
         });
         
         if (!isMounted) return;
         const latestProducts = unwrapList(res.data);
-        setProducts(latestProducts.slice(0, 5));
+        setProducts(latestProducts);
       } catch (err) {
         console.error("Error fetching new arrival products:", err);
       } finally {
@@ -38,7 +42,11 @@ export default function NewArrivalsSection() {
     };
   }, []);
 
-  if (!loading && products.length === 0) {
+  const visibleProducts = useMemo(() => {
+    return products.slice(0, displayCount);
+  }, [products, displayCount]);
+
+  if (!loading && visibleProducts.length === 0) {
     return null; // Hide section if no products are available
   }
 
@@ -58,7 +66,7 @@ export default function NewArrivalsSection() {
               The latest additions to the SportZone catalogue. Upgrade your athletic gear today.
             </p>
           </div>
-          <Link to="/shop" className="btn btn-outline-primary btn-sm rounded-pill px-4 mt-3 mt-sm-0 sz-new-arrivals__link">
+          <Link to="/shop?sort=newest" className="btn btn-outline-primary btn-sm rounded-pill px-4 mt-3 mt-sm-0 sz-new-arrivals__link">
             View All Gear
           </Link>
         </div>
@@ -66,7 +74,7 @@ export default function NewArrivalsSection() {
         {/* PRODUCTS GRID */}
         {loading ? (
           <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-            {[1, 2, 3, 4, 5].map((idx) => (
+            {getSkeletonItems(displayCount).map((idx) => (
               <div className="col d-flex" key={idx}>
                 <ProductCardSkeleton />
               </div>
@@ -74,7 +82,7 @@ export default function NewArrivalsSection() {
           </div>
         ) : (
           <div className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4 justify-content-center">
-            {products.map((product, index) => (
+            {visibleProducts.map((product, index) => (
               <div className="col d-flex" key={product.id}>
                 <div className="sz-new-arrivals__card-wrapper w-100">
                   <ProductCard product={product} index={index} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { FaRegHeart, FaShoppingCart, FaTrashAlt } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { FaRegHeart, FaShoppingCart, FaTrashAlt, FaChevronRight } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ui/ProductCardSkeleton";
 import Rating from "../components/Rating";
@@ -19,6 +19,19 @@ function isPlaceholderProduct(product) {
   // A real product always has a price; a bare optimistic stub typically won't.
   if (product.price === undefined || product.price === null) return true;
   return false;
+}
+
+function truncateDescription(text, maxLength = 50) {
+  if (!text) return "";
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  const truncated = text.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+
+  return truncated.substring(0, lastSpace) + "...";
 }
 
 const WishlistRow = React.memo(function WishlistRow({
@@ -114,7 +127,9 @@ const WishlistRow = React.memo(function WishlistRow({
         )}
 
         <p className="sz-wishlist-row__desc">
-          {product.description || "Premium athletic gear built for ultimate performance and comfort."}
+          {product.description
+            ? (product.description.length > 70 ? product.description.slice(0, 70).trim() + "..." : product.description)
+            : "Premium athletic gear built for ultimate performance and comfort."}
         </p>
 
         <div className="sz-wishlist-row__price-stock">
@@ -170,7 +185,7 @@ function Wishlist() {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recsLoading, setRecsLoading] = useState(true);
 
- 
+
   const hasLoadedOnceRef = useRef(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
 
@@ -221,7 +236,7 @@ function Wishlist() {
   }, []);
 
   const wishlistIds = new Set(wishlistProducts.map((p) => p.id));
-  const visibleRecommendations = recommendedProducts.filter((p) => !wishlistIds.has(p.id)).slice(0, 4);
+  const visibleRecommendations = recommendedProducts.filter((p) => !wishlistIds.has(p.id)).slice(0, 6);
 
   const handleBuyNow = (product) => {
     navigate("/checkout", { state: { product, size: "N/A", quantity: 1 } });
@@ -242,7 +257,7 @@ function Wishlist() {
   return (
     <StoreShell>
       <div className="sz-page">
-        <div className="sz-page-inner container-fluid container-xl px-3 px-md-4">
+        <div className="sz-page-inner sz-wishlist-page-inner container-fluid container-xl px-3 px-md-4">
           <div className="sz-wishlist-wrapper">
 
             {/* Header Section */}
@@ -309,24 +324,24 @@ function Wishlist() {
 
             {/* "You May Also Like" Recommendation Section */}
             <div className="sz-wishlist-recs-section">
-              <h2 className="sz-wishlist-recs-title">You May Also Like</h2>
+              <div className="sz-wishlist-recs-header">
+                <h2 className="sz-wishlist-recs-title mb-0">You May Also Like</h2>
+                <Link to="/shop" className="sz-wishlist-recs-view-all">
+                  <span>View All</span>
+                  <FaChevronRight className="sz-view-all-chevron" size={11} />
+                </Link>
+              </div>
 
               {recsLoading ? (
-                <div className="row g-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div className="col-xl-3 col-lg-4 col-md-6" key={i}>
-                      <ProductCardSkeleton />
-                    </div>
+                <div className="sz-wishlist-recs-grid">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <ProductCardSkeleton key={i} />
                   ))}
                 </div>
               ) : visibleRecommendations.length > 0 ? (
-                <div className="row g-4">
+                <div className="sz-wishlist-recs-grid">
                   {visibleRecommendations.map((product, index) => (
-                    <div className="col-xl-3 col-lg-4 col-md-6 d-flex" key={product.id}>
-                      <div className="w-100">
-                        <ProductCard product={product} index={index} />
-                      </div>
-                    </div>
+                    <ProductCard product={product} index={index} key={product.id} />
                   ))}
                 </div>
               ) : (

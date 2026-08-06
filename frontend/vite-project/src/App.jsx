@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import API from "./api";
 
 import Navbar from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
 import StaffRoute from "./components/StaffRoute";
 import Home from "./pages/Home";
 import AllProducts from "./pages/AllProducts";
@@ -14,8 +15,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ProductDetail from "./pages/ProductDetails/ProductDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Checkout from "./pages/Checkout";
-import Profile from "./pages/Profile";
+import Checkout from "./pages/Checkout/Checkout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -29,7 +29,6 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminBrands from "./pages/admin/AdminBrands";
-import AdminOffers from "./pages/admin/AdminOffers";
 import AdminReviews from "./pages/admin/AdminReviews";
 
 import { AuthProvider } from "./context/AuthContext";
@@ -59,6 +58,7 @@ function AppContent() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
+      <ScrollToTop />
 
       {/* 🔥 NAVBAR (Hidden on Auth Pages & Admin) */}
       {!isAuthPage && !isAdminSection && <Navbar />}
@@ -127,15 +127,6 @@ function AppContent() {
               }
             />
 
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-
             <Route path="/help" element={<Help />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
@@ -158,7 +149,6 @@ function AppContent() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="banners" element={<AdminBanners />} />
               <Route path="brands" element={<AdminBrands />} />
-              <Route path="offers" element={<AdminOffers />} />
               <Route path="reviews" element={<AdminReviews />} />
             </Route>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaShareAlt } from "react-icons/fa";
 import ProductWishlist from "./ProductWishlist";
 
@@ -14,6 +14,11 @@ export default function ProductGallery({
 }) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [selectedImage]);
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -38,6 +43,7 @@ export default function ProductGallery({
                   setSelectedImage(img);
                   setIsZoomed(false);
                 }}
+                aria-label={`Select product thumbnail ${idx + 1}`}
               >
                 <img src={img} alt={`Product thumbnail ${idx + 1}`} />
               </button>
@@ -57,6 +63,7 @@ export default function ProductGallery({
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === "Enter" && openLightboxAtIndex(gallery.indexOf(selectedImage))}
+          aria-label={`View larger image of ${product.name}`}
         >
 
           {/* Image overlay actions */}
@@ -75,10 +82,15 @@ export default function ProductGallery({
             </button>
           </div>
 
+          {!imageLoaded && (
+            <div className="sz-skeleton-loader sz-pd-gallery-skeleton" />
+          )}
+
           <img
             src={selectedImage || "/no-image.png"}
             alt={product.name}
-            className="sz-pd-zoomable-img"
+            className={`sz-pd-zoomable-img ${imageLoaded ? "loaded" : "loading"}`}
+            onLoad={() => setImageLoaded(true)}
             style={
               isZoomed
                 ? {

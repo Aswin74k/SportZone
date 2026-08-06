@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import { unwrapList } from "../utils/unwrapList";
 import { mediaUrl } from "../utils/mediaUrl";
+import useResponsiveDisplayCount from "../hooks/useResponsiveDisplayCount";
+import { PRODUCT_FILTERS } from "../constants/productFilters";
+import getSkeletonItems from "../utils/getSkeletonItems";
 import "./TrendingUnderSection.css";
 
 export default function TrendingUnderSection() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const displayCount = useResponsiveDisplayCount(5, 6);
 
   useEffect(() => {
     let isMounted = true;
@@ -16,22 +20,11 @@ export default function TrendingUnderSection() {
       try {
         setLoading(true);
         const res = await API.get("products/", {
-          params: { max_price: 999 }
+          params: PRODUCT_FILTERS.UNDER_999
         });
         if (!isMounted) return;
         const list = unwrapList(res.data);
-        if (list.length > 0) {
-          const formatted = list.slice(0, 4).map((p) => ({
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            original_price: p.original_price,
-            image: mediaUrl(p.image)
-          }));
-          setProducts(formatted);
-        } else {
-          setProducts([]);
-        }
+        setProducts(list);
       } catch (err) {
         console.error("Error loading budget selections:", err);
         if (isMounted) {
@@ -48,12 +41,15 @@ export default function TrendingUnderSection() {
     };
   }, []);
 
+  const visibleProducts = useMemo(() => {
+    return products.slice(0, displayCount);
+  }, [products, displayCount]);
+
   const handleClickSection = () => {
     navigate("/shop?max_price=999");
   };
 
-  if (loading) return null;
-  if (products.length === 0) return null;
+  if (!loading && visibleProducts.length === 0) return null;
 
   return (
     <div className="sz-trending-under py-4">
@@ -84,35 +80,51 @@ export default function TrendingUnderSection() {
           </div>
 
           {/* Cards Grid */}
-          <div className="sz-trending-under__grid">
-            {products.map((p) => (
-              <div 
-                className="sz-trending-under__card" 
-                key={p.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/product/${p.id}`);
-                }}
-              >
-                <div className="sz-trending-under__img-container">
-                  <img 
-                    src={p.image} 
-                    alt={p.name} 
-                    className="sz-trending-under__img"
-                    onError={(e) => {
-                      e.target.src = "/no-image.png";
-                    }}
-                  />
-                </div>
-                <div className="sz-trending-under__meta">
-                  <h4 className="sz-trending-under__product-name">{p.name}</h4>
-                  <div className="sz-trending-under__label-row">
-                    <span className="sz-trending-under__price">₹{Math.round(p.price)}</span>
+          {loading ? (
+            <div className="sz-trending-under__grid">
+              {getSkeletonItems(displayCount).map((idx) => (
+                <div className="sz-trending-under__card" key={idx}>
+                  <div className="sz-trending-under__img-container sz-skeleton" />
+                  <div className="sz-trending-under__meta">
+                    <div className="sz-skeleton mb-2" style={{ height: "14px", width: "80%" }} />
+                    <div className="sz-skeleton" style={{ height: "14px", width: "40%" }} />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="sz-trending-under__grid">
+              {visibleProducts.map((p) => (
+                <div 
+                  className="sz-trending-under__card" 
+                  key={p.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/product/${p.id}`);
+                  }}
+                >
+                  <div className="sz-trending-under__img-container">
+                    <img 
+                      src={mediaUrl(p.image)} 
+                      alt={p.name} 
+                      className="sz-trending-under__img"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.target.src = "/no-image.png";
+                      }}
+                    />
+                  </div>
+                  <div className="sz-trending-under__meta">
+                    <h4 className="sz-trending-under__product-name">{p.name}</h4>
+                    <div className="sz-trending-under__label-row">
+                      <span className="sz-trending-under__price">₹{Math.round(p.price)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

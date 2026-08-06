@@ -165,6 +165,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_new_arrival",
             "is_deal_of_the_week",
             "is_best_seller",
+            "is_premium",
+            "is_in_demand",
             "image",
             "images",
             "sizes",
@@ -304,6 +306,8 @@ class AdminProductWriteSerializer(serializers.ModelSerializer):
             "is_new_arrival",
             "is_deal_of_the_week",
             "is_best_seller",
+            "is_premium",
+            "is_in_demand",
             "image",
             "sizes_json",
         ]

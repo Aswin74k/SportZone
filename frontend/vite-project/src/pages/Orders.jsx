@@ -20,7 +20,8 @@ import {
   FaUser,
   FaMoneyBillWave,
   FaExclamationTriangle,
-  FaTruckMoving
+  FaRocket,
+  FaGift
 } from "react-icons/fa";
 import "./Orders.css";
 
@@ -287,10 +288,25 @@ function Orders() {
                               })}
                             </div>
                             <div className="text-center mt-2">
-                              <span className="small text-muted font-weight-medium">
-                                {order.status === "Pending" && "🚀 Your order is being prepared and will ship soon."}
-                                {order.status === "Shipped" && "🚚 Package is in transit. Est. delivery: 2-3 business days."}
-                                {order.status === "Delivered" && "🎉 Delivered! We hope you love your new gear."}
+                              <span className="small text-muted font-weight-medium d-inline-flex align-items-center gap-2">
+                                {order.status === "Pending" && (
+                                  <>
+                                    <FaRocket className="text-primary" />
+                                    <span>Your order is being prepared and will ship soon.</span>
+                                  </>
+                                )}
+                                {order.status === "Shipped" && (
+                                  <>
+                                    <FaTruck className="text-info" />
+                                    <span>Package is in transit. Est. delivery: 2-3 business days.</span>
+                                  </>
+                                )}
+                                {order.status === "Delivered" && (
+                                  <>
+                                    <FaGift className="text-success" />
+                                    <span>Delivered! We hope you love your new gear.</span>
+                                  </>
+                                )}
                               </span>
                             </div>
                           </div>
@@ -443,17 +459,7 @@ function Orders() {
                               Cancel Order
                             </button>
                           )}
-                          {order.status !== "Cancelled" && (
-                            <button
-                              type="button"
-                              className="btn btn-dark rounded-pill px-4 btn-sm d-inline-flex align-items-center gap-1"
-                              onClick={() => {
-                                toast.info(`Mock Tracking carrier loaded. Package tracking ID: SZ-${order.id}924`);
-                              }}
-                            >
-                              <FaTruckMoving /> Track Shipment
-                            </button>
-                          )}
+
                         </div>
                       </div>
                     </motion.div>

@@ -136,19 +136,21 @@ export default function AdminReviews() {
                         variant={r.is_approved ? "success" : "warning"}
                       />
                     </td>
-                    <td className="text-end admin-btn-group-actions text-nowrap">
-                      {!r.is_approved ? (
-                        <button type="button" className="btn btn-success" onClick={() => approve(r, true)}>
-                          Approve
+                    <td className="text-end text-nowrap">
+                      <div className="admin-btn-group-actions">
+                        {!r.is_approved ? (
+                          <button type="button" className="btn btn-success" onClick={() => approve(r, true)}>
+                            Approve
+                          </button>
+                        ) : (
+                          <button type="button" className="btn btn-outline-warning" onClick={() => approve(r, false)}>
+                            Unapprove
+                          </button>
+                        )}
+                        <button type="button" className="btn btn-outline-danger" onClick={() => del(r.id)}>
+                          Delete
                         </button>
-                      ) : (
-                        <button type="button" className="btn btn-outline-warning" onClick={() => approve(r, false)}>
-                          Unapprove
-                        </button>
-                      )}
-                      <button type="button" className="btn btn-outline-danger" onClick={() => del(r.id)}>
-                        Delete
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

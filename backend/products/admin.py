@@ -22,8 +22,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "brand", "price", "stock", "is_trending", "is_new_arrival", "is_deal_of_the_week")
-    list_filter = ("category", "brand", "is_trending", "is_new_arrival", "is_deal_of_the_week")
+    list_display = ("name", "category", "brand", "price", "stock", "is_trending", "is_best_seller", "is_premium", "is_in_demand", "is_new_arrival", "is_deal_of_the_week")
+    list_filter = ("category", "brand", "is_trending", "is_best_seller", "is_premium", "is_in_demand", "is_new_arrival", "is_deal_of_the_week")
     search_fields = ("name", "description")
     inlines = [ProductImageInline, ProductSizeInline]
 

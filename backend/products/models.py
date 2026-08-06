@@ -58,6 +58,8 @@ class Product(models.Model):
     is_new_arrival = models.BooleanField(default=False)
     is_deal_of_the_week = models.BooleanField(default=False)
     is_best_seller = models.BooleanField(default=False)
+    is_premium = models.BooleanField(default=False)
+    is_in_demand = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

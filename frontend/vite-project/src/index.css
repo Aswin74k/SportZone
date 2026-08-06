@@ -27,6 +27,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: default !important;
+}
+
 h1,
 h2,
 h3,
@@ -87,3 +94,11 @@ h6 {
 .main-content {
   min-height: calc(100vh - 300px);
 }
+
+/* Tailwind CSS canonical flex class aliases */
+.grow {
+  flex-grow: 1 !important;
+}
+.shrink-0 {
+  flex-shrink: 0 !important;
+}

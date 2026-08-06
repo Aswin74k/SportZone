@@ -205,6 +205,12 @@
 }
 
 /* Responsiveness overrides */
+@media (min-width: 768px) {
+  .sz-demand-banner__card-grid .row > *:nth-child(n+6) {
+    display: none !important;
+  }
+}
+
 @media (max-width: 767.98px) {
   .sz-demand-banner {
     padding: 20px;

@@ -47,7 +47,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def paginate_queryset(self, queryset):
-        if "page" not in self.request.query_params:
+        if "page" not in self.request.query_params and "page_size" not in self.request.query_params:
             return None
         return super().paginate_queryset(queryset)
 
@@ -78,6 +78,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         is_new_arrival = self.request.query_params.get("is_new_arrival")
         is_deal_of_the_week = self.request.query_params.get("is_deal_of_the_week")
         is_best_seller = self.request.query_params.get("is_best_seller")
+        is_premium = self.request.query_params.get("is_premium")
+        is_in_demand = self.request.query_params.get("is_in_demand")
         min_price = self.request.query_params.get("min_price")
         max_price = self.request.query_params.get("max_price")
         exclude_banner_featured = self.request.query_params.get("exclude_banner_featured")
@@ -102,6 +104,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             qs = qs.filter(is_deal_of_the_week=is_deal_of_the_week.lower() in ("true", "1", "yes"))
         if is_best_seller:
             qs = qs.filter(is_best_seller=is_best_seller.lower() in ("true", "1", "yes"))
+        if is_premium:
+            qs = qs.filter(is_premium=is_premium.lower() in ("true", "1", "yes"))
+        if is_in_demand:
+            qs = qs.filter(is_in_demand=is_in_demand.lower() in ("true", "1", "yes"))
         if category:
             raw = str(category).strip()
             normalized = raw.lower().replace("-", " ").replace("_", " ")

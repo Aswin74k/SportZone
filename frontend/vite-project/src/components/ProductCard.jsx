@@ -78,6 +78,8 @@ const ProductCard = ({ product, index = 0 }) => {
             src={imageSrc}
             alt={product.name || "Product"}
             className="sz-product-card__img img-fluid"
+            loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.target.src = "/no-image.png";
             }}
@@ -121,4 +123,4 @@ const ProductCard = ({ product, index = 0 }) => {
   );
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);

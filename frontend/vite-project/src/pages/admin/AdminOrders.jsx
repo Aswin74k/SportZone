@@ -348,7 +348,7 @@ export default function AdminOrders() {
                       </div>
 
                       <div className="d-flex gap-2 mb-3">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-muted flex-shrink-0 mt-1">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-muted shrink-0 mt-1">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l9 6 9-6M3 7l9-4 9 4M3 7v10l9 4 9-4V7"></path>
                         </svg>
                         <div className="small text-dark lh-base">
@@ -398,7 +398,7 @@ export default function AdminOrders() {
                           <thead style={{ background: "var(--admin-surface-alt)" }}>
                             <tr>
                               <th
-                                className="ps-3 py-2 border-0 text-muted fw-semibold text-uppercase"
+                                className="ps-2 py-2 border-0 text-muted fw-semibold text-uppercase"
                                 colSpan="2"
                                 style={{ fontSize: "0.68rem", letterSpacing: "0.05em" }}
                               >
@@ -419,19 +419,20 @@ export default function AdminOrders() {
                           </thead>
                           <tbody>
                             {orderItems.map((item) => (
-                              <tr key={item.id} style={{ borderTop: "1px solid var(--admin-border)" }}>
-                                <td className="ps-3 py-2 border-0" style={{ width: "48px" }}>
+                              <tr key={item.id} className="align-middle" style={{ borderTop: "1px solid var(--admin-border)" }}>
+                                <td className="ps-2 py-2 border-0" style={{ width: "72px" }}>
                                   {item.product_image ? (
                                     <img
                                       src={mediaUrl(item.product_image)}
                                       alt={item.product_name}
                                       style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        objectFit: "cover",
-                                        borderRadius: "8px",
+                                        width: "64px",
+                                        height: "64px",
+                                        objectFit: "contain",
+                                        borderRadius: "10px",
                                         border: "1px solid var(--admin-border)",
-                                        backgroundColor: "var(--admin-surface-alt)",
+                                        backgroundColor: "#ffffff",
+                                        padding: "4px",
                                       }}
                                       onError={(e) => {
                                         e.target.style.display = "none";
@@ -441,11 +442,11 @@ export default function AdminOrders() {
                                     <div
                                       className="d-flex align-items-center justify-content-center bg-light text-muted"
                                       style={{
-                                        width: "40px",
-                                        height: "40px",
-                                        borderRadius: "8px",
+                                        width: "64px",
+                                        height: "64px",
+                                        borderRadius: "10px",
                                         border: "1px solid var(--admin-border)",
-                                        fontSize: "0.55rem",
+                                        fontSize: "0.65rem",
                                         fontWeight: "bold",
                                       }}
                                     >

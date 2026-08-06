@@ -204,6 +204,46 @@
   background: rgba(0, 0, 0, 0.15);
 }
 
+.admin-back-to-store-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  text-decoration: none;
+}
+
+.admin-back-to-store-btn:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-back-to-store-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.admin-back-to-store-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 2;
+  display: block;
+}
+
 /* User Profile in Sidebar */
 .admin-sidebar-user {
   display: flex;
@@ -588,6 +628,7 @@
   text-transform: uppercase;
   line-height: 1.4;
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
 .admin-badge--info {
@@ -768,7 +809,9 @@
 
 .admin-btn-group-actions {
   display: inline-flex;
-  gap: 0.4rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
 }
 
 .admin-btn-group-actions .btn {

@@ -19,7 +19,6 @@ export default function Home() {
 
   useEffect(() => {
     let isMounted = true;
-    window.scrollTo(0, 0);
 
     // Fetch Banners
     API.get("banners/")
