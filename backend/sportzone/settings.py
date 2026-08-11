@@ -6,26 +6,20 @@ import dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env
-env_path = os.path.join(BASE_DIR, '.env')
-if os.path.exists(env_path):
-    print(f"[RAZORPAY DEBUG] Loading .env from: {env_path}")
-    dotenv.load_dotenv(env_path, override=True)
-else:
-    fallback_env_path = os.path.join(BASE_DIR.parent, '.env')
-    if os.path.exists(fallback_env_path):
-        print(f"[RAZORPAY DEBUG] Loading fallback .env from: {fallback_env_path}")
-        dotenv.load_dotenv(fallback_env_path, override=True)
-    else:
-        print("[RAZORPAY DEBUG] No .env file found in backend or root directory!")
+dotenv.load_dotenv(BASE_DIR / ".env")
 
 
 
 # SECURITY
-SECRET_KEY = 'your-very-long-random-secret-key-at-least-32-characters'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if host.strip()
+]
 
 
 # APPLICATIONS
@@ -55,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # ⚠️ disable CSRF for API (important for React)
+    #  disable CSRF for API (important for React)
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -67,9 +61,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'sportzone.urls'
 
 
-# =========================
 # TEMPLATES
-# =========================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -92,13 +84,13 @@ WSGI_APPLICATION = 'sportzone.wsgi.application'
 # DATABASE (MySQL)
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sportzone',
-        'USER': 'root',
-        'PASSWORD': 'aswink001',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 
@@ -143,50 +135,39 @@ SIMPLE_JWT = {
 }
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",")
+    if origin.strip()
+]
 
-# optional (extra safe)
-CORS_ALLOW_CREDENTIALS = True
 
-
-# =========================
 # EMAIL SETTINGS (OTP)
-# =========================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'sportzone.support@gmail.com'
-EMAIL_HOST_PASSWORD = 'tmqnmfkytbtkloar'
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-# =========================
 # RAZORPAY SETTINGS
-# =========================
+
 from django.core.exceptions import ImproperlyConfigured
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
-print("=== SERVER STARTUP RAZORPAY DEBUG ===")
-print(f"Loaded KEY ID: {RAZORPAY_KEY_ID}")
-if RAZORPAY_KEY_SECRET:
-    print(f"Loaded SECRET (first 5 chars): {RAZORPAY_KEY_SECRET[:5]}...")
-else:
-    print("Loaded SECRET: None")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("SECRET_KEY environment variable is not set.")
 
-# Verify python-dotenv key ID format (starts with "rzp_test_" or "rzp_live_")
 if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-    print("[RAZORPAY CRITICAL ERROR] Razorpay credentials are missing!")
-    raise ImproperlyConfigured("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set in environment or .env file.")
+    raise ImproperlyConfigured("Razorpay credentials are not configured.")
 
 if not (RAZORPAY_KEY_ID.startswith("rzp_test_") or RAZORPAY_KEY_ID.startswith("rzp_live_")):
-    print(f"[RAZORPAY CRITICAL ERROR] Typo or invalid format in RAZORPAY_KEY_ID: '{RAZORPAY_KEY_ID}'")
     raise ImproperlyConfigured("RAZORPAY_KEY_ID must start with 'rzp_test_' or 'rzp_live_'.")
 
-print("[RAZORPAY DEBUG] Razorpay credentials verified successfully at startup.")
-print("=====================================")
-
-# =========================
 # FRONTEND CONFIG
-# =========================
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")

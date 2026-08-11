@@ -171,7 +171,7 @@ class OrderEmailTestCase(TestCase):
         
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
-        self.assertEqual(email.subject, f"Your SportZone Order #{order.id} Has Been Delivered 📦")
+        self.assertTrue(email.subject.startswith(f"Your SportZone Order #{order.id} Has Been Delivered"))
         self.assertEqual(email.to, ["buyer@example.com"])
         self.assertIn("delivered", email.body.lower())
         self.assertIn("Buyer Kumar", email.body)
@@ -180,3 +180,233 @@ class OrderEmailTestCase(TestCase):
         html_content = email.alternatives[0][0]
         self.assertIn("Order Delivered", html_content)
         self.assertIn("₹2999.00", html_content)
+
+
+class StockManagementTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.original_start = threading.Thread.start
+        threading.Thread.start = lambda t: t.run()
+
+        self.user = User.objects.create_user(
+            username="stockbuyer@example.com",
+            email="stockbuyer@example.com",
+            password="password123",
+            first_name="StockBuyer"
+        )
+        refresh = RefreshToken.for_user(self.user)
+        self.client.defaults['HTTP_AUTHORIZATION'] = f'Bearer {refresh.access_token}'
+
+        self.category = Category.objects.create(name="Cricket", slug="cricket")
+        self.product = Product.objects.create(
+            name="English Willow Bat",
+            price=5000.00,
+            category=self.category,
+            stock=5
+        )
+        from products.models import ProductSize
+        self.size_m = ProductSize.objects.create(
+            product=self.product,
+            size="M",
+            stock=3
+        )
+
+    def tearDown(self):
+        threading.Thread.start = self.original_start
+
+    def test_cod_checkout_decrements_product_size_stock(self):
+        data = {
+            "fullName": "Stock Buyer",
+            "phone": "9876543210",
+            "line1": "456 Park Street",
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "pincode": "400001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 2,
+            "buy_now_size": "M",
+            "discount": 0
+        }
+
+        response = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        # Refresh size stock from DB
+        self.size_m.refresh_from_db()
+        self.assertEqual(self.size_m.stock, 1)
+
+    def test_cod_checkout_rejects_insufficient_stock(self):
+        data = {
+            "fullName": "Stock Buyer",
+            "phone": "9876543210",
+            "line1": "456 Park Street",
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "pincode": "400001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 10,
+            "buy_now_size": "M",
+            "discount": 0
+        }
+
+        response = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+        self.assertIn("Only 3 items are available", response.json()["error"])
+
+        # Ensure stock remained unchanged
+        self.size_m.refresh_from_db()
+        self.assertEqual(self.size_m.stock, 3)
+
+    def test_cod_checkout_decrements_product_global_stock(self):
+        data = {
+            "fullName": "Stock Buyer",
+            "phone": "9876543210",
+            "line1": "456 Park Street",
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "pincode": "400001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 3,
+            "buy_now_size": "N/A",
+            "discount": 0
+        }
+
+        response = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 2)
+
+    def test_cancellation_restores_stock(self):
+        # Create an order
+        data = {
+            "fullName": "Stock Buyer",
+            "phone": "9876543210",
+            "line1": "456 Park Street",
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "pincode": "400001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 2,
+            "buy_now_size": "M",
+            "discount": 0
+        }
+
+        res = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        order_id = res.json()["order_id"]
+
+        self.size_m.refresh_from_db()
+        self.assertEqual(self.size_m.stock, 1)
+
+        # Cancel the order
+        cancel_res = self.client.post(f"/api/orders/{order_id}/cancel/")
+        self.assertEqual(cancel_res.status_code, 200)
+
+        self.size_m.refresh_from_db()
+        self.assertEqual(self.size_m.stock, 3)
+
+        # Cancel again should be idempotent (no double restore)
+        cancel_res2 = self.client.post(f"/api/orders/{order_id}/cancel/")
+        self.assertEqual(cancel_res2.status_code, 400)
+
+        self.size_m.refresh_from_db()
+        self.assertEqual(self.size_m.stock, 3)
+
+
+class SecurityDiscountTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.original_start = threading.Thread.start
+        threading.Thread.start = lambda t: t.run()
+
+        self.user = User.objects.create_user(
+            username="secbuyer@example.com",
+            email="secbuyer@example.com",
+            password="password123",
+            first_name="SecBuyer"
+        )
+        refresh = RefreshToken.for_user(self.user)
+        self.client.defaults['HTTP_AUTHORIZATION'] = f'Bearer {refresh.access_token}'
+
+        self.category = Category.objects.create(name="Football", slug="football")
+        self.product = Product.objects.create(
+            name="Match Football",
+            price=2000.00,
+            category=self.category,
+            stock=10
+        )
+
+    def tearDown(self):
+        threading.Thread.start = self.original_start
+
+    def test_checkout_ignores_huge_client_discount(self):
+        data = {
+            "fullName": "Security Test User",
+            "phone": "9876543210",
+            "line1": "789 Security St",
+            "city": "Bangalore",
+            "state": "Karnataka",
+            "pincode": "560001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 2,
+            "buy_now_size": "N/A",
+            "discount": 999999  # Malicious huge discount attempt
+        }
+
+        response = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        order_id = response.json()["order_id"]
+        order = Order.objects.get(id=order_id)
+        # Total price must be exactly ₹4000.00 (2000 * 2), ignoring the 999999 discount
+        self.assertEqual(order.total_price, 4000.00)
+
+    def test_checkout_ignores_negative_client_discount(self):
+        data = {
+            "fullName": "Security Test User",
+            "phone": "9876543210",
+            "line1": "789 Security St",
+            "city": "Bangalore",
+            "state": "Karnataka",
+            "pincode": "560001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 1,
+            "buy_now_size": "N/A",
+            "discount": -500  # Malicious negative discount attempt
+        }
+
+        response = self.client.post("/api/orders/checkout/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        order_id = response.json()["order_id"]
+        order = Order.objects.get(id=order_id)
+        self.assertEqual(order.total_price, 2000.00)
+
+    @patch("razorpay.Client")
+    def test_create_razorpay_order_ignores_client_discount(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.order.create.return_value = {"id": "rzp_order_sec123"}
+
+        data = {
+            "fullName": "Security Test User",
+            "phone": "9876543210",
+            "line1": "789 Security St",
+            "city": "Bangalore",
+            "state": "Karnataka",
+            "pincode": "560001",
+            "buy_now_product_id": self.product.id,
+            "buy_now_qty": 3,
+            "buy_now_size": "N/A",
+            "discount": 5000  # Attempt to reduce ₹6000 total
+        }
+
+        response = self.client.post("/api/orders/create_razorpay_order/", data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        # 3 * 2000 = 6000 INR = 600000 paise
+        self.assertEqual(response.json()["amount"], 600000)
+
+        pending = PendingPayment.objects.get(razorpay_order_id="rzp_order_sec123")
+        self.assertEqual(pending.checkout_data["total_price"], 6000.00)

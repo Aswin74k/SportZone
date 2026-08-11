@@ -4,7 +4,7 @@ from products.models import Product
 from products.serializers import ProductSerializer
 
 
-# 🔥 CART
+# CART
 class CartSerializer(serializers.ModelSerializer):
     # Return nested product details (name, price, category, image url, etc.)
     product = ProductSerializer(read_only=True)
@@ -33,6 +33,33 @@ class CartSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Quantity must be at least 1")
         return value
 
+    def validate(self, attrs):
+        product = attrs.get("product") or (self.instance.product if self.instance else None)
+        size = attrs.get("size") or (self.instance.size if self.instance else "N/A")
+        quantity = attrs.get("quantity") or (self.instance.quantity if self.instance else 1)
+
+        if product and size:
+            raw_size = str(size).strip()
+            norm_size = raw_size if raw_size.upper() != "N/A" else "N/A"
+
+            if norm_size == "N/A":
+                avail = product.stock
+            else:
+                from products.models import ProductSize
+                size_exists_for_product = ProductSize.objects.filter(product=product).exists()
+                if size_exists_for_product:
+                    ps = ProductSize.objects.filter(product=product, size__iexact=norm_size).first()
+                    avail = ps.stock if ps else 0
+                else:
+                    avail = product.stock
+
+            if quantity > avail:
+                raise serializers.ValidationError(
+                    {"quantity": f"Only {avail} items are available for this product/size."}
+                )
+
+        return attrs
+
     def create(self, validated_data):
         """
         If the same product + size already exists in user's cart, increment quantity
@@ -48,7 +75,27 @@ class CartSerializer(serializers.ModelSerializer):
 
         existing = Cart.objects.filter(user=user, product=product, size=size).first()
         if existing:
-            existing.quantity += quantity
+            total_qty = existing.quantity + quantity
+            raw_size = str(size).strip()
+            norm_size = raw_size if raw_size.upper() != "N/A" else "N/A"
+
+            if norm_size == "N/A":
+                avail = product.stock
+            else:
+                from products.models import ProductSize
+                size_exists_for_product = ProductSize.objects.filter(product=product).exists()
+                if size_exists_for_product:
+                    ps = ProductSize.objects.filter(product=product, size__iexact=norm_size).first()
+                    avail = ps.stock if ps else 0
+                else:
+                    avail = product.stock
+
+            if total_qty > avail:
+                raise serializers.ValidationError(
+                    f"Only {avail} items are available for this product/size."
+                )
+
+            existing.quantity = total_qty
             existing.save()
             return existing
 
@@ -56,7 +103,7 @@ class CartSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-# 🔥 ORDER ITEM (FINAL FIX)
+# ORDER ITEM (FINAL FIX)
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(read_only=True)
     product_price = serializers.DecimalField(
@@ -90,7 +137,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return None
 
 
-# 🔥 ORDER
+# ORDER
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(
         source="orderitem_set",
@@ -138,9 +185,8 @@ class AdminOrderStatusSerializer(serializers.ModelSerializer):
         return value
 
 
-# ---------------------------
 # Wishlist (returns Product-like payload)
-# ---------------------------
+
 class WishlistProductSerializer(serializers.ModelSerializer):
     # Flatten wishlist -> product fields so frontend can reuse ProductCard UI
     id = serializers.IntegerField(source="product.id", read_only=True)

@@ -10,8 +10,15 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 import razorpay
 
+from decimal import Decimal
 from django.db import transaction
 from .models import Cart, Order, OrderItem, Wishlist, PendingPayment
+from .stock_utils import (
+    StockValidationError,
+    validate_and_decrement_stock,
+    check_stock_availability,
+    restore_order_stock,
+)
 from .serializers import (
     AdminOrderSerializer,
     AdminOrderStatusSerializer,
@@ -30,20 +37,20 @@ class AdminPagination(PageNumberPagination):
     max_page_size = 100
 
 
-# 🔥 CART VIEWSET
+# CART VIEWSET
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated, IsNotBlocked]
 
-    # 🔥 Only logged-in user's cart
+    # Only logged-in user's cart
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user,product__category__is_active=True,).select_related(
            "product",
            "product__category",
         )
 
-    # 🔥 Save user automatically
+    # Save user automatically
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -52,21 +59,21 @@ class CartViewSet(viewsets.ModelViewSet):
         return {"request": self.request}
 
 
-# 🔥 ORDER VIEWSET
+# ORDER VIEWSET
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsNotBlocked]
 
-    # 🔥 Only user's orders
+    # Only user's orders
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
-    # 🔥 IMPORTANT (for full image URL)
+    # IMPORTANT (for full image URL)
     def get_serializer_context(self):
         return {"request": self.request}
 
-    # 🔥 CHECKOUT API (COD)
+    # CHECKOUT API (COD)
     @action(detail=False, methods=['post'])
     def checkout(self, request):
         user = request.user
@@ -77,11 +84,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         buy_now_product_id = request.data.get("buy_now_product_id")
         buy_now_size = request.data.get("buy_now_size", "N/A")
         buy_now_qty = request.data.get("buy_now_qty")
-        discount = request.data.get("discount", 0)
-        try:
-            discount = float(discount)
-        except (ValueError, TypeError):
-            discount = 0.0
 
         # Extract address details from request data
         fullName = request.data.get("fullName")
@@ -95,94 +97,119 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not all([fullName, phone, line1, city, pincode]):
             return Response({"error": "Please provide all required shipping details."}, status=400)
 
-        if buy_now_product_id:
-            try:
-                product = Product.objects.get(id=buy_now_product_id, category__is_active=True)
-            except Product.DoesNotExist:
-                return Response({"error": "Product not found"}, status=404)
-            qty = int(buy_now_qty or 1)
-            total = max(0.0, float(product.price * qty) - discount)
+        try:
+            with transaction.atomic():
+                if buy_now_product_id:
+                    try:
+                        product = Product.objects.get(id=buy_now_product_id, category__is_active=True)
+                    except Product.DoesNotExist:
+                        return Response({"error": "Product not found"}, status=404)
+                    qty = int(buy_now_qty or 1)
+                    if qty <= 0:
+                        return Response({"error": "Quantity must be greater than 0."}, status=400)
 
-            # Create local Order for COD
-            order = Order.objects.create(
-                user=user,
-                total_price=total,
-                status="Pending",
-                shipping_name=fullName,
-                shipping_phone=phone,
-                shipping_address=line1,
-                shipping_city=city,
-                shipping_state=state,
-                shipping_pincode=pincode,
-                payment_method="COD",
-                payment_status="Pending"
-            )
+                    items_data = [{
+                        "product_id": product.id,
+                        "product_name": product.name,
+                        "selected_size": buy_now_size,
+                        "quantity": qty,
+                    }]
+                    validate_and_decrement_stock(items_data)
 
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=product.name,
-                quantity=qty,
-                price=product.price,
-                unit_price=product.price,
-                selected_size=buy_now_size,
-            )
-        else:
-            cart_items = Cart.objects.filter(user=user)
-            if not cart_items.exists():
-                return Response({"error": "Cart is empty"}, status=400)
+                    total = Decimal(product.price) * Decimal(qty)
 
-            inactive_items = cart_items.filter(product__category__is_active=False)
+                    # Create local Order for COD
+                    order = Order.objects.create(
+                        user=user,
+                        total_price=total,
+                        status="Pending",
+                        shipping_name=fullName,
+                        shipping_phone=phone,
+                        shipping_address=line1,
+                        shipping_city=city,
+                        shipping_state=state,
+                        shipping_pincode=pincode,
+                        payment_method="COD",
+                        payment_status="Pending"
+                    )
 
-            if inactive_items.exists():
-                return Response(
-                    {
-                        "error": "One or more products in your cart are no longer available."
-                    },
-                    status=400,
-                )
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        product_name=product.name,
+                        quantity=qty,
+                        price=product.price,
+                        unit_price=product.price,
+                        selected_size=buy_now_size,
+                    )
+                else:
+                    cart_items = Cart.objects.filter(user=user)
+                    if not cart_items.exists():
+                        return Response({"error": "Cart is empty"}, status=400)
 
-            # Calculate order total
-            total = sum(item.product.price * item.quantity for item in cart_items)
-            total = max(0.0, float(total) - discount)
+                    inactive_items = cart_items.filter(product__category__is_active=False)
 
-            # Create local Order for COD
-            order = Order.objects.create(
-                user=user,
-                total_price=total,
-                status="Pending",
-                shipping_name=fullName,
-                shipping_phone=phone,
-                shipping_address=line1,
-                shipping_city=city,
-                shipping_state=state,
-                shipping_pincode=pincode,
-                payment_method="COD",
-                payment_status="Pending"
-            )
+                    if inactive_items.exists():
+                        return Response(
+                            {
+                                "error": "One or more products in your cart are no longer available."
+                            },
+                            status=400,
+                        )
 
-            # Create Order Items corresponding to cart contents
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    product_name=item.product.name,
-                    quantity=item.quantity,
-                    price=item.product.price,
-                    unit_price=item.product.price,
-                    selected_size=item.size,
-                )
+                    items_data = [
+                        {
+                            "product_id": item.product.id,
+                            "product_name": item.product.name,
+                            "selected_size": item.size,
+                            "quantity": item.quantity,
+                        }
+                        for item in cart_items
+                    ]
+                    validate_and_decrement_stock(items_data)
 
-            # Clear the user's cart upon successful COD order creation
-            cart_items.delete()
+                    # Calculate order total entirely from trusted server-side product prices
+                    total = sum(item.product.price * item.quantity for item in cart_items)
 
-        # ✅ SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
+                    # Create local Order for COD
+                    order = Order.objects.create(
+                        user=user,
+                        total_price=total,
+                        status="Pending",
+                        shipping_name=fullName,
+                        shipping_phone=phone,
+                        shipping_address=line1,
+                        shipping_city=city,
+                        shipping_state=state,
+                        shipping_pincode=pincode,
+                        payment_method="COD",
+                        payment_status="Pending"
+                    )
+
+                    # Create Order Items corresponding to cart contents
+                    for item in cart_items:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item.product,
+                            product_name=item.product.name,
+                            quantity=item.quantity,
+                            price=item.product.price,
+                            unit_price=item.product.price,
+                            selected_size=item.size,
+                        )
+
+                    # Clear the user's cart upon successful COD order creation
+                    cart_items.delete()
+        except StockValidationError as e:
+            return Response({"error": str(e)}, status=400)
+
+        # SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
         from sportzone.email_utils import send_order_confirmation_email_async
         send_order_confirmation_email_async(order)
 
         return Response({"message": "Order placed successfully", "order_id": order.id})
 
-    # 🔥 CREATE RAZORPAY ORDER API
+    # CREATE RAZORPAY ORDER API
     @action(detail=False, methods=['post'])
     def create_razorpay_order(self, request):
         user = request.user
@@ -193,11 +220,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         buy_now_product_id = request.data.get("buy_now_product_id")
         buy_now_size = request.data.get("buy_now_size", "N/A")
         buy_now_qty = request.data.get("buy_now_qty")
-        discount = request.data.get("discount", 0)
-        try:
-            discount = float(discount)
-        except (ValueError, TypeError):
-            discount = 0.0
 
         # Extract address details from request data
         fullName = request.data.get("fullName")
@@ -221,7 +243,20 @@ class OrderViewSet(viewsets.ModelViewSet):
             except Product.DoesNotExist:
                 return Response({"error": "Product not found"}, status=404)
             qty = int(buy_now_qty or 1)
-            total = max(0.0, float(product.price * qty) - discount)
+            if qty <= 0:
+                return Response({"error": "Quantity must be greater than 0."}, status=400)
+
+            try:
+                check_stock_availability([{
+                    "product_id": product.id,
+                    "product_name": product.name,
+                    "selected_size": buy_now_size,
+                    "quantity": qty,
+                }])
+            except StockValidationError as e:
+                return Response({"error": str(e)}, status=400)
+
+            total = Decimal(product.price) * Decimal(qty)
             amount_paise = int(total * 100)
 
             if amount_paise < 100:
@@ -234,8 +269,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "city": city,
                 "state": state,
                 "pincode": pincode,
-                "discount": discount,
-                "total_price": total,
+                "discount": 0.0,
+                "total_price": float(total),
                 "is_buy_now": True,
                 "buy_now_product_id": buy_now_product_id,
                 "buy_now_qty": qty,
@@ -256,9 +291,21 @@ class OrderViewSet(viewsets.ModelViewSet):
                     status=400,
                 )
 
-            # Calculate total price
+            try:
+                check_stock_availability([
+                    {
+                        "product_id": item.product.id,
+                        "product_name": item.product.name,
+                        "selected_size": item.size,
+                        "quantity": item.quantity,
+                    }
+                    for item in cart_items
+                ])
+            except StockValidationError as e:
+                return Response({"error": str(e)}, status=400)
+
+            # Calculate total price entirely from trusted server-side product prices
             total = sum(item.product.price * item.quantity for item in cart_items)
-            total = max(0.0, float(total) - discount)
             amount_paise = int(total * 100)  # Razorpay accepts amount in paise (1 INR = 100 paise)
 
             if amount_paise < 100:
@@ -271,8 +318,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "city": city,
                 "state": state,
                 "pincode": pincode,
-                "discount": discount,
-                "total_price": total,
+                "discount": 0.0,
+                "total_price": float(total),
                 "is_buy_now": False,
                 "cart_items": [
                     {
@@ -297,15 +344,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             key_id = getattr(settings, 'RAZORPAY_KEY_ID', None)
             key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', None)
 
-            # Temporary Debug Logging
-            logger.info("=== Razorpay Order Creation Debug ===")
-            logger.info(f"Loaded Key ID: {key_id}")
+            # Safe Debug Logging (no credentials exposed)
             secret_exists = bool(key_secret)
-            secret_len = len(key_secret) if key_secret else 0
-            logger.info(f"Whether Secret exists: {secret_exists} (Length: {secret_len})")
-            if secret_exists and secret_len >= 8:
-                logger.info(f"Secret Preview: {key_secret[:4]}...{key_secret[-4:]}")
-            logger.info("======================================")
 
             # Check if credentials exist and are valid format
             if not key_id or not key_secret:
@@ -373,7 +413,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 status=500
             )
 
-    # 🔥 VERIFY RAZORPAY PAYMENT API
+    # VERIFY RAZORPAY PAYMENT API
     @action(detail=False, methods=['post'])
     def verify_payment(self, request):
         razorpay_order_id = request.data.get("razorpay_order_id")
@@ -406,15 +446,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             key_id = getattr(settings, 'RAZORPAY_KEY_ID', None)
             key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', None)
 
-            # Temporary Debug Logging
-            logger.info("=== Razorpay Payment Verification Debug ===")
-            logger.info(f"Loaded Key ID: {key_id}")
+            # Safe Debug Logging (no credentials exposed)
             secret_exists = bool(key_secret)
-            secret_len = len(key_secret) if key_secret else 0
-            logger.info(f"Whether Secret exists: {secret_exists} (Length: {secret_len})")
-            if secret_exists and secret_len >= 8:
-                logger.info(f"Secret Preview: {key_secret[:4]}...{key_secret[-4:]}")
-            logger.info("==========================================")
 
             # Check if credentials exist and are valid format
             if not key_id or not key_secret:
@@ -445,63 +478,109 @@ class OrderViewSet(viewsets.ModelViewSet):
             is_buy_now = checkout_data.get("is_buy_now", False)
             total = checkout_data.get("total_price")
 
-            with transaction.atomic():
-                order = Order.objects.create(
-                    user=pending_payment.user,
-                    total_price=total,
-                    status="Pending",
-                    shipping_name=checkout_data.get("fullName"),
-                    shipping_phone=checkout_data.get("phone"),
-                    shipping_address=checkout_data.get("line1"),
-                    shipping_city=checkout_data.get("city"),
-                    shipping_state=checkout_data.get("state"),
-                    shipping_pincode=checkout_data.get("pincode"),
-                    payment_method="Razorpay",
-                    payment_status="Paid",
-                    razorpay_order_id=razorpay_order_id,
-                    razorpay_payment_id=razorpay_payment_id,
-                    razorpay_signature=razorpay_signature,
-                )
+            try:
+                with transaction.atomic():
+                    if is_buy_now:
+                        product_id = checkout_data.get("buy_now_product_id")
+                        try:
+                            product = Product.objects.get(
+                                id=product_id,
+                                category__is_active=True,
+                            )
+                        except Product.DoesNotExist:
+                            return Response({"error": "Product not found"}, status=404)
 
-                if is_buy_now:
-                    product_id = checkout_data.get("buy_now_product_id")
-                    product = Product.objects.get(
-                        id=product_id,
-                        category__is_active=True,
-                    )
-                    qty = int(checkout_data.get("buy_now_qty") or 1)
-                    OrderItem.objects.create(
-                        order=order,
-                        product=product,
-                        product_name=product.name,
-                        quantity=qty,
-                        price=product.price,
-                        unit_price=product.price,
-                        selected_size=checkout_data.get("buy_now_size", "N/A"),
-                    )
-                else:
-                    for item_data in checkout_data.get("cart_items", []):
-                        product = Product.objects.get(
-                            id=item_data["product_id"],
-                            category__is_active=True,
+                        qty = int(checkout_data.get("buy_now_qty") or 1)
+                        size = checkout_data.get("buy_now_size", "N/A")
+
+                        items_data = [{
+                            "product_id": product.id,
+                            "product_name": product.name,
+                            "selected_size": size,
+                            "quantity": qty,
+                        }]
+                        validate_and_decrement_stock(items_data)
+
+                        order = Order.objects.create(
+                            user=pending_payment.user,
+                            total_price=total,
+                            status="Pending",
+                            shipping_name=checkout_data.get("fullName"),
+                            shipping_phone=checkout_data.get("phone"),
+                            shipping_address=checkout_data.get("line1"),
+                            shipping_city=checkout_data.get("city"),
+                            shipping_state=checkout_data.get("state"),
+                            shipping_pincode=checkout_data.get("pincode"),
+                            payment_method="Razorpay",
+                            payment_status="Paid",
+                            razorpay_order_id=razorpay_order_id,
+                            razorpay_payment_id=razorpay_payment_id,
+                            razorpay_signature=razorpay_signature,
                         )
+
                         OrderItem.objects.create(
                             order=order,
                             product=product,
-                            product_name=item_data["product_name"],
-                            quantity=item_data["quantity"],
-                            price=item_data["price"],
-                            unit_price=item_data["unit_price"],
-                            selected_size=item_data["selected_size"],
+                            product_name=product.name,
+                            quantity=qty,
+                            price=product.price,
+                            unit_price=product.price,
+                            selected_size=size,
+                        )
+                    else:
+                        cart_items_data = checkout_data.get("cart_items", [])
+                        items_data = [
+                            {
+                                "product_id": item_data["product_id"],
+                                "product_name": item_data["product_name"],
+                                "selected_size": item_data["selected_size"],
+                                "quantity": item_data["quantity"],
+                            }
+                            for item_data in cart_items_data
+                        ]
+                        validate_and_decrement_stock(items_data)
+
+                        order = Order.objects.create(
+                            user=pending_payment.user,
+                            total_price=total,
+                            status="Pending",
+                            shipping_name=checkout_data.get("fullName"),
+                            shipping_phone=checkout_data.get("phone"),
+                            shipping_address=checkout_data.get("line1"),
+                            shipping_city=checkout_data.get("city"),
+                            shipping_state=checkout_data.get("state"),
+                            shipping_pincode=checkout_data.get("pincode"),
+                            payment_method="Razorpay",
+                            payment_status="Paid",
+                            razorpay_order_id=razorpay_order_id,
+                            razorpay_payment_id=razorpay_payment_id,
+                            razorpay_signature=razorpay_signature,
                         )
 
-                    # Empty the user's cart
-                    Cart.objects.filter(user=pending_payment.user).delete()
+                        for item_data in cart_items_data:
+                            product = Product.objects.get(
+                                id=item_data["product_id"],
+                                category__is_active=True,
+                            )
+                            OrderItem.objects.create(
+                                order=order,
+                                product=product,
+                                product_name=item_data["product_name"],
+                                quantity=item_data["quantity"],
+                                price=item_data["price"],
+                                unit_price=item_data["unit_price"],
+                                selected_size=item_data["selected_size"],
+                            )
 
-                # Clean up the temporary pending payment session
-                pending_payment.delete()
+                        # Empty the user's cart
+                        Cart.objects.filter(user=pending_payment.user).delete()
 
-            # ✅ SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
+                    # Clean up the temporary pending payment session
+                    pending_payment.delete()
+            except StockValidationError as e:
+                return Response({"error": str(e)}, status=400)
+
+            # SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
             from sportzone.email_utils import send_order_confirmation_email_async
             send_order_confirmation_email_async(order)
 
@@ -536,7 +615,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             logger.error("==========================================")
             return Response({"error": f"An unexpected error occurred during verification: {str(e)}"}, status=400)
 
-    # 🔥 CANCEL ORDER
+    # CANCEL ORDER
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
         order = self.get_object()
@@ -547,8 +626,15 @@ class OrderViewSet(viewsets.ModelViewSet):
                 status=400
             )
 
-        order.status = "Cancelled"
-        order.save()
+        with transaction.atomic():
+            locked_order = Order.objects.select_for_update().get(pk=order.pk)
+            if locked_order.status != "Pending":
+                return Response(
+                    {"error": "Cannot cancel this order"},
+                    status=400
+                )
+            locked_order.status = "Cancelled"
+            locked_order.save()
 
         return Response({"message": "Order cancelled successfully"})
 
@@ -630,27 +716,3 @@ def wishlist_list(request):
     # DELETE
     Wishlist.objects.filter(user=request.user, product=product).delete()
     return Response({"message": "Removed from wishlist"})
-
-
-# 🔥 TEMPORARY DEBUG RAZORPAY ENDPOINT
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def debug_razorpay(request):
-    key_id = getattr(settings, 'RAZORPAY_KEY_ID', None)
-    key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', None)
-
-    key_id_exists = bool(key_id)
-    key_secret_exists = bool(key_secret)
-
-    is_valid_format = False
-    if key_id:
-        is_valid_format = key_id.startswith("rzp_test_") or key_id.startswith("rzp_live_")
-
-    return Response({
-        "key_id_exists": key_id_exists,
-        "key_secret_exists": key_secret_exists,
-        "key_id_value": key_id,
-        "is_valid_format": is_valid_format,
-        "secret_length": len(key_secret) if key_secret else 0,
-        "secret_preview": f"{key_secret[:5]}..." if key_secret and len(key_secret) >= 5 else None
-    })

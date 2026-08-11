@@ -49,16 +49,25 @@ class Order(models.Model):
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=250, blank=True, null=True)
 
+    is_stock_restored = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
 
+    def restore_stock(self):
+        from .stock_utils import restore_order_stock
+        restore_order_stock(self)
+
     def save(self, *args, **kwargs):
         is_delivered_now = False
+        is_cancelled_now = False
         if self.pk:
             try:
                 old_order = Order.objects.get(pk=self.pk)
                 if old_order.status != "Delivered" and self.status == "Delivered":
                     is_delivered_now = True
+                if old_order.status != "Cancelled" and self.status == "Cancelled" and not self.is_stock_restored:
+                    is_cancelled_now = True
                 if old_order.payment_status != "Paid" and self.payment_status == "Paid" and not self.payment_completed_at:
                     from django.utils import timezone
                     self.payment_completed_at = timezone.now()
@@ -74,6 +83,9 @@ class Order(models.Model):
         if is_delivered_now:
             from sportzone.email_utils import send_order_delivered_email_async
             send_order_delivered_email_async(self)
+
+        if is_cancelled_now:
+            self.restore_stock()
 
 
 
