@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+from django.test import TestCase, TransactionTestCase, Client
 from django.contrib.auth.models import User
 from django.core import mail
 from unittest.mock import patch, MagicMock
@@ -410,3 +410,264 @@ class SecurityDiscountTestCase(TestCase):
 
         pending = PendingPayment.objects.get(razorpay_order_id="rzp_order_sec123")
         self.assertEqual(pending.checkout_data["total_price"], 6000.00)
+
+
+class RazorpayConcurrencyAndSafetyTestCase(TransactionTestCase):
+    def setUp(self):
+        self.client = Client()
+        self.original_start = threading.Thread.start
+        threading.Thread.start = lambda t: t.run()
+
+        self.user = User.objects.create_user(
+            username="razoruser@example.com",
+            email="razoruser@example.com",
+            password="password123",
+            first_name="RazorUser"
+        )
+        refresh = RefreshToken.for_user(self.user)
+        self.client.defaults['HTTP_AUTHORIZATION'] = f'Bearer {refresh.access_token}'
+
+        self.category = Category.objects.create(name="Badminton", slug="badminton")
+        self.product = Product.objects.create(
+            name="Badminton Racket",
+            price=1500.00,
+            category=self.category,
+            stock=10
+        )
+
+    def tearDown(self):
+        threading.Thread.start = self.original_start
+
+    @patch("razorpay.Client")
+    def test_normal_payment_verification_creates_exactly_one_order(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.utility.verify_payment_signature.return_value = True
+
+        PendingPayment.objects.create(
+            user=self.user,
+            razorpay_order_id="rzp_order_norm_1",
+            checkout_data={
+                "fullName": "Normal User",
+                "phone": "9876543210",
+                "line1": "123 Street",
+                "city": "City",
+                "state": "State",
+                "pincode": "600001",
+                "discount": 0.0,
+                "total_price": 1500.00,
+                "is_buy_now": True,
+                "buy_now_product_id": self.product.id,
+                "buy_now_qty": 1,
+                "buy_now_size": "N/A"
+            }
+        )
+
+        data = {
+            "razorpay_order_id": "rzp_order_norm_1",
+            "razorpay_payment_id": "pay_norm_1",
+            "razorpay_signature": "sig_norm_1"
+        }
+
+        res = self.client.post("/api/orders/verify_payment/", data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+
+        # Check exactly one order was created
+        orders = Order.objects.filter(razorpay_order_id="rzp_order_norm_1")
+        self.assertEqual(orders.count(), 1)
+
+        # Check PendingPayment was deleted
+        self.assertFalse(PendingPayment.objects.filter(razorpay_order_id="rzp_order_norm_1").exists())
+
+    @patch("razorpay.Client")
+    def test_idempotent_retry_does_not_create_another_order(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.utility.verify_payment_signature.return_value = True
+
+        # Pre-create an Order
+        existing_order = Order.objects.create(
+            user=self.user,
+            total_price=1500.00,
+            status="Pending",
+            payment_method="Razorpay",
+            payment_status="Paid",
+            razorpay_order_id="rzp_order_retry_1",
+            razorpay_payment_id="pay_retry_1",
+            razorpay_signature="sig_retry_1"
+        )
+
+        data = {
+            "razorpay_order_id": "rzp_order_retry_1",
+            "razorpay_payment_id": "pay_retry_1",
+            "razorpay_signature": "sig_retry_1"
+        }
+
+        res = self.client.post("/api/orders/verify_payment/", data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["order_id"], existing_order.id)
+        self.assertEqual(Order.objects.filter(razorpay_order_id="rzp_order_retry_1").count(), 1)
+
+    def test_order_razorpay_order_id_uniqueness_constraint(self):
+        from django.db import IntegrityError
+
+        Order.objects.create(
+            user=self.user,
+            total_price=1500.00,
+            status="Pending",
+            payment_method="Razorpay",
+            payment_status="Paid",
+            razorpay_order_id="rzp_order_unique_test"
+        )
+
+        with self.assertRaises(IntegrityError):
+            Order.objects.create(
+                user=self.user,
+                total_price=1500.00,
+                status="Pending",
+                payment_method="Razorpay",
+                payment_status="Paid",
+                razorpay_order_id="rzp_order_unique_test"
+            )
+
+    @patch("razorpay.Client")
+    def test_pending_payment_removed_only_after_successful_order_creation(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.utility.verify_payment_signature.return_value = True
+
+        PendingPayment.objects.create(
+            user=self.user,
+            razorpay_order_id="rzp_order_cleanup_1",
+            checkout_data={
+                "fullName": "Test User",
+                "phone": "9876543210",
+                "line1": "123 Street",
+                "city": "City",
+                "state": "State",
+                "pincode": "600001",
+                "discount": 0.0,
+                "total_price": 1500.00,
+                "is_buy_now": True,
+                "buy_now_product_id": self.product.id,
+                "buy_now_qty": 1,
+                "buy_now_size": "N/A"
+            }
+        )
+
+        self.assertTrue(PendingPayment.objects.filter(razorpay_order_id="rzp_order_cleanup_1").exists())
+
+        data = {
+            "razorpay_order_id": "rzp_order_cleanup_1",
+            "razorpay_payment_id": "pay_cleanup_1",
+            "razorpay_signature": "sig_cleanup_1"
+        }
+
+        res = self.client.post("/api/orders/verify_payment/", data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(PendingPayment.objects.filter(razorpay_order_id="rzp_order_cleanup_1").exists())
+
+    @patch("razorpay.Client")
+    def test_transaction_rollback_preserves_pending_payment_on_order_failure(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.utility.verify_payment_signature.return_value = True
+
+        # PendingPayment with quantity 999 exceeding product stock (10)
+        PendingPayment.objects.create(
+            user=self.user,
+            razorpay_order_id="rzp_order_fail_1",
+            checkout_data={
+                "fullName": "Test User",
+                "phone": "9876543210",
+                "line1": "123 Street",
+                "city": "City",
+                "state": "State",
+                "pincode": "600001",
+                "discount": 0.0,
+                "total_price": 1500.00,
+                "is_buy_now": True,
+                "buy_now_product_id": self.product.id,
+                "buy_now_qty": 999,  # Insufficient stock
+                "buy_now_size": "N/A"
+            }
+        )
+
+        data = {
+            "razorpay_order_id": "rzp_order_fail_1",
+            "razorpay_payment_id": "pay_fail_1",
+            "razorpay_signature": "sig_fail_1"
+        }
+
+        res = self.client.post("/api/orders/verify_payment/", data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("error", res.json())
+
+        # Assert no Order was created
+        self.assertFalse(Order.objects.filter(razorpay_order_id="rzp_order_fail_1").exists())
+
+        # Assert PendingPayment was NOT lost/deleted due to atomic rollback
+        self.assertTrue(PendingPayment.objects.filter(razorpay_order_id="rzp_order_fail_1").exists())
+
+    @patch("razorpay.Client")
+    def test_concurrent_verify_payment_requests(self, mock_razorpay_client):
+        mock_client_instance = MagicMock()
+        mock_razorpay_client.return_value = mock_client_instance
+        mock_client_instance.utility.verify_payment_signature.return_value = True
+
+        PendingPayment.objects.create(
+            user=self.user,
+            razorpay_order_id="rzp_order_concurrent_1",
+            checkout_data={
+                "fullName": "Concurrent User",
+                "phone": "9876543210",
+                "line1": "123 Street",
+                "city": "City",
+                "state": "State",
+                "pincode": "600001",
+                "discount": 0.0,
+                "total_price": 1500.00,
+                "is_buy_now": True,
+                "buy_now_product_id": self.product.id,
+                "buy_now_qty": 1,
+                "buy_now_size": "N/A"
+            }
+        )
+
+        data = {
+            "razorpay_order_id": "rzp_order_concurrent_1",
+            "razorpay_payment_id": "pay_concurrent_1",
+            "razorpay_signature": "sig_concurrent_1"
+        }
+
+        results = []
+
+        def worker():
+            from django.db import connection
+            connection.close()  # ensure clean connection for thread
+            client = Client()
+            refresh = RefreshToken.for_user(self.user)
+            client.defaults['HTTP_AUTHORIZATION'] = f'Bearer {refresh.access_token}'
+            response = client.post("/api/orders/verify_payment/", data=data, content_type="application/json")
+            results.append(response)
+
+        # Restore original thread start for this test
+        threading.Thread.start = self.original_start
+        t1 = threading.Thread(target=worker)
+        t2 = threading.Thread(target=worker)
+
+        t1.start()
+        t2.start()
+
+        t1.join()
+        t2.join()
+
+        # Both requests should return 200 OK
+        self.assertEqual(len(results), 2)
+        for res in results:
+            self.assertEqual(res.status_code, 200)
+
+        # Exactly 1 Order must be created
+        orders = Order.objects.filter(razorpay_order_id="rzp_order_concurrent_1")
+        self.assertEqual(orders.count(), 1)
+

@@ -423,21 +423,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature]):
             return Response({"error": "Payment verification details are missing."}, status=400)
 
-        # Retrieve the pending payment session
-        try:
-            pending_payment = PendingPayment.objects.get(razorpay_order_id=razorpay_order_id)
-        except PendingPayment.DoesNotExist:
-            # Check if order was already created (e.g. from an idempotent retry or webhook)
-            try:
-                order = Order.objects.get(razorpay_order_id=razorpay_order_id)
-                return Response({
-                    "message": "Payment verified and order placed successfully.",
-                    "order_id": order.id
-                })
-            except Order.DoesNotExist:
-                return Response({"error": "Corresponding checkout session was not found in the system."}, status=404)
-
-        # Verify payment signature securely
+        # Verify payment signature securely (outside DB lock)
         try:
             import logging
             import traceback
@@ -445,9 +431,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             key_id = getattr(settings, 'RAZORPAY_KEY_ID', None)
             key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', None)
-
-            # Safe Debug Logging (no credentials exposed)
-            secret_exists = bool(key_secret)
 
             # Check if credentials exist and are valid format
             if not key_id or not key_secret:
@@ -472,122 +455,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             logger.info(f"Verifying payment signature with params: {params_dict}")
             client.utility.verify_payment_signature(params_dict)
             logger.info("Payment signature verified successfully.")
-
-            # Create order from stored checkout data and clean up cart/pending payment atomically
-            checkout_data = pending_payment.checkout_data
-            is_buy_now = checkout_data.get("is_buy_now", False)
-            total = checkout_data.get("total_price")
-
-            try:
-                with transaction.atomic():
-                    if is_buy_now:
-                        product_id = checkout_data.get("buy_now_product_id")
-                        try:
-                            product = Product.objects.get(
-                                id=product_id,
-                                category__is_active=True,
-                            )
-                        except Product.DoesNotExist:
-                            return Response({"error": "Product not found"}, status=404)
-
-                        qty = int(checkout_data.get("buy_now_qty") or 1)
-                        size = checkout_data.get("buy_now_size", "N/A")
-
-                        items_data = [{
-                            "product_id": product.id,
-                            "product_name": product.name,
-                            "selected_size": size,
-                            "quantity": qty,
-                        }]
-                        validate_and_decrement_stock(items_data)
-
-                        order = Order.objects.create(
-                            user=pending_payment.user,
-                            total_price=total,
-                            status="Pending",
-                            shipping_name=checkout_data.get("fullName"),
-                            shipping_phone=checkout_data.get("phone"),
-                            shipping_address=checkout_data.get("line1"),
-                            shipping_city=checkout_data.get("city"),
-                            shipping_state=checkout_data.get("state"),
-                            shipping_pincode=checkout_data.get("pincode"),
-                            payment_method="Razorpay",
-                            payment_status="Paid",
-                            razorpay_order_id=razorpay_order_id,
-                            razorpay_payment_id=razorpay_payment_id,
-                            razorpay_signature=razorpay_signature,
-                        )
-
-                        OrderItem.objects.create(
-                            order=order,
-                            product=product,
-                            product_name=product.name,
-                            quantity=qty,
-                            price=product.price,
-                            unit_price=product.price,
-                            selected_size=size,
-                        )
-                    else:
-                        cart_items_data = checkout_data.get("cart_items", [])
-                        items_data = [
-                            {
-                                "product_id": item_data["product_id"],
-                                "product_name": item_data["product_name"],
-                                "selected_size": item_data["selected_size"],
-                                "quantity": item_data["quantity"],
-                            }
-                            for item_data in cart_items_data
-                        ]
-                        validate_and_decrement_stock(items_data)
-
-                        order = Order.objects.create(
-                            user=pending_payment.user,
-                            total_price=total,
-                            status="Pending",
-                            shipping_name=checkout_data.get("fullName"),
-                            shipping_phone=checkout_data.get("phone"),
-                            shipping_address=checkout_data.get("line1"),
-                            shipping_city=checkout_data.get("city"),
-                            shipping_state=checkout_data.get("state"),
-                            shipping_pincode=checkout_data.get("pincode"),
-                            payment_method="Razorpay",
-                            payment_status="Paid",
-                            razorpay_order_id=razorpay_order_id,
-                            razorpay_payment_id=razorpay_payment_id,
-                            razorpay_signature=razorpay_signature,
-                        )
-
-                        for item_data in cart_items_data:
-                            product = Product.objects.get(
-                                id=item_data["product_id"],
-                                category__is_active=True,
-                            )
-                            OrderItem.objects.create(
-                                order=order,
-                                product=product,
-                                product_name=item_data["product_name"],
-                                quantity=item_data["quantity"],
-                                price=item_data["price"],
-                                unit_price=item_data["unit_price"],
-                                selected_size=item_data["selected_size"],
-                            )
-
-                        # Empty the user's cart
-                        Cart.objects.filter(user=pending_payment.user).delete()
-
-                    # Clean up the temporary pending payment session
-                    pending_payment.delete()
-            except StockValidationError as e:
-                return Response({"error": str(e)}, status=400)
-
-            # SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
-            from sportzone.email_utils import send_order_confirmation_email_async
-            send_order_confirmation_email_async(order)
-
-            return Response({
-                "message": "Payment verified and order placed successfully.",
-                "order_id": order.id
-            })
         except razorpay.errors.SignatureVerificationError as e:
             logger.error("=== Razorpay Signature Verification Error ===")
             logger.error(f"Error Message: {str(e)}")
@@ -614,6 +481,134 @@ class OrderViewSet(viewsets.ModelViewSet):
             logger.error(traceback.format_exc())
             logger.error("==========================================")
             return Response({"error": f"An unexpected error occurred during verification: {str(e)}"}, status=400)
+
+        # Create order from stored checkout data and clean up cart/pending payment atomically with row locking
+        try:
+            with transaction.atomic():
+                try:
+                    pending_payment = PendingPayment.objects.select_for_update().get(razorpay_order_id=razorpay_order_id)
+                except PendingPayment.DoesNotExist:
+                    # Check if order was already created (e.g. from an idempotent retry or concurrent request that completed first)
+                    order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
+                    if order:
+                        return Response({
+                            "message": "Payment verified and order placed successfully.",
+                            "order_id": order.id
+                        })
+                    return Response({"error": "Corresponding checkout session was not found in the system."}, status=404)
+
+                checkout_data = pending_payment.checkout_data
+                is_buy_now = checkout_data.get("is_buy_now", False)
+                total = checkout_data.get("total_price")
+
+                if is_buy_now:
+                    product_id = checkout_data.get("buy_now_product_id")
+                    try:
+                        product = Product.objects.get(
+                            id=product_id,
+                            category__is_active=True,
+                        )
+                    except Product.DoesNotExist:
+                        return Response({"error": "Product not found"}, status=404)
+
+                    qty = int(checkout_data.get("buy_now_qty") or 1)
+                    size = checkout_data.get("buy_now_size", "N/A")
+
+                    items_data = [{
+                        "product_id": product.id,
+                        "product_name": product.name,
+                        "selected_size": size,
+                        "quantity": qty,
+                    }]
+                    validate_and_decrement_stock(items_data)
+
+                    order = Order.objects.create(
+                        user=pending_payment.user,
+                        total_price=total,
+                        status="Pending",
+                        shipping_name=checkout_data.get("fullName"),
+                        shipping_phone=checkout_data.get("phone"),
+                        shipping_address=checkout_data.get("line1"),
+                        shipping_city=checkout_data.get("city"),
+                        shipping_state=checkout_data.get("state"),
+                        shipping_pincode=checkout_data.get("pincode"),
+                        payment_method="Razorpay",
+                        payment_status="Paid",
+                        razorpay_order_id=razorpay_order_id,
+                        razorpay_payment_id=razorpay_payment_id,
+                        razorpay_signature=razorpay_signature,
+                    )
+
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        product_name=product.name,
+                        quantity=qty,
+                        price=product.price,
+                        unit_price=product.price,
+                        selected_size=size,
+                    )
+                else:
+                    cart_items_data = checkout_data.get("cart_items", [])
+                    items_data = [
+                        {
+                            "product_id": item_data["product_id"],
+                            "product_name": item_data["product_name"],
+                            "selected_size": item_data["selected_size"],
+                            "quantity": item_data["quantity"],
+                        }
+                        for item_data in cart_items_data
+                    ]
+                    validate_and_decrement_stock(items_data)
+
+                    order = Order.objects.create(
+                        user=pending_payment.user,
+                        total_price=total,
+                        status="Pending",
+                        shipping_name=checkout_data.get("fullName"),
+                        shipping_phone=checkout_data.get("phone"),
+                        shipping_address=checkout_data.get("line1"),
+                        shipping_city=checkout_data.get("city"),
+                        shipping_state=checkout_data.get("state"),
+                        shipping_pincode=checkout_data.get("pincode"),
+                        payment_method="Razorpay",
+                        payment_status="Paid",
+                        razorpay_order_id=razorpay_order_id,
+                        razorpay_payment_id=razorpay_payment_id,
+                        razorpay_signature=razorpay_signature,
+                    )
+
+                    for item_data in cart_items_data:
+                        product = Product.objects.get(
+                            id=item_data["product_id"],
+                            category__is_active=True,
+                        )
+                        OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            product_name=item_data["product_name"],
+                            quantity=item_data["quantity"],
+                            price=item_data["price"],
+                            unit_price=item_data["unit_price"],
+                            selected_size=item_data["selected_size"],
+                        )
+
+                    # Empty the user's cart
+                    Cart.objects.filter(user=pending_payment.user).delete()
+
+                # Clean up the temporary pending payment session
+                pending_payment.delete()
+        except StockValidationError as e:
+            return Response({"error": str(e)}, status=400)
+
+        # SEND ORDER CONFIRMATION EMAIL ASYNCHRONOUSLY
+        from sportzone.email_utils import send_order_confirmation_email_async
+        send_order_confirmation_email_async(order)
+
+        return Response({
+            "message": "Payment verified and order placed successfully.",
+            "order_id": order.id
+        })
 
     # CANCEL ORDER
     @action(detail=True, methods=['post'])
@@ -716,3 +711,5 @@ def wishlist_list(request):
     # DELETE
     Wishlist.objects.filter(user=request.user, product=product).delete()
     return Response({"message": "Removed from wishlist"})
+
+

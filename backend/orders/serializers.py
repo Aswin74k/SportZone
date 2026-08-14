@@ -179,10 +179,22 @@ class AdminOrderStatusSerializer(serializers.ModelSerializer):
         fields = ["status"]
 
     def validate_status(self, value):
-        allowed = {"Pending", "Shipped", "Delivered", "Cancelled"}
-        if value not in allowed:
-            raise serializers.ValidationError(f"Status must be one of: {', '.join(sorted(allowed))}")
-        return value
+        allowed = {
+            "Pending": {"Shipped", "Cancelled"},
+            "Shipped": {"Delivered"},
+            "Delivered": set(),
+            "Cancelled": set(),
+        }
+
+        current_status = self.instance.status
+        if value not in allowed.get(current_status, set()):
+            raise serializers.ValidationError(
+                f"Cannot change order status from "
+                f"{current_status} to {value}."
+            )
+
+        return value   
+
 
 
 # Wishlist (returns Product-like payload)
