@@ -25,8 +25,6 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaCheck,
-  FaRunning,
-  FaFlagCheckered,
 } from "react-icons/fa";
 import "./Orders.css";
 
@@ -144,27 +142,18 @@ function OrderTimeline({ status }) {
 
   const currentStep = STATUS_META[status]?.step || 1;
   const fillPercent = ((currentStep - 1) / (TRACK_STEPS.length - 1)) * 100;
-  const isDelivered = status === "Delivered";
 
   return (
     <div className="timeline">
       <div className="timeline-track">
         <div className="timeline-fill" style={{ width: `${fillPercent}%` }} />
-        {!isDelivered && (
-          <span className="timeline-runner" style={{ left: `${fillPercent}%` }} aria-hidden="true">
-            <FaRunning />
-          </span>
-        )}
       </div>
       <div className="timeline-steps">
         {TRACK_STEPS.map((step, idx) => {
           const done = currentStep >= idx + 1;
-          const isFinish = idx === TRACK_STEPS.length - 1;
           return (
             <div key={step.key} className={`timeline-step ${done ? "done" : ""}`}>
-              <span className="timeline-dot">
-                {isFinish ? <FaFlagCheckered /> : done ? <FaCheck /> : null}
-              </span>
+              <span className="timeline-dot">{done && <FaCheck />}</span>
               <span className="timeline-label">{step.label}</span>
             </div>
           );
