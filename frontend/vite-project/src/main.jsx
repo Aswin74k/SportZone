@@ -4,7 +4,7 @@ import App from "./App.jsx";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext.jsx";
 
-// 🔥 Bootstrap CSS + JS
+//  Bootstrap CSS + JS
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
