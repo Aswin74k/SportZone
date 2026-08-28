@@ -486,16 +486,32 @@ class OrderViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 try:
-                    pending_payment = PendingPayment.objects.select_for_update().get(razorpay_order_id=razorpay_order_id)
+                    pending_payment = PendingPayment.objects.select_for_update().get(
+                        razorpay_order_id=razorpay_order_id
+                    )
                 except PendingPayment.DoesNotExist:
                     # Check if order was already created (e.g. from an idempotent retry or concurrent request that completed first)
-                    order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
+                    order = Order.objects.filter(
+                        razorpay_order_id=razorpay_order_id
+                    ).first()
+
                     if order:
                         return Response({
                             "message": "Payment verified and order placed successfully.",
                             "order_id": order.id
                         })
-                    return Response({"error": "Corresponding checkout session was not found in the system."}, status=404)
+
+                    return Response(
+                        {"error": "Corresponding checkout session was not found in the system."},
+                        status=404
+                    )
+
+                # Verify that this payment belongs to the logged-in user
+                if pending_payment.user != request.user:
+                    return Response(
+                        {"error": "You are not authorized to verify this payment."},
+                        status=403
+                    )
 
                 checkout_data = pending_payment.checkout_data
                 is_buy_now = checkout_data.get("is_buy_now", False)
@@ -711,5 +727,3 @@ def wishlist_list(request):
     # DELETE
     Wishlist.objects.filter(user=request.user, product=product).delete()
     return Response({"message": "Removed from wishlist"})
-
-

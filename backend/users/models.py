@@ -14,6 +14,7 @@ class EmailOTP(models.Model):
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
+    attempts = models.IntegerField(default=0)
 
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=5)

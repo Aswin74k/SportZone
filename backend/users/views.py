@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
@@ -10,11 +10,21 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 import random
 
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 from .models import EmailOTP, UserProfile
 from .serializers import (
     ForgotPasswordSerializer,
     VerifyOTPSerializer,
     ResetPasswordSerializer,
+)
+from .throttling import (
+    LoginRateThrottle,
+    RegisterRateThrottle,
+    ForgotPasswordRateThrottle,
+    VerifyOTPRateThrottle,
+    ResetPasswordRateThrottle,
 )
 
 
@@ -32,6 +42,7 @@ def user_auth_payload(user):
 
 
 @api_view(['POST'])
+@throttle_classes([RegisterRateThrottle])
 def register_user(request):
 
     name = request.data.get('name')
@@ -47,8 +58,10 @@ def register_user(request):
     if not password:
         return Response({"error": "Password is required"}, status=400)
 
-    if len(password) < 6:
-        return Response({"error": "Password must be at least 6 characters"}, status=400)
+    try:
+       validate_password(password)
+    except ValidationError as e:
+       return Response({"error": e.messages}, status=400)
 
     if User.objects.filter(email=email).exists():
         return Response({"error": "Email already exists"}, status=400)
@@ -80,6 +93,7 @@ def register_user(request):
     })
 
 @api_view(['POST'])
+@throttle_classes([LoginRateThrottle])
 def login_user(request):
 
     email = request.data.get('email')
@@ -114,6 +128,7 @@ def login_user(request):
 
 #  FORGOT PASSWORD (OTP)
 @api_view(['POST'])
+@throttle_classes([ForgotPasswordRateThrottle])
 def forgot_password(request):
     serializer = ForgotPasswordSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -152,6 +167,7 @@ def forgot_password(request):
 
 # VERIFY OTP
 @api_view(['POST'])
+@throttle_classes([VerifyOTPRateThrottle])
 def verify_otp(request):
     serializer = VerifyOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -163,12 +179,20 @@ def verify_otp(request):
     if not user:
         return Response({"error": "Email not registered"}, status=400)
 
-    record = EmailOTP.objects.filter(user=user, otp=otp).order_by("-created_at").first()
+    record = EmailOTP.objects.filter(user=user).order_by("-created_at").first()
     if not record:
         return Response({"error": "Invalid OTP"}, status=400)
 
     if record.is_expired():
         return Response({"error": "OTP expired"}, status=400)
+
+    if record.attempts >= 3:
+        return Response({"error": "Too many failed attempts. Please request a new OTP."}, status=400)
+
+    if record.otp != otp:
+        record.attempts += 1
+        record.save(update_fields=["attempts"])
+        return Response({"error": "Invalid OTP"}, status=400)
 
     record.is_verified = True
     record.save(update_fields=["is_verified"])
@@ -178,6 +202,7 @@ def verify_otp(request):
 
 # RESET PASSWORD
 @api_view(['POST'])
+@throttle_classes([ResetPasswordRateThrottle])
 def reset_password(request):
     serializer = ResetPasswordSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

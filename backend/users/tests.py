@@ -39,8 +39,8 @@ class WelcomeEmailTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         sent_email = mail.outbox[0]
         self.assertEqual(sent_email.subject, "Welcome to SportZone")
-        self.assertEqual(sent_email.to, ["aswin.k@example.com"])
-        self.assertIn("Aswin K", sent_email.body)
+        self.assertEqual(sent_email.to, ["aswin.kumar@example.com"])
+        self.assertIn("Aswin Kumar", sent_email.body)
         
         # Verify HTML alternative exists
         self.assertEqual(len(sent_email.alternatives), 1)
@@ -48,5 +48,67 @@ class WelcomeEmailTestCase(TestCase):
         self.assertEqual(content_type, "text/html")
         self.assertIn("Welcome to SportZone", html_content)
         self.assertIn("Explore the Collection", html_content)
+
+
+from django.core.cache import cache
+from users.models import EmailOTP
+
+class AuthSecurityTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        cache.clear()
+        self.user = User.objects.create_user(
+            username="testuser@example.com",
+            email="testuser@example.com",
+            password="Password123!"
+        )
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_login_throttling(self):
+        url = "/api/login/"
+        payload = {"email": "testuser@example.com", "password": "wrongpassword"}
+        for _ in range(5):
+            res = self.client.post(url, data=payload, content_type="application/json")
+            self.assertIn(res.status_code, [400, 429])
+
+        res = self.client.post(url, data=payload, content_type="application/json")
+        self.assertEqual(res.status_code, 429)
+
+    def test_otp_failed_attempts_limit(self):
+        EmailOTP.objects.create(user=self.user, otp="123456", is_verified=False)
+        url = "/api/verify-otp/"
+        payload = {"email": "testuser@example.com", "otp": "000000"}
+
+        for _ in range(3):
+            res = self.client.post(url, data=payload, content_type="application/json")
+            self.assertEqual(res.status_code, 400)
+            self.assertEqual(res.json().get("error"), "Invalid OTP")
+
+        res = self.client.post(url, data=payload, content_type="application/json")
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("Too many failed attempts", res.json().get("error", ""))
+
+    def test_forgot_password_throttling(self):
+        url = "/api/forgot-password/"
+        payload = {"email": "testuser@example.com"}
+        for _ in range(3):
+            res = self.client.post(url, data=payload, content_type="application/json")
+            self.assertIn(res.status_code, [200, 429])
+
+        res = self.client.post(url, data=payload, content_type="application/json")
+        self.assertEqual(res.status_code, 429)
+
+    def test_otp_not_exposed_in_response(self):
+        url = "/api/forgot-password/"
+        payload = {"email": "testuser@example.com"}
+        res = self.client.post(url, data=payload, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        content_str = str(res.content)
+        otp_row = EmailOTP.objects.filter(user=self.user).first()
+        self.assertIsNotNone(otp_row)
+        self.assertNotIn(otp_row.otp, content_str)
+
 
 

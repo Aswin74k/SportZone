@@ -122,7 +122,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'UNAUTHENTICATED_USER': None, 
+    'UNAUTHENTICATED_USER': None,
+    'DEFAULT_THROTTLE_RATES': {
+        'login': '5/minute',
+        'register': '5/minute',
+        'forgot_password': '3/minute',
+        'verify_otp': '5/minute',
+        'reset_password': '5/minute',
+    },
 }
 
 
